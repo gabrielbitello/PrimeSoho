@@ -1,0 +1,100 @@
+Documentos:
+  Documentos-Config:
+    - nome: "Nome"
+      tipo: "string"
+      form: true
+      descricao: "Nome do proponente"
+      requerido: true
+      condicao: {}
+      variaveis: []
+      regras: {}
+      grupo: ""
+
+    - nome: "Profissao"
+      tipo: "string"
+      form: true
+      descricao: "Qual sua profissão"
+      requerido: true
+      condicao: {}
+      variaveis: []
+      regras: {}
+      grupo: ""
+
+    - nome: "Pagamento"
+      tipo: "select"
+      form: true
+      descricao: "Forma de pagamento"
+      requerido: true
+      condicao: {}
+      variaveis: 
+        - "Pix"
+        - "Cheque"
+        - "Dinheiro"
+        - "Cartão"
+      regras: {}
+      grupo: ""
+
+    - nome: "Observacao"
+      tipo: "string"
+      form: true
+      descricao: "Observação da proposta"
+      requerido: false
+      condicao: 
+        Nome: true
+        Profissao: false
+        Pagamento: "Cheque"
+      variaveis: []
+      regras: {}
+      grupo: ""
+
+    - nome: "Idade"
+      tipo: "number"
+      form: true
+      descricao: "Idade do proponente"
+      requerido: true
+      condicao: {}
+      variaveis: []
+      regras:
+        min: 18
+        max: 99
+      grupo: ""
+
+    - nome: "Pagamento_Valor"
+      tipo: "number"
+      form: true
+      descricao: "Valor a ser pago"
+      requerido: true
+      condicao: {}
+      variaveis: []
+      regras:
+        min: 1000
+        max: 1000000
+      grupo: ""
+
+    - nome: "Pagamento_Valor_Extenso"
+      tipo: "string"
+      form: false
+      descricao: ""
+      requerido: true
+      condicao: 
+        Pagamento_Valor: true
+      variaveis: []
+      regras:
+        Number_To_Text: "Pagamento_Valor"
+      grupo: ""
+
+    - nome: "Pagamento_Cheque"
+      tipo: "string"
+      form: false
+      descricao: ""
+      requerido: false
+      condicao:
+        Pagamento: "Cheque"
+        grupo:
+          Pagamento: false
+      variaveis:
+        - " - Este imóvel será pago em cheque"
+      regras:
+        Add_box: true
+        Counter: 1
+      grupo: "Pagamento"
