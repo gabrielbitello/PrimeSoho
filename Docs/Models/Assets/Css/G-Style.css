@@ -22,7 +22,6 @@ body {
 
 header {
     background-color: var(--white);
-    position: fixed;
     display: flex;
     align-items: center;
     flex-direction: column;
