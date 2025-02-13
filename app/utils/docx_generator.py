@@ -1,91 +1,114 @@
 import os
+import uuid
 from docx import Document
+from num2words import num2words  # Para converter números em texto
 
-# Função para gerar o documento DOCX
+def adicionar_ou_criar_tabela(doc, paragrafo, campo, valor):
+    """
+    Se o campo estiver em uma tabela, adiciona uma linha abaixo.
+    Se o campo NÃO estiver em uma tabela, cria uma nova tabela e adiciona o campo nela.
+    """
+    encontrou_tabela = False
+
+    # Verificando se já existe uma tabela com o campo
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for p in cell.paragraphs:
+                    if f"{{{campo}}}" in p.text:
+                        encontrou_tabela = True
+                        nova_linha = table.add_row()
+                        # Garantir que a nova linha tenha pelo menos 2 células
+                        if len(nova_linha.cells) < 2:
+                            nova_linha.add_cell()  # Usando o método add_cell para adicionar uma célula
+                            nova_linha.add_cell()  # Outra célula
+
+                        nova_linha.cells[0].text = campo
+                        nova_linha.cells[1].text = str(valor) if valor else ""
+                        return
+
+    # Se o campo não estava em nenhuma tabela, cria uma nova tabela abaixo do parágrafo
+    if not encontrou_tabela:
+        nova_tabela = doc.add_table(rows=1, cols=2)
+        nova_tabela.style = 'Table Grid'  # Ajusta o estilo da tabela
+        nova_tabela.rows[0].cells[0].text = campo
+        nova_tabela.rows[0].cells[1].text = str(valor) if valor else ""
+
+        # Inserir a tabela logo abaixo do parágrafo
+        paragrafo.insert_paragraph_before("")._element.addnext(nova_tabela._element)
+
+def converter_numero_para_texto(valor):
+    """Converte um número para texto em português."""
+    if valor is None:
+        return ""
+    try:
+        return num2words(int(valor), lang='pt_BR')
+    except ValueError:
+        return ""
+
+def substituir_texto(paragrafo, campo, valor):
+    """Substitui todas as ocorrências de {campo} no parágrafo por valor."""
+    if f"{{{campo}}}" in paragrafo.text:
+        novo_texto = paragrafo.text.replace(f"{{{campo}}}", str(valor) if valor else "")
+        paragrafo.clear()
+        paragrafo.add_run(novo_texto)
+
 def gen_docx(dados, folder, yaml_data):
-    """Preenche o modelo DOCX com os dados do formulário e do YAML"""
+    """Preenche o modelo DOCX com os dados do formulário e do YAML."""
     caminho_template = os.path.abspath(os.path.join('app', 'docs', folder, f'{folder}.docx'))
     doc = Document(caminho_template)
-
-    print(f"Template carregado: {caminho_template}")
-    print(f"Dados recebidos: {dados}")
-    print(f"YAML carregado: {yaml_data}")
+    unique_id = str(uuid.uuid4())[:8]
 
     # Adicionando variáveis do YAML aos dados
     for campo_yaml in yaml_data.get('Documentos', {}).get('Documentos-Config', []):
         nome_campo = campo_yaml.get('nome')
         if nome_campo:
-            print(f"\nAnalisando campo YAML: {nome_campo}")
-        
-        # Garantir que todos os campos do YAML estão no dicionário `dados`
-        if nome_campo and nome_campo not in dados:
-            valor_default = campo_yaml.get('variaveis', [None])[0]
-            print(f"Campo {nome_campo} não encontrado nos dados. Atribuindo valor default: {valor_default}")
-            dados[nome_campo] = valor_default
-
-    # Verificação de condições
-    for campo_yaml in yaml_data.get('Documentos', {}).get('Documentos-Config', []):
-        nome_campo = campo_yaml.get('nome')
-        condicoes = campo_yaml.get('condicao', {})
-        form_false = campo_yaml.get('form', False)
-        
-        print(f"\nVerificando campo: {nome_campo} com 'form: {form_false}'")
-
-        if form_false is False:
-            condicao_atendida = True
-            if isinstance(condicoes, dict):  # Garante que condicoes é um dicionário
-                for condicao_campo, condicao_valor in condicoes.items():
-                    if condicao_campo in dados and dados[condicao_campo] != condicao_valor:
-                        condicao_atendida = False
-                        print(f"Condição falhou para {nome_campo}: {condicao_campo} != {condicao_valor}")
-                        break
-            
-            if condicao_atendida:
-                valor_atribuido = campo_yaml.get('variaveis', [None])[0]
-                print(f"Condições atendidas. Atribuindo valor: {valor_atribuido}")
-                dados[nome_campo] = valor_atribuido
-        else:
+            variaveis = campo_yaml.get('variaveis', [None])
             if nome_campo not in dados:
-                valor_default = campo_yaml.get('variaveis', [None])[0]
-                print(f"Form true. Atribuindo valor default: {valor_default}")
-                dados[nome_campo] = valor_default
+                dados[nome_campo] = variaveis[0] if variaveis else None
 
-    # Debug específico para Pagamento_Cheque
-    if 'Pagamento_Cheque' in dados:
-        print(f"\nValor final de 'Pagamento_Cheque': {dados['Pagamento_Cheque']}")
-    else:
-        print("\n'Pagamento_Cheque' não foi atribuído!")
-
-    # Substituição de variáveis no documento
+    # Substituição de variáveis no documento e aplicação das regras
     for p in doc.paragraphs:
         for campo, valor in dados.items():
-            if campo in p.text:
-                inline = p.runs
-                for item in inline:
-                    if campo in item.text:
-                        print(f"\nSubstituindo no parágrafo: {campo} -> {valor}")
-                        if valor:
-                            item.text = item.text.replace(f'{{{campo}}}', str(valor))
-                        else:
-                            item.text = item.text.replace(f'{{{campo}}}', "")
+            campo_yaml = next((c for c in yaml_data.get('Documentos', {}).get('Documentos-Config', []) if c.get('nome') == campo), None)
 
-    # Removendo parágrafos com campos não preenchidos
-    for p in doc.paragraphs:
-        for campo, valor in dados.items():
-            if campo in p.text and not valor:
-                print(f"\nRemovendo parágrafo com campo não preenchido: {campo}")
-                p.clear()
+            if campo_yaml:  # Verifica se a variável existe
+                regras = campo_yaml.get('regras', {})  # Garante que regras seja um dicionário
+
+                # Aplicando as regras se existirem
+                if regras and regras.get('Number_To_Text', False):
+                    valor = converter_numero_para_texto(valor)
+
+                # Verifica e aplica a regra de adicionar uma tabela se necessário
+                if regras and regras.get('Add_box', False):
+                    adicionar_ou_criar_tabela(doc, p, campo, valor)
+
+                # Substituição do campo pelo valor
+                substituir_texto(p, campo, valor)
+
+    # Verificando tabelas no documento e substituindo tags dentro delas
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for p in cell.paragraphs:
+                    for campo, valor in dados.items():
+                        campo_yaml = next((c for c in yaml_data.get('Documentos', {}).get('Documentos-Config', []) if c.get('nome') == campo), None)
+
+                        if campo_yaml:  # Verifica se a variável existe
+                            regras = campo_yaml.get('regras', {})  # Garante que regras seja um dicionário
+
+                            # Aplicando as regras de número e tabela se necessário
+                            if regras and regras.get('Number_To_Text', False):
+                                valor = converter_numero_para_texto(valor)
+
+                            if regras and regras.get('Add_box', False):
+                                adicionar_ou_criar_tabela(doc, p, campo, valor)
+
+                        # Substituição do campo pelo valor
+                        substituir_texto(p, campo, valor)
 
     # Salvar o arquivo gerado
-    caminho_saida = os.path.abspath(f'./app/output/{folder}_preenchido.docx')
+    caminho_saida = os.path.abspath(f'./app/output/{folder}_preenchido_{unique_id}.docx')
     doc.save(caminho_saida)
-    print(f"\nDocumento gerado com sucesso em: {caminho_saida}")
 
     return caminho_saida
-
-
-
-
-
-
-# Falta adicionar a regra addbox, a função/regra counter e a regra Number_To_Text e por ultimo ajustar formatação do texto, adiconar unique id a docx

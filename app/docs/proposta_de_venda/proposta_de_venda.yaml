@@ -91,7 +91,7 @@ Documentos:
       condicao:
         Pagamento: "Cheque"
         grupo:
-          - "Pagamento": false
+          - "Pagamento-G": false
       variaveis:
         - " - Este imóvel será pago em cheque"
       regras:
