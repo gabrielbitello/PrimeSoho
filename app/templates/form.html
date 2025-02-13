@@ -23,6 +23,8 @@
         </section>
     </main>
 
+    <!-- Aqui será inserido o código JS gerado dinamicamente -->
     <script src="{{ url_for('static', filename='js/script_form.js') }}"></script>
+    {{ js_code | safe }}
 </body>
 </html>

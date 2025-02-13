@@ -40,9 +40,9 @@ Documentos:
       descricao: "Observação da proposta"
       requerido: false
       condicao: 
-        Nome: true
-        Profissao: false
-        Pagamento: "Cheque"
+        - "Nome": true
+        - "Profissao": false
+        - "Pagamento": "Cheque"
       variaveis: []
       regras: {}
       grupo: ""
@@ -55,8 +55,8 @@ Documentos:
       condicao: {}
       variaveis: []
       regras:
-        min: 18
-        max: 99
+        #min: 18
+        #max: 99
       grupo: ""
 
     - nome: "Pagamento_Valor"
@@ -67,8 +67,8 @@ Documentos:
       condicao: {}
       variaveis: []
       regras:
-        min: 1000
-        max: 1000000
+        #min: 1000
+        #max: 1000000
       grupo: ""
 
     - nome: "Pagamento_Valor_Extenso"
@@ -77,7 +77,7 @@ Documentos:
       descricao: ""
       requerido: true
       condicao: 
-        Pagamento_Valor: true
+        "Pagamento_Valor": true
       variaveis: []
       regras:
         Number_To_Text: "Pagamento_Valor"
@@ -91,10 +91,10 @@ Documentos:
       condicao:
         Pagamento: "Cheque"
         grupo:
-          Pagamento: false
+          - "Pagamento": false
       variaveis:
         - " - Este imóvel será pago em cheque"
       regras:
         Add_box: true
         Counter: 1
-      grupo: "Pagamento"
+      grupo: "Pagamento-G"

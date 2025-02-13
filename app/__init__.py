@@ -1,11 +1,10 @@
 from flask import Flask
+from .forms.routes import bp 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')
     
-    # Registra as rotas
-    from . import routes
-    app.register_blueprint(routes.bp)
+    app.register_blueprint(bp)
     
     return app
