@@ -87,4 +87,4 @@ Documentos:
         - " - Este imóvel será pago em cheque"
       regras:
         - "Add_box": true
-        - "Counter": 1
+        - "Counter": "1"
