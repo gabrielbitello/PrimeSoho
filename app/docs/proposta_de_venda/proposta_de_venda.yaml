@@ -8,7 +8,6 @@ Documentos:
       condicao: {}
       variaveis: []
       regras: {}
-      grupo: ""
 
     - nome: "Profissao"
       tipo: "string"
@@ -18,7 +17,6 @@ Documentos:
       condicao: {}
       variaveis: []
       regras: {}
-      grupo: ""
 
     - nome: "Pagamento"
       tipo: "select"
@@ -32,7 +30,6 @@ Documentos:
         - "Dinheiro"
         - "Cartão"
       regras: {}
-      grupo: ""
 
     - nome: "Observacao"
       tipo: "string"
@@ -45,7 +42,6 @@ Documentos:
         - "Pagamento": "Cheque"
       variaveis: []
       regras: {}
-      grupo: ""
 
     - nome: "Idade"
       tipo: "number"
@@ -57,7 +53,6 @@ Documentos:
       regras:
         #min: 18
         #max: 99
-      grupo: ""
 
     - nome: "Pagamento_Valor"
       tipo: "number"
@@ -69,7 +64,6 @@ Documentos:
       regras:
         #min: 1000
         #max: 1000000
-      grupo: ""
 
     - nome: "Pagamento_Valor_Extenso"
       tipo: "string"
@@ -80,8 +74,7 @@ Documentos:
         "Pagamento_Valor": true
       variaveis: []
       regras:
-        Number_To_Text: "Pagamento_Valor"
-      grupo: ""
+        - "Number_To_Text": "Pagamento_Valor"
 
     - nome: "Pagamento_Cheque"
       tipo: "string"
@@ -90,11 +83,8 @@ Documentos:
       requerido: false
       condicao:
         Pagamento: "Cheque"
-        grupo:
-          - "Pagamento-G": false
       variaveis:
         - " - Este imóvel será pago em cheque"
       regras:
-        Add_box: true
-        Counter: 1
-      grupo: "Pagamento-G"
+        - "Add_box": true
+        - "Counter": 1

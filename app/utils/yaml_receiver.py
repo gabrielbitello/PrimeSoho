@@ -36,7 +36,6 @@ def parse_yaml(data):
                 'requerido': item.get('requerido', False),
                 'condicao': processar_condicao(item.get('condicao', [])),
                 'variaveis': processar_variaveis(item.get('variaveis', [])),
-                'regras': processar_regras(item.get('regras', {})),
-                'grupo': item.get('grupo', ''),
+                'regras': processar_regras(item.get('regras', []))
             }
     return parsed_data
