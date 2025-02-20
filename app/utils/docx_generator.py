@@ -100,22 +100,27 @@ def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados):
     return valor
 
 def get_counter_value(x, y=None):
+    x = int(x)  # Garante que X é um número inteiro
+    y = int(y) if y is not None else None  # Garante que Y também seja inteiro, se existir
+
+    # Se X ainda não foi inicializado, ele começa em 1 (sem incrementar ainda)
     if x not in counter_dict:
         counter_dict[x] = 1
         subcounter_dict[x] = {}
-    else:
-        if y is None:
-            counter_dict[x] += 1
-    
+
+    # Se Y está presente, não incrementa X, mas usa o valor atual dele e gerencia Y
     if y is not None:
         if y not in subcounter_dict[x]:
-            subcounter_dict[x][y] = 1
+            subcounter_dict[x][y] = 1  # Inicia o subcontador Y
         else:
-            subcounter_dict[x][y] += 1
-        return f"{x}.{subcounter_dict[x][y]}"
-    else:
-        return str(counter_dict[x])
-    
+            subcounter_dict[x][y] += 1  # Incrementa o subcontador Y
+        return f"{counter_dict[x] - 1}.{subcounter_dict[x][y]}"  # Usa o último X correto
+
+    # Se Y não está presente, apenas incrementa X e retorna o valor atualizado
+    valor_atual = counter_dict[x]  # Mantém o valor atual antes de incrementar
+    counter_dict[x] += 1  # Agora sim incrementa para o próximo uso
+    return str(valor_atual)
+
 def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
     """Substitui variáveis no parágrafo conforme as regras, garantindo que cada contador seja atualizado corretamente."""
 
