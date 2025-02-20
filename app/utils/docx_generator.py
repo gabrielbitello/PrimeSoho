@@ -117,63 +117,59 @@ def get_counter_value(x, y=None):
         return str(counter_dict[x])
     
 def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
-    """Substitui variáveis no parágrafo conforme as regras e condições, mantendo a formatação e sem modificar o dicionário 'dados'."""
+    """Substitui variáveis no parágrafo conforme as regras, garantindo que cada contador seja atualizado corretamente."""
 
-    # Obtém o texto original do parágrafo
     texto_original = paragrafo.text
     print(f"Texto original do parágrafo: {texto_original}")  # Debug
 
-    # Processa linha por linha e variável por variável
+    # Expressão regular para encontrar padrões como {counter:x} ou {counter:x:y}
+    pattern = r"\{counter:(\d+)(?::(\d+))?\}"
+
+    # Função auxiliar para substituição dinâmica
+    def substituir_match(match):
+        x = match.group(1)
+        y = match.group(2)
+        
+        print(f"Encontrou contador: x={x}, y={y}")  # Debug
+
+        # Obtém o novo valor do contador
+        novo_valor = get_counter_value(x, y) if y else get_counter_value(x)
+        print(f"Substituindo {match.group(0)} por {novo_valor}")  # Debug
+
+        return str(novo_valor)
+
+    # Substituir diretamente nos 'runs' sem processar todo o parágrafo antes
+    for run in paragrafo.runs:
+        if "{counter:" in run.text:  # Só processa os runs que realmente contêm um contador
+            run.text = re.sub(pattern, substituir_match, run.text)
+
+    # Processa outras variáveis além de counter
     for chave, valor in dados.items():
         chave_formatada = f"{{{chave}}}"  # Variáveis são referenciadas como {variavel}
 
         if chave_formatada in texto_original:
             print(f"Encontrou a chave: {chave_formatada}")  # Debug
 
-            # Verifica se o formato da chave é "counter:x:y" ou "counter:x"
-            if chave.startswith("counter:"):
-                # Usar expressão regular para capturar o padrão "counter:x" ou "counter:x:y"
-                pattern = r"\{counter:(\d+)(?::(\d+))?\}"  # Expressão para capturar números após counter
-                matches = re.findall(pattern, texto_original)
+            # Obtém a configuração específica do YAML
+            documentos_config = yaml_data.get('Documentos', {}).get('Documentos-Config', [])
+            item_filtrado = next((item for item in documentos_config if item.get('nome') == chave), None)
 
-                # Para cada correspondência, substituir com o valor correto
-                for match in matches:
-                    x = match[0]  # A primeira parte (x)
-                    y = match[1] if match[1] else None  # Se houver uma segunda parte (y), usar, senão None
-                    
-                    print(f"Encontrou contador: x={x}, y={y}")  # Debug
+            # Verifica se há condições para essa variável e se elas são atendidas
+            if not verificar_condicoes(dados, item_filtrado, chave):
+                continue  # Se a condição falhar, não substitui a variável
 
-                    # Chama a função get_counter_value de acordo com os valores de x e y
-                    if y:
-                        novo_valor = get_counter_value(x, y)
-                    else:
-                        novo_valor = get_counter_value(x)
-                    
-                    # Substitui no texto original o contador encontrado pelo novo valor
-                    texto_original = texto_original.replace(f"{{counter:{x}{(':' + y) if y else ''}}}", str(novo_valor))
-                    print(f"Substituído {chave_formatada} por {novo_valor}")  # Debug
+            # Verifica se o valor da variável ainda está vazio
+            novo_valor = valor or ''
+            if not novo_valor:
+                # Caso o valor esteja vazio, atribuir o primeiro valor do campo "variáveis" no YAML
+                variaveis_yaml = item_filtrado.get('variaveis', {})
+                if variaveis_yaml:
+                    novo_valor = variaveis_yaml[0]  # Atribui o primeiro valor de 'variaveis'
+                print(f"Novo valor após verificação de variável YAML: {novo_valor}")  # Debug
 
-            else:
-                # Obtém a configuração específica do YAML
-                documentos_config = yaml_data.get('Documentos', {}).get('Documentos-Config', [])
-                item_filtrado = next((item for item in documentos_config if item.get('nome') == chave), None)
-
-                # Verifica se há condições para essa variável e se elas são atendidas
-                if not verificar_condicoes(dados, item_filtrado, chave):
-                    continue  # Se a condição falhar, não substitui a variável
-
-                # Verifica se o valor da variável ainda está vazio
-                novo_valor = valor or ''
-                if not novo_valor:
-                    # Caso o valor esteja vazio, atribuir o primeiro valor do campo "variáveis" no YAML
-                    variaveis_yaml = item_filtrado.get('variaveis', {})
-                    if variaveis_yaml:
-                        novo_valor = variaveis_yaml[0]  # Atribui o primeiro valor de 'variaveis'
-                    print(f"Novo valor após verificação de variável YAML: {novo_valor}")  # Debug
-
-                # Aplica regras antes de retornar o valor
-                novo_valor = aplicar_regras_para_valor(novo_valor, item_filtrado, chave, doc, dados)
-                print(f"Novo valor após aplicação de regras: {novo_valor}")  # Debug
+            # Aplica regras antes de retornar o valor
+            novo_valor = aplicar_regras_para_valor(novo_valor, item_filtrado, chave, doc, dados)
+            print(f"Novo valor após aplicação de regras: {novo_valor}")  # Debug
 
             # Mantém a formatação e substitui apenas a variável nos 'runs'
             for run in paragrafo.runs:
