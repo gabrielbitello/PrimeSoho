@@ -53,26 +53,20 @@ def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados):
     
     # Se não houver regras, retornamos o valor sem alteração
     if not yaml_data.get('regras'):
-        print("Nenhuma regra encontrada para aplicar.")
         return valor
 
     # Obtém as regras para o campo verificado, se houver
     regras_aplicadas = yaml_data.get('regras', [])
-    print(f"\nAplicando regras para o campo '{campo_verificado}': {regras_aplicadas}")
 
     # Iterando sobre as regras (agora assumimos que é uma lista)
     for regra_obj in regras_aplicadas:
-        print(f"Processando a regra: {regra_obj}")  # Adicionando debug para verificar cada regra
 
         if isinstance(regra_obj, dict):
             for regra, regra_valor in regra_obj.items():
-                print(f" - Regra: {regra}, Valor da regra: {regra_valor}")  # Debug detalhado da regra
 
                 # Exemplo de regra para adicionar uma caixa (não implementado, mas podemos colocar o valor dentro de uma tabela ou similar)
                 if regra == "Add_box" and regra_valor:
-                    print("Aplicando a regra 'Add_box'.")
                     # Aqui você pode adicionar a lógica para adicionar o valor à tabela ou o que for necessário
-                    print("erro esotu disparando a mesma regra varias x")
                     inc = "inc"  # Exemplo, mas pode ser qualquer ação necessária
 
                 # Converte número para texto, se a regra for válida
@@ -80,9 +74,6 @@ def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados):
                     valor_para_converter = dados.get(regra_valor, None)
                     if valor_para_converter is not None:
                         valor = converter_numero_para_texto(valor_para_converter)
-                        print(f" - Convertendo número para texto: {valor_para_converter} -> {valor}")
-                    else:
-                        print(f" - Valor não encontrado para converter: {regra_valor}")
 
                 # Aplica contagem a partir de um valor usando regex (exemplo de contador)
                 elif regra == "Counter" and isinstance(regra_valor, str):
@@ -91,18 +82,11 @@ def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados):
                         x, y = parse_string(XY_value)
                         counter_value = get_counter_value(x, y)
                         valor = counter_value + valor  # Ajustado para somar o contador ao valor
-                        print(f" - Aplicando contador: {counter_value} + {valor}")
-                    else:
-                        print(f" - Formato inválido para contador: {regra_valor}")
-
-                # Adicione outras regras conforme necessário
-                # ...
     return valor
 
 def get_counter_value(x, y=None):
-    x = int(x)  # Garante que X é um número inteiro
-    y = int(y) if y is not None else None  # Garante que Y também seja inteiro, se existir
-
+    x = int(x) 
+    y = int(y) if y is not None else None  
     # Se X ainda não foi inicializado, ele começa em 1 (sem incrementar ainda)
     if x not in counter_dict:
         counter_dict[x] = 1
@@ -111,21 +95,20 @@ def get_counter_value(x, y=None):
     # Se Y está presente, não incrementa X, mas usa o valor atual dele e gerencia Y
     if y is not None:
         if y not in subcounter_dict[x]:
-            subcounter_dict[x][y] = 1  # Inicia o subcontador Y
+            subcounter_dict[x][y] = 1  
         else:
-            subcounter_dict[x][y] += 1  # Incrementa o subcontador Y
-        return f"{counter_dict[x] - 1}.{subcounter_dict[x][y]}"  # Usa o último X correto
+            subcounter_dict[x][y] += 1 
+        return f"{counter_dict[x] - 1}.{subcounter_dict[x][y]}"  
 
     # Se Y não está presente, apenas incrementa X e retorna o valor atualizado
-    valor_atual = counter_dict[x]  # Mantém o valor atual antes de incrementar
-    counter_dict[x] += 1  # Agora sim incrementa para o próximo uso
+    valor_atual = counter_dict[x]  
+    counter_dict[x] += 1  
     return str(valor_atual)
 
 def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
     """Substitui variáveis no parágrafo conforme as regras, garantindo que cada contador seja atualizado corretamente."""
 
     texto_original = paragrafo.text
-    print(f"Texto original do parágrafo: {texto_original}")  # Debug
 
     # Expressão regular para encontrar padrões como {counter:x} ou {counter:x:y}
     pattern = r"\{counter:(\d+)(?::(\d+))?\}"
@@ -135,11 +118,9 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
         x = match.group(1)
         y = match.group(2)
         
-        print(f"Encontrou contador: x={x}, y={y}")  # Debug
 
         # Obtém o novo valor do contador
         novo_valor = get_counter_value(x, y) if y else get_counter_value(x)
-        print(f"Substituindo {match.group(0)} por {novo_valor}")  # Debug
 
         return str(novo_valor)
 
@@ -153,7 +134,6 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
         chave_formatada = f"{{{chave}}}"  # Variáveis são referenciadas como {variavel}
 
         if chave_formatada in texto_original:
-            print(f"Encontrou a chave: {chave_formatada}")  # Debug
 
             # Obtém a configuração específica do YAML
             documentos_config = yaml_data.get('Documentos', {}).get('Documentos-Config', [])
@@ -161,7 +141,11 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
 
             # Verifica se há condições para essa variável e se elas são atendidas
             if not verificar_condicoes(dados, item_filtrado, chave):
-                continue  # Se a condição falhar, não substitui a variável
+                # Se a condição falhar, remove a variável do parágrafo
+                for run in paragrafo.runs:
+                    if chave_formatada in run.text:
+                        run.text = run.text.replace(chave_formatada, '')  # Remover a variável
+                continue  # Passa para a próxima variável
 
             # Verifica se o valor da variável ainda está vazio
             novo_valor = valor or ''
@@ -170,16 +154,13 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
                 variaveis_yaml = item_filtrado.get('variaveis', {})
                 if variaveis_yaml:
                     novo_valor = variaveis_yaml[0]  # Atribui o primeiro valor de 'variaveis'
-                print(f"Novo valor após verificação de variável YAML: {novo_valor}")  # Debug
 
             # Aplica regras antes de retornar o valor
             novo_valor = aplicar_regras_para_valor(novo_valor, item_filtrado, chave, doc, dados)
-            print(f"Novo valor após aplicação de regras: {novo_valor}")  # Debug
 
             # Mantém a formatação e substitui apenas a variável nos 'runs'
             for run in paragrafo.runs:
                 if chave_formatada in run.text:
-                    print(f"Substituindo '{chave_formatada}' por '{novo_valor}' no run.")  # Debug
                     run.text = run.text.replace(chave_formatada, str(novo_valor))
 
     return paragrafo
@@ -202,43 +183,34 @@ def verificar_condicoes(dados, yaml_data, campo_verificado):
     condicao = yaml_data.get('condicao', {})
 
     if not condicao:
-        print(f"Sem condição definida para o campo '{campo_verificado}', campo considerado válido.")
         return True  # Se não houver condição, o campo é considerado válido.
 
     if not isinstance(condicao, dict):
-        print(f"Condição para '{campo_verificado}' não é um dicionário. Retornando False.")
         return False
 
     # Itera sobre as condições para o campo
     for chave, valor in condicao.items():
-        print(f"\nVerificando condição para a chave '{chave}' no campo '{campo_verificado}':")
         
         if chave in dados:
             campo_valor = dados[chave]
-            print(f" - A chave '{chave}' foi encontrada nos dados com o valor '{campo_valor}'.")
 
+            # Verifica se o valor da condição é uma lista
+            if isinstance(valor, list):
+                # Se o campo está em uma lista de valores aceitos, passa a condição
+                if campo_valor not in valor:
+                    return False
             # Verifica a condição booleana
-            if isinstance(valor, bool):
+            elif isinstance(valor, bool):
                 if valor:  # Espera que o campo tenha um valor
                     if not campo_valor:
-                        print(f"   - A condição booleana falhou: Esperava valor em '{chave}', mas o valor é vazio ou None.")
                         return False
-                    else:
-                        print(f"   - A condição booleana foi atendida: '{chave}' tem um valor.")
                 else:  # Espera que o campo NÃO tenha valor
                     if campo_valor:
-                        print(f"   - A condição booleana falhou: Esperava campo vazio em '{chave}', mas o valor encontrado é '{campo_valor}'.")
                         return False
-                    else:
-                        print(f"   - A condição booleana foi atendida: '{chave}' está vazio ou None.")
-            
+            # Caso a condição seja um valor simples (não booleano nem lista)
             elif campo_valor != valor:  # Verifica se o valor do campo é o esperado
-                print(f"   - A condição falhou: '{campo_valor}' != {valor}")
                 return False
-            else:
-                print(f"   - A condição foi atendida: '{campo_valor}' == {valor}")
         else:
-            print(f"   - A chave '{chave}' não foi encontrada nos dados. Condição não atendida.")
             return False
 
     return True  # Se todas as condições foram atendidas
@@ -246,7 +218,6 @@ def verificar_condicoes(dados, yaml_data, campo_verificado):
 def gen_docx(dados, folder, yaml_data):
     """Preenche o modelo DOCX com os dados do formulário e do YAML."""
     caminho_template = os.path.abspath(os.path.join('app', 'docs', folder, f'{folder}.docx'))
-    print(f"Carregando o template: {caminho_template}")
 
     unique_id = str(uuid.uuid4())[:8]
 

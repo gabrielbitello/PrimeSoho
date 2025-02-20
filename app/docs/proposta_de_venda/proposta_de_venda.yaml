@@ -37,9 +37,10 @@ Documentos:
       descricao: "Observação da proposta"
       requerido: false
       condicao: 
-        - "Nome": true
-        - "Profissao": false
-        - "Pagamento": "Cheque"
+        Nome: true
+        Profissao: false
+        Pagamento: 
+          - "Cheque"
       variaveis: []
       regras: {}
 
@@ -88,3 +89,179 @@ Documentos:
       regras:
         - "Add_box": true
         - "Counter": "1"
+        #- "Formater": "O imovel sera leiloado no valor de {Pagamento_Valor} reais, e sera pago em {Pagamento}."
+
+
+
+
+
+    - nome: "Tipo_Imovel"
+      tipo: "select"
+      form: true
+      descricao: "Tipo do imóvel"
+      requerido: true
+      condicao: {}
+      variaveis: 
+        - "Casa"
+        - "Casa em Condomínio"
+        - "Apartamento"
+        - "Loft"
+        - "Studio"
+        - "Sala Comercial"
+        - "Sala Comercial em Condomínio"
+        - "Chácara"
+        - "Fazenda"
+        - "Terreno"
+        - "Terreno Comercial"
+        - "Terreno em Condomínio"
+
+      regras: {}
+
+    - nome: "Nome_Aglomerado"
+      tipo: "string"
+      form: true
+      descricao: "Nome do aglomerado"
+      requerido: true
+      condicao: 
+        Tipo_Imovel: 
+          - "Casa em Condomínio"
+          - "Apartamento"
+          - "Loft"
+          - "Studio"
+          - "Sala Comercial em Condomínio"
+          - "Terreno em Condomínio"
+      variaveis: {}
+      regras: {}
+
+    - nome: "Complemento_imovel"
+      tipo: "string"
+      form: true
+      descricao: "Complemento do imóvel"
+      requerido: true
+      condicao: 
+        Tipo_Imovel: 
+          - "Casa em Condomínio"
+          - "Apartamento"
+          - "Loft"
+          - "Studio"
+          - "Sala Comercial em Condomínio"
+          - "Terreno em Condomínio"
+      variaveis: {}
+      regras: {}
+
+    - nome: ""
+      tipo: "string"
+      form: true
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: ""
+      tipo: "string"
+      form: true
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: ""
+      tipo: "string"
+      form: true
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: ""
+      tipo: "string"
+      form: true
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: ""
+      tipo: "string"
+      form: true
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: ""
+      tipo: "string"
+      form: true
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: ""
+      tipo: "string"
+      form: true
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: ""
+      tipo: "string"
+      form: true
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: ""
+      tipo: "string"
+      form: true
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: ""
+      tipo: "string"
+      form: true
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: ""
+      tipo: "string"
+      form: true
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: ""
+      tipo: "string"
+      form: true
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: ""
+      tipo: "string"
+      form: true
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}

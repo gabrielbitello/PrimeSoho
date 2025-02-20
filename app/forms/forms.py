@@ -4,45 +4,62 @@ def gerar_formulario(parsed_data):
     form_html = ''
     js_code = '''
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        function verificarCondicoes() {
-            let camposCondicionais = document.querySelectorAll('[data-condicao]');
+        document.addEventListener('DOMContentLoaded', function() {
+            function verificarCondicoes() {
+                let camposCondicionais = document.querySelectorAll('[data-condicao]');
+                camposCondicionais.forEach(campo => {
+                    let condicoes = JSON.parse(campo.dataset.condicao);
+                    let conditionsMet = true;
 
-            camposCondicionais.forEach(campo => {
-                let condicoes = JSON.parse(campo.dataset.condicao);
-                let conditionsMet = condicoes.every(condicao => {
-                    let [chave, valorEsperado] = Object.entries(condicao)[0];
-                    let elementoControlador = document.getElementById(chave);
+                    if (typeof condicoes === 'object' && !Array.isArray(condicoes)) {
+                        condicoes = Object.entries(condicoes).map(([chave, valor]) => {
+                            return { [chave]: valor };
+                        });
+                    }
 
-                    if (!elementoControlador) return false;
+                    conditionsMet = condicoes.every(condicao => {
+                        let [chave, valorEsperado] = Object.entries(condicao)[0];
+                        let elementoControlador = document.getElementById(chave);
 
-                    let valorAtual = elementoControlador.value.toString().trim().toLowerCase();
-                    let esperado = valorEsperado.toString().trim().toLowerCase();
+                        if (!elementoControlador) {
+                            return false;
+                        }
 
-                    return esperado === "true" ? valorAtual !== "" :
-                            esperado === "false" ? valorAtual === "" :
-                            valorAtual === esperado;
+                        let valorAtual = elementoControlador.value.toString().trim().toLowerCase();
+                        let esperado = Array.isArray(valorEsperado) ? valorEsperado.map(val => val.toString().trim().toLowerCase()) : [valorEsperado.toString().trim().toLowerCase()];
+
+                        // Verificando se o valor esperado é booleano
+                        if (typeof valorEsperado === "boolean") {
+                            if (valorEsperado) {
+                                return valorAtual !== "";
+                            } else {
+                                return valorAtual === "";
+                            }
+                        }
+
+                        return esperado.includes(valorAtual);
+                    });
+
+                    if (conditionsMet) {
+                        campo.style.display = "block";
+                        let input = campo.querySelector('input, select, textarea');
+                        if (input) input.disabled = false;
+                    } else {
+                        campo.style.display = "none";
+                        let input = campo.querySelector('input, select, textarea');
+                        if (input) input.disabled = true;
+                    }
                 });
+            }
 
-                if (conditionsMet) {
-                    campo.style.display = "block";
-                    let input = campo.querySelector('input, select, textarea');
-                    if (input) input.disabled = false;
-                } else {
-                    campo.style.display = "none";
-                    let input = campo.querySelector('input, select, textarea');
-                    if (input) input.disabled = true;
-                }
+            document.querySelectorAll('input, select').forEach(elemento => {
+                elemento.addEventListener('change', verificarCondicoes);
             });
-        }
 
-        document.querySelectorAll('input, select').forEach(elemento => {
-            elemento.addEventListener('change', verificarCondicoes);
+            verificarCondicoes();
         });
-
-        verificarCondicoes();
-    });
     </script>
+
     '''
 
     for nome, campo in parsed_data.items():
@@ -52,7 +69,7 @@ def gerar_formulario(parsed_data):
         descricao = campo['descricao']
         tipo = campo['tipo']
         requerido = 'required' if campo['requerido'] else ''
-        condicoes = campo.get('condicao', [])
+        condicoes = campo.get('condicao', {})
         condicao_attr = f' data-condicao=\'{json.dumps(condicoes, ensure_ascii=False)}\'' if condicoes else ''
 
         if tipo == 'string':
