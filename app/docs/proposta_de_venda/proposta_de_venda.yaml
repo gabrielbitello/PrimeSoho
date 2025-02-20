@@ -1,99 +1,22 @@
 Documentos:
   Documentos-Config:
-    - nome: "Nome"
+    - nome: "Endereco_imovel"
       tipo: "string"
       form: true
-      descricao: "Nome do proponente"
+      descricao: "Endereço do imóvel"
       requerido: true
       condicao: {}
-      variaveis: []
+      variaveis: {}
       regras: {}
 
-    - nome: "Profissao"
-      tipo: "string"
-      form: true
-      descricao: "Qual sua profissão"
-      requerido: true
-      condicao: {}
-      variaveis: []
-      regras: {}
-
-    - nome: "Pagamento"
-      tipo: "select"
-      form: true
-      descricao: "Forma de pagamento"
-      requerido: true
-      condicao: {}
-      variaveis: 
-        - "Pix"
-        - "Cheque"
-        - "Dinheiro"
-        - "Cartão"
-      regras: {}
-
-    - nome: "Observacao"
-      tipo: "string"
-      form: true
-      descricao: "Observação da proposta"
-      requerido: false
-      condicao: 
-        Nome: true
-        Profissao: false
-        Pagamento: 
-          - "Cheque"
-      variaveis: []
-      regras: {}
-
-    - nome: "Idade"
+    - nome: "Numero_imovel"
       tipo: "number"
       form: true
-      descricao: "Idade do proponente"
+      descricao: "Número do imóvel"
       requerido: true
       condicao: {}
-      variaveis: []
-      regras:
-        #min: 18
-        #max: 99
-
-    - nome: "Pagamento_Valor"
-      tipo: "number"
-      form: true
-      descricao: "Valor a ser pago"
-      requerido: true
-      condicao: {}
-      variaveis: []
-      regras:
-        #min: 1000
-        #max: 1000000
-
-    - nome: "Pagamento_Valor_Extenso"
-      tipo: "string"
-      form: false
-      descricao: ""
-      requerido: true
-      condicao: 
-        "Pagamento_Valor": true
-      variaveis: []
-      regras:
-        - "Number_To_Text": "Pagamento_Valor"
-
-    - nome: "Pagamento_Cheque"
-      tipo: "string"
-      form: false
-      descricao: ""
-      requerido: false
-      condicao:
-        Pagamento: "Cheque"
-      variaveis:
-        - " - Este imóvel será pago em cheque"
-      regras:
-        - "Add_box": true
-        - "Counter": "1"
-        #- "Formater": "O imovel sera leiloado no valor de {Pagamento_Valor} reais, e sera pago em {Pagamento}."
-
-
-
-
+      variaveis: {}
+      regras: {}
 
     - nome: "Tipo_Imovel"
       tipo: "select"
@@ -103,18 +26,24 @@ Documentos:
       condicao: {}
       variaveis: 
         - "Casa"
+        - "Casa na planta"
         - "Casa em Condomínio"
+        - "Casa em Condomínio na planta"
         - "Apartamento"
+        - "Apartamento na planta"
         - "Loft"
+        - "Loft na planta"
         - "Studio"
+        - "Studio na planta"
         - "Sala Comercial"
+        - "Sala Comercial na planta"
         - "Sala Comercial em Condomínio"
+        - "Sala Comercial em Condomínio na planta"
         - "Chácara"
         - "Fazenda"
         - "Terreno"
         - "Terreno Comercial"
         - "Terreno em Condomínio"
-
       regras: {}
 
     - nome: "Nome_Aglomerado"
@@ -130,6 +59,11 @@ Documentos:
           - "Studio"
           - "Sala Comercial em Condomínio"
           - "Terreno em Condomínio"
+          - "Casa em Condomínio na planta"
+          - "Apartamento na planta"
+          - "Loft na planta"
+          - "Studio na planta"
+          - "Sala Comercial em Condomínio na planta"
       variaveis: {}
       regras: {}
 
@@ -146,122 +80,500 @@ Documentos:
           - "Studio"
           - "Sala Comercial em Condomínio"
           - "Terreno em Condomínio"
+          - "Casa em Condomínio na planta"
+          - "Apartamento na planta"
+          - "Loft na planta"
+          - "Studio na planta"
+          - "Sala Comercial em Condomínio na planta"
       variaveis: {}
       regras: {}
 
-    - nome: ""
+    - nome: "REF_Imovel"
       tipo: "string"
       form: true
-      descricao: ""
+      descricao: "Referencia do imóvel"
+      requerido: false
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Corretor"
+      tipo: "string"
+      form: true
+      descricao: "Corretor associado"
       requerido: true
       condicao: {}
       variaveis: {}
       regras: {}
 
-    - nome: ""
+    - nome: "Parceria"
       tipo: "string"
       form: true
+      descricao: "Parceira"
+      requerido: false
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Imovel_formatado_Aglomerado"
+      tipo: "string"
+      form: false
       descricao: ""
+      requerido: false
+      condicao: 
+        Tipo_Imovel: 
+          - "Casa em Condomínio"
+          - "Apartamento"
+          - "Loft"
+          - "Studio"
+          - "Sala Comercial em Condomínio"
+          - "Terreno em Condomínio"
+          - "Casa em Condomínio na planta"
+          - "Apartamento na planta"
+          - "Loft na planta"
+          - "Studio na planta"
+          - "Sala Comercial em Condomínio na planta"
+      variaveis: {}
+      regras: 
+        - "Formater": " {Complemento_imovel} - {Nome_Aglomerado}"
+
+    - nome: "REF_Formatada"
+      tipo: "string"
+      form: false
+      descricao: ""
+      requerido: false
+      condicao: 
+        REF_Imovel: true
+      variaveis: {}
+      regras: 
+        - "Formater": "- Ref: {REF_Imovel}"
+
+#------------------------------------------------------------
+
+    - nome: "Nome_proponente"
+      tipo: "string"
+      form: true
+      descricao: "Nome do proponente"
       requerido: true
       condicao: {}
       variaveis: {}
       regras: {}
 
-    - nome: ""
+    - nome: "Profissao_proponente"
       tipo: "string"
       form: true
-      descricao: ""
+      descricao: "Profissão do proponente"
       requerido: true
       condicao: {}
       variaveis: {}
       regras: {}
 
-    - nome: ""
-      tipo: "string"
+    - nome: "Estado_Civil"
+      tipo: "select"
       form: true
-      descricao: ""
+      descricao: "Estado Civil"
+      requerido: true
+      condicao: {}
+      variaveis:
+        - "Solteiro"
+        - "União Estável"
+        - "Casado"
+        - "Divorciado"
+        - "Viúvo"
+      regras: {}
+
+    - nome: "Regime_Casamento"
+      tipo: "select"
+      form: true
+      descricao: "Regime da união"
+      requerido: true
+      condicao: 
+        Estado_Civil: 
+          - "Casado"
+          - "União Estável"
+
+      variaveis:
+        - "Comunhão Parcial de Bens"
+        - "Comunhão Total de Bens"
+        - "Separação Total de Bens"
+        - "Participação Final nos Aquestos"
+      regras: {}
+
+    - nome: "Data_caseamento"
+      tipo: "date"
+      form: true
+      descricao: "Data da união"
+      requerido: true
+      condicao:
+        Estado_Civil: 
+          - "Casado"
+          - "União Estável"
+      variaveis: {}
+      regras: {}
+
+    - nome: "CI_proponente"
+      tipo: "number"
+      form: true
+      descricao: "C.I. do proponente"
+      requerido: false
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "UF_proponente"
+      tipo: "select"
+      form: true
+      descricao: "Unidade Federativa do proponente"
+      requerido: true
+      condicao: {}
+      variaveis: 
+        - "PR"
+        - "AC"
+        - "AL"
+        - "AP"
+        - "AM"
+        - "BA"
+        - "CE"
+        - "DF"
+        - "ES"
+        - "GO"
+        - "MA"
+        - "MT"
+        - "MS"
+        - "MG"
+        - "PA"
+        - "PB"
+        - "PE"
+        - "PI"
+        - "RJ"
+        - "RN"
+        - "RS"
+        - "RO"
+        - "RR"
+        - "SC"
+        - "SP"
+        - "SE"
+        - "TO"
+      regras: {}
+
+    - nome: "CPF_proponente"
+      tipo: "cpf"
+      form: true
+      descricao: "CPF do proponente"
       requerido: true
       condicao: {}
       variaveis: {}
       regras: {}
 
-    - nome: ""
-      tipo: "string"
+    - nome: "Numero_proponente"
+      tipo: "phone"
       form: true
-      descricao: ""
+      descricao: "Numero do proponente"
       requerido: true
       condicao: {}
       variaveis: {}
       regras: {}
 
-    - nome: ""
-      tipo: "string"
+    - nome: "Email_proponente"
+      tipo: "email"
       form: true
-      descricao: ""
+      descricao: "E-mail do proponente"
       requerido: true
       condicao: {}
       variaveis: {}
       regras: {}
 
-    - nome: ""
+#------------------------------------------------------------
+
+    - nome: "Nome_Conjuge_proponente"
       tipo: "string"
       form: true
-      descricao: ""
+      descricao: "Nome do conjuge do proponente"
+      requerido: true
+      condicao: 
+        Estado_Civil: 
+          - "Casado"
+          - "União Estável"
+      variaveis: {}
+      regras: {}
+
+    - nome: "Profissao_Conjuge_proponente"
+      tipo: "string"
+      form: true
+      descricao: "Profissão do conjuge do proponente"
+      requerido: true
+      condicao:
+        Estado_Civil: 
+          - "Casado"
+          - "União Estável"
+      variaveis: {}
+      regras: {}
+
+    - nome: "CI_Conjuge_proponente"
+      tipo: "number"
+      form: true
+      descricao: "C.I. do conjuge do proponente"
+      requerido: false
+      condicao: 
+        Estado_Civil: 
+          - "Casado"
+          - "União Estável"
+      variaveis: {}
+      regras: {}
+
+    - nome: "UF_Conjuge_proponente"
+      tipo: "select"
+      form: true
+      descricao: "UF do cojuge do proponente"
+      requerido: true
+      condicao: 
+        Estado_Civil: 
+          - "Casado"
+          - "União Estável"
+      variaveis: 
+        - "PR"
+        - "AC"
+        - "AL"
+        - "AP"
+        - "AM"
+        - "BA"
+        - "CE"
+        - "DF"
+        - "ES"
+        - "GO"
+        - "MA"
+        - "MT"
+        - "MS"
+        - "MG"
+        - "PA"
+        - "PB"
+        - "PE"
+        - "PI"
+        - "RJ"
+        - "RN"
+        - "RS"
+        - "RO"
+        - "RR"
+        - "SC"
+        - "SP"
+        - "SE"
+        - "TO"
+      regras: {}
+
+    - nome: "CPF_Conjuge_proponente"
+      tipo: "cpf"
+      form: true
+      descricao: "CPF do conjuge do proponente"
+      requerido: true
+      condicao: 
+        Estado_Civil: 
+          - "Casado"
+          - "União Estável"
+      variaveis: {}
+      regras: {}
+
+    - nome: "Numero_Conjuge_proponente"
+      tipo: "phone"
+      form: true
+      descricao: "Numero do conjuge do proponente"
+      requerido: true
+      condicao: 
+        Estado_Civil: 
+          - "Casado"
+          - "União Estável"
+      variaveis: {}
+      regras: {}
+
+    - nome: "Email_Conjuge_proponente"
+      tipo: "email"
+      form: true
+      descricao: "Email do conjuge do proponente"
+      requerido: true
+      condicao: 
+        Estado_Civil: 
+          - "Casado"
+          - "União Estável"
+      variaveis: {}
+      regras: {}
+
+    - nome: "Endereco_Conjuge_proponente"
+      tipo: "email"
+      form: true
+      descricao: "Endereco do conjuge do proponente"
+      requerido: true
+      condicao: 
+        Estado_Civil: 
+          - "Casado"
+          - "União Estável"
+      variaveis: {}
+      regras: {}
+
+#------------------------------------------------------------
+
+    - nome: "Valor_Imovel"
+      tipo: "number"
+      form: true
+      descricao: "Valor do imovel"
       requerido: true
       condicao: {}
       variaveis: {}
       regras: {}
 
-    - nome: ""
+    - nome: "Valor_Imovel_Extenso"
       tipo: "string"
-      form: true
+      form: false
       descricao: ""
+      requerido: true
+      condicao: 
+        "Valor_Imovel": true
+      variaveis: []
+      regras:
+        - "Number_To_Text": "Valor_Imovel"
+
+
+    - nome: "Entrada_Imovel"
+      tipo: "number"
+      form: true
+      descricao: "Valor da entrada"
       requerido: true
       condicao: {}
       variaveis: {}
       regras: {}
 
-    - nome: ""
+    - nome: "Entrada_Imovel_Extenso"
       tipo: "string"
-      form: true
+      form: false
       descricao: ""
+      requerido: true
+      condicao: 
+        "Entrada_imovel": true
+      variaveis: []
+      regras:
+        - "Number_To_Text": "Entrada_imovel"
+
+
+    - nome: "Sinal_Imovel"
+      tipo: "number"
+      form: true
+      descricao: "Valor do sinal"
       requerido: true
       condicao: {}
       variaveis: {}
       regras: {}
 
-    - nome: ""
+    - nome: "Sinal_Imovel_Extenso"
       tipo: "string"
-      form: true
+      form: false
       descricao: ""
       requerido: true
+      condicao: 
+        Sinal_Imovel: true
+      variaveis: []
+      regras:
+        - "Number_To_Text": "Sinal_imovel"
+
+
+    - nome: "Forma_Sinal"
+      tipo: "select"
+      form: true
+      descricao: "Forma de sinal"
+      requerido: true
       condicao: {}
+      variaveis: 
+        - "Dinheiro"
+        - "Cheque"
+        - "Pix"
+        - "Transferência"
+      regras: {}
+
+    - nome: "Banco_origem_sinal"
+      tipo: "string"
+      form: true
+      descricao: "Banco de origem do sinal"
+      requerido: true
+      condicao: 
+        Forma_Sinal: 
+          - "Cheque"
+          - "Transferência"
       variaveis: {}
       regras: {}
 
-    - nome: ""
-      tipo: "string"
+    - nome: "Agencia_origem_sinal"
+      tipo: "number"
       form: true
-      descricao: ""
+      descricao: "Agecia de origem do sinal"
       requerido: true
-      condicao: {}
+      condicao: 
+        Forma_Sinal: 
+          - "Cheque"
+          - "Transferência"
       variaveis: {}
       regras: {}
 
-    - nome: ""
-      tipo: "string"
+    - nome: "N_cheque_sinal"
+      tipo: "number"
       form: true
-      descricao: ""
+      descricao: "Numero do cheque do sinal"
       requerido: true
-      condicao: {}
+      condicao: 
+        Forma_Sinal: 
+          - "Cheque"
       variaveis: {}
       regras: {}
 
-    - nome: ""
+
+    - nome: "Sinal_Cheque1"
       tipo: "string"
-      form: true
+      form: false
       descricao: ""
-      requerido: true
-      condicao: {}
+      requerido: false
+      condicao:
+        Forma_Sinal: "Cheque"
+      variaveis:
+        - " - O cheque que representa o valor do Sinal de Negócio, figura nesta proposta, somente como garantia da presente negociação, ficando regido pela Lei de “Arras” (Artigos 417 e seguintes do Código Civil), visto que seu valor se acha incluso no valor descrito no item “3” abaixo. Devendo referido cheque de sinal, ser devolvido aos proponentes, no ato da assinatura do instrumento particular de compromisso particular de compra e venda. escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital. contrato de financiamento bancário, junto a Instituição Financeira competente."
+      regras:
+        - "Counter": "1:1"
+
+    - nome: "Sinal_transferencia1"
+      tipo: "string"
+      form: false
+      descricao: ""
+      requerido: false
+      condicao:
+        Forma_Sinal: 
+          - "Pix"
+          - "Transferência"
+          - "Dinheiro"
+      variaveis:
+        - " - O valor do Sinal de Negócio, figura nesta proposta, somente como garantia da presente negociação, ficando regido pela Lei de “Arras” (Artigos 417 e seguintes do Código Civil), visto ele se achar incluso no valor descrito no item “3” abaixo. Devendo referida importância, ser devolvida aos proponentes, no ato da assinatura do instrumento particular de compromisso particular de compra e venda. escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital. contrato de financiamento bancário, junto a Instituição Financeira competente."
+      regras:
+        - "Counter": "1:1"
+
+    - nome: "Sinal_Cheque2"  
+      tipo: "string"
+      form: false
+      descricao: ""
+      requerido: false
+      condicao:
+        Forma_Sinal: "Cheque"
       variaveis: {}
-      regras: {}
+      regras:
+        - "Formater": "Representado pelo cheque nº {N_cheque_sinal}, emitido contra o Banco nº {Banco_origem_sinal}, Agência nº {Agencia_origem_sinal}, nominal à Prime Soho Imóveis Eireli."
+
+    - nome: "Sinal_transferencia2"
+      tipo: "string"
+      form: false
+      descricao: ""
+      requerido: false
+      condicao:
+        Forma_Sinal: 
+          - "Pix"
+          - "Transferência"
+          - "Dinheiro"
+      variaveis:
+        - " O qual se encontra depositado em nome e conta da Intermediadora da Negociação Prime Soho Imóveis Ltda."
+      regras:
+        - "Counter": "1:1"
+
+
+

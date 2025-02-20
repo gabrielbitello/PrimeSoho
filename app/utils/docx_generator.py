@@ -50,7 +50,7 @@ def parse_string(input_str):
 
 def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados):
     """Aplica as regras de forma automática com base nas configurações no YAML para o valor da variável."""
-    
+
     # Se não houver regras, retornamos o valor sem alteração
     if not yaml_data.get('regras'):
         return valor
@@ -60,28 +60,42 @@ def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados):
 
     # Iterando sobre as regras (agora assumimos que é uma lista)
     for regra_obj in regras_aplicadas:
-
         if isinstance(regra_obj, dict):
             for regra, regra_valor in regra_obj.items():
-
-                # Exemplo de regra para adicionar uma caixa (não implementado, mas podemos colocar o valor dentro de uma tabela ou similar)
+                
+                # Exemplo de regra para adicionar uma caixa
                 if regra == "Add_box" and regra_valor:
-                    # Aqui você pode adicionar a lógica para adicionar o valor à tabela ou o que for necessário
-                    inc = "inc"  # Exemplo, mas pode ser qualquer ação necessária
-
+                    inc = "inc"  # Placeholder para ação necessária
+                
                 # Converte número para texto, se a regra for válida
                 elif regra == "Number_To_Text" and isinstance(regra_valor, str):
                     valor_para_converter = dados.get(regra_valor, None)
                     if valor_para_converter is not None:
                         valor = converter_numero_para_texto(valor_para_converter)
-
-                # Aplica contagem a partir de um valor usando regex (exemplo de contador)
+                
+                # Aplica contagem a partir de um valor usando regex
                 elif regra == "Counter" and isinstance(regra_valor, str):
                     XY_value = regra_valor
                     if XY_value:
                         x, y = parse_string(XY_value)
                         counter_value = get_counter_value(x, y)
                         valor = counter_value + valor  # Ajustado para somar o contador ao valor
+                
+                # Aplica formatação de texto substituindo chaves por valores correspondentes
+                elif regra == "Formater" and isinstance(regra_valor, str):
+                    def substituir_variavel(match):
+                        chave = match.group(1)
+                        if chave in dados:
+                            return str(dados[chave])
+                        elif chave in yaml_data:
+                            valor_chave = yaml_data[chave]
+                            if valor_chave is None:
+                                valor_chave = aplicar_regras_para_valor(None, yaml_data, chave, doc, dados)
+                            return str(valor_chave)
+                        return match.group(0)  # Mantém o placeholder se não encontrar
+                    
+                    valor = re.sub(r'\{(.*?)\}', substituir_variavel, regra_valor)
+    
     return valor
 
 def get_counter_value(x, y=None):
@@ -131,36 +145,31 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
 
     # Processa outras variáveis além de counter
     for chave, valor in dados.items():
-        chave_formatada = f"{{{chave}}}"  # Variáveis são referenciadas como {variavel}
+        chave_formatada = f"{{{chave}}}"
 
         if chave_formatada in texto_original:
-
-            # Obtém a configuração específica do YAML
             documentos_config = yaml_data.get('Documentos', {}).get('Documentos-Config', [])
             item_filtrado = next((item for item in documentos_config if item.get('nome') == chave), None)
 
-            # Verifica se há condições para essa variável e se elas são atendidas
             if not verificar_condicoes(dados, item_filtrado, chave):
-                # Se a condição falhar, remove a variável do parágrafo
+                print(f"[DEBUG] Condições não atendidas para {chave}. Removendo do parágrafo.")
                 for run in paragrafo.runs:
                     if chave_formatada in run.text:
-                        run.text = run.text.replace(chave_formatada, '')  # Remover a variável
-                continue  # Passa para a próxima variável
+                        print(f"[DEBUG] Removendo {chave_formatada} de: {run.text}")
+                        run.text = run.text.replace(chave_formatada, '')
+                continue
 
-            # Verifica se o valor da variável ainda está vazio
             novo_valor = valor or ''
             if not novo_valor:
-                # Caso o valor esteja vazio, atribuir o primeiro valor do campo "variáveis" no YAML
-                variaveis_yaml = item_filtrado.get('variaveis', {})
+                variaveis_yaml = item_filtrado.get('variaveis', []) if item_filtrado else []
                 if variaveis_yaml:
-                    novo_valor = variaveis_yaml[0]  # Atribui o primeiro valor de 'variaveis'
+                    novo_valor = variaveis_yaml[0]
 
-            # Aplica regras antes de retornar o valor
             novo_valor = aplicar_regras_para_valor(novo_valor, item_filtrado, chave, doc, dados)
 
-            # Mantém a formatação e substitui apenas a variável nos 'runs'
             for run in paragrafo.runs:
                 if chave_formatada in run.text:
+                    print(f"[DEBUG] Substituindo {chave_formatada} em: {run.text}")
                     run.text = run.text.replace(chave_formatada, str(novo_valor))
 
     return paragrafo
@@ -182,37 +191,47 @@ def verificar_condicoes(dados, yaml_data, campo_verificado):
     # Obtém as condições do YAML relacionadas ao campo
     condicao = yaml_data.get('condicao', {})
 
+    print(f"[DEBUG] Verificando condições para o campo: {campo_verificado}")
+    print(f"[DEBUG] Condições extraídas do YAML: {condicao}")
+
     if not condicao:
+        print("[DEBUG] Nenhuma condição encontrada. Campo considerado válido.")
         return True  # Se não houver condição, o campo é considerado válido.
 
     if not isinstance(condicao, dict):
+        print("[DEBUG] Estrutura de condição inválida. Deve ser um dicionário.")
         return False
 
     # Itera sobre as condições para o campo
     for chave, valor in condicao.items():
-        
+        print(f"[DEBUG] Verificando chave: {chave} | Valor esperado: {valor}")
+
         if chave in dados:
             campo_valor = dados[chave]
+            print(f"[DEBUG] Valor encontrado em 'dados': {campo_valor}")
 
             # Verifica se o valor da condição é uma lista
             if isinstance(valor, list):
-                # Se o campo está em uma lista de valores aceitos, passa a condição
                 if campo_valor not in valor:
+                    print(f"[DEBUG] Falha: {campo_valor} não está na lista permitida {valor}.")
                     return False
             # Verifica a condição booleana
             elif isinstance(valor, bool):
-                if valor:  # Espera que o campo tenha um valor
-                    if not campo_valor:
-                        return False
-                else:  # Espera que o campo NÃO tenha valor
-                    if campo_valor:
-                        return False
-            # Caso a condição seja um valor simples (não booleano nem lista)
-            elif campo_valor != valor:  # Verifica se o valor do campo é o esperado
+                if valor and not campo_valor:
+                    print(f"[DEBUG] Falha: Esperava um valor para {chave}, mas estava vazio.")
+                    return False
+                elif not valor and campo_valor:
+                    print(f"[DEBUG] Falha: Não esperava um valor para {chave}, mas recebeu {campo_valor}.")
+                    return False
+            # Caso a condição seja um valor simples
+            elif campo_valor != valor:
+                print(f"[DEBUG] Falha: {chave} tem valor {campo_valor}, mas esperava {valor}.")
                 return False
         else:
+            print(f"[DEBUG] Falha: Chave {chave} não encontrada nos dados.")
             return False
 
+    print("[DEBUG] Todas as condições foram atendidas.")
     return True  # Se todas as condições foram atendidas
 
 def gen_docx(dados, folder, yaml_data):
