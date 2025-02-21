@@ -119,10 +119,10 @@ def get_counter_value(x, y=None):
     counter_dict[x] += 1  
     return str(valor_atual)
 
+
 def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
     """Substitui variáveis no parágrafo conforme as regras, garantindo que cada contador seja atualizado corretamente."""
-
-    texto_original = paragrafo.text
+    texto_original = "".join(run.text for run in paragrafo.runs)
 
     # Expressão regular para encontrar padrões como {counter:x} ou {counter:x:y}
     pattern = r"\{counter:(\d+)(?::(\d+))?\}"
@@ -131,16 +131,12 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
     def substituir_match(match):
         x = match.group(1)
         y = match.group(2)
-        
-
-        # Obtém o novo valor do contador
         novo_valor = get_counter_value(x, y) if y else get_counter_value(x)
-
         return str(novo_valor)
 
-    # Substituir diretamente nos 'runs' sem processar todo o parágrafo antes
+    # Substituir diretamente nos 'runs'
     for run in paragrafo.runs:
-        if "{counter:" in run.text:  # Só processa os runs que realmente contêm um contador
+        if "{counter:" in run.text:
             run.text = re.sub(pattern, substituir_match, run.text)
 
     # Processa outras variáveis além de counter
@@ -152,10 +148,8 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
             item_filtrado = next((item for item in documentos_config if item.get('nome') == chave), None)
 
             if not verificar_condicoes(dados, item_filtrado, chave):
-                print(f"[DEBUG] Condições não atendidas para {chave}. Removendo do parágrafo.")
                 for run in paragrafo.runs:
                     if chave_formatada in run.text:
-                        print(f"[DEBUG] Removendo {chave_formatada} de: {run.text}")
                         run.text = run.text.replace(chave_formatada, '')
                 continue
 
@@ -169,20 +163,17 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
 
             for run in paragrafo.runs:
                 if chave_formatada in run.text:
-                    print(f"[DEBUG] Substituindo {chave_formatada} em: {run.text}")
                     run.text = run.text.replace(chave_formatada, str(novo_valor))
-
+    
     return paragrafo
-
-
 
 
 def substituir_variaveis_nas_tabelas(doc, dados, yaml_data):
     """Substitui variáveis dentro de tabelas do documento."""
-    for table in doc.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                for paragrafo in cell.paragraphs: 
+    for table_index, table in enumerate(doc.tables):
+        for row_index, row in enumerate(table.rows):
+            for cell_index, cell in enumerate(row.cells):
+                for paragrafo in cell.paragraphs:
                     substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc)
 
 def verificar_condicoes(dados, yaml_data, campo_verificado):
@@ -191,47 +182,34 @@ def verificar_condicoes(dados, yaml_data, campo_verificado):
     # Obtém as condições do YAML relacionadas ao campo
     condicao = yaml_data.get('condicao', {})
 
-    print(f"[DEBUG] Verificando condições para o campo: {campo_verificado}")
-    print(f"[DEBUG] Condições extraídas do YAML: {condicao}")
-
     if not condicao:
-        print("[DEBUG] Nenhuma condição encontrada. Campo considerado válido.")
         return True  # Se não houver condição, o campo é considerado válido.
 
     if not isinstance(condicao, dict):
-        print("[DEBUG] Estrutura de condição inválida. Deve ser um dicionário.")
         return False
 
     # Itera sobre as condições para o campo
     for chave, valor in condicao.items():
-        print(f"[DEBUG] Verificando chave: {chave} | Valor esperado: {valor}")
 
         if chave in dados:
             campo_valor = dados[chave]
-            print(f"[DEBUG] Valor encontrado em 'dados': {campo_valor}")
 
             # Verifica se o valor da condição é uma lista
             if isinstance(valor, list):
                 if campo_valor not in valor:
-                    print(f"[DEBUG] Falha: {campo_valor} não está na lista permitida {valor}.")
                     return False
             # Verifica a condição booleana
             elif isinstance(valor, bool):
                 if valor and not campo_valor:
-                    print(f"[DEBUG] Falha: Esperava um valor para {chave}, mas estava vazio.")
                     return False
                 elif not valor and campo_valor:
-                    print(f"[DEBUG] Falha: Não esperava um valor para {chave}, mas recebeu {campo_valor}.")
                     return False
             # Caso a condição seja um valor simples
             elif campo_valor != valor:
-                print(f"[DEBUG] Falha: {chave} tem valor {campo_valor}, mas esperava {valor}.")
                 return False
         else:
-            print(f"[DEBUG] Falha: Chave {chave} não encontrada nos dados.")
             return False
 
-    print("[DEBUG] Todas as condições foram atendidas.")
     return True  # Se todas as condições foram atendidas
 
 def gen_docx(dados, folder, yaml_data):

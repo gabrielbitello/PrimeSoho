@@ -199,7 +199,7 @@ Documentos:
         - "Participação Final nos Aquestos"
       regras: {}
 
-    - nome: "Data_caseamento"
+    - nome: "Data_Casamento"
       tipo: "date"
       form: true
       descricao: "Data da união"
@@ -470,7 +470,7 @@ Documentos:
         Sinal_Imovel: true
       variaveis: []
       regras:
-        - "Number_To_Text": "Sinal_imovel"
+        - "Number_To_Text": "Sinal_Imovel"
 
 
     - nome: "Forma_Sinal"
@@ -534,7 +534,7 @@ Documentos:
       regras:
         - "Counter": "1:1"
 
-    - nome: "Sinal_transferencia1"
+    - nome: "Sinal_Transferencia1"
       tipo: "string"
       form: false
       descricao: ""
@@ -560,7 +560,7 @@ Documentos:
       regras:
         - "Formater": "Representado pelo cheque nº {N_cheque_sinal}, emitido contra o Banco nº {Banco_origem_sinal}, Agência nº {Agencia_origem_sinal}, nominal à Prime Soho Imóveis Eireli."
 
-    - nome: "Sinal_transferencia2"
+    - nome: "Sinal_Transferencia2"
       tipo: "string"
       form: false
       descricao: ""
