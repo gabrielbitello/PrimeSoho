@@ -532,7 +532,7 @@ Documentos:
       variaveis:
         - " - O cheque que representa o valor do Sinal de Negócio, figura nesta proposta, somente como garantia da presente negociação, ficando regido pela Lei de “Arras” (Artigos 417 e seguintes do Código Civil), visto que seu valor se acha incluso no valor descrito no item “3” abaixo. Devendo referido cheque de sinal, ser devolvido aos proponentes, no ato da assinatura do instrumento particular de compromisso particular de compra e venda. escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital. contrato de financiamento bancário, junto a Instituição Financeira competente."
       regras:
-        - "Counter": "1:1"
+        - "Counter": "1:1/B"
 
     - nome: "Sinal_Transferencia1"
       tipo: "string"
@@ -547,7 +547,7 @@ Documentos:
       variaveis:
         - " - O valor do Sinal de Negócio, figura nesta proposta, somente como garantia da presente negociação, ficando regido pela Lei de “Arras” (Artigos 417 e seguintes do Código Civil), visto ele se achar incluso no valor descrito no item “3” abaixo. Devendo referida importância, ser devolvida aos proponentes, no ato da assinatura do instrumento particular de compromisso particular de compra e venda. escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital. contrato de financiamento bancário, junto a Instituição Financeira competente."
       regras:
-        - "Counter": "1:1"
+        - "Counter": "1:1/B"
 
     - nome: "Sinal_Cheque2"  
       tipo: "string"
@@ -573,7 +573,7 @@ Documentos:
       variaveis:
         - " O qual se encontra depositado em nome e conta da Intermediadora da Negociação Prime Soho Imóveis Ltda."
       regras:
-        - "Counter": "1:1"
+        - "Counter": "1:1/B"
 
 
 

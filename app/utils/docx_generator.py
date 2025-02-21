@@ -40,13 +40,14 @@ def substituir_texto(paragrafo, campo, valor):
         paragrafo.add_run(novo_texto)
 
 def parse_string(input_str):
-    if ':' in input_str:
-        x, y = input_str.split(':')
-        return x, y
+    if ":" in input_str:
+        parts = input_str.split(":")
+        x = parts[0]
+        y = parts[1] if "/" not in parts[1] else parts[1].split("/")[0]
+        modifier = parts[1].split("/")[1] if "/" in parts[1] else None
+        return x, y, modifier
     else:
-        x = input_str
-        y = None
-        return x, y
+        return input_str, None, None
 
 def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados):
     """Aplica as regras de forma automática com base nas configurações no YAML para o valor da variável."""
@@ -77,9 +78,13 @@ def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados):
                 elif regra == "Counter" and isinstance(regra_valor, str):
                     XY_value = regra_valor
                     if XY_value:
-                        x, y = parse_string(XY_value)
+                        x, y, modifier = parse_string(XY_value)
                         counter_value = get_counter_value(x, y)
-                        valor = counter_value + valor  # Ajustado para somar o contador ao valor
+                        
+                        if modifier == "B":
+                            counter_value = f"**{counter_value}**"  # Adiciona marcadores de negrito
+                        
+                        valor = counter_value + valor  # Mantém o fluxo de valor corretamente
                 
                 # Aplica formatação de texto substituindo chaves por valores correspondentes
                 elif regra == "Formater" and isinstance(regra_valor, str):
@@ -169,7 +174,21 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
 
             for run in paragrafo.runs:
                 if chave_formatada in run.text:
-                    run.text = run.text.replace(chave_formatada, str(novo_valor))
+                    novo_texto = run.text.replace(chave_formatada, str(novo_valor))
+
+                    # Verifica se o novo valor tem marcadores de negrito (**)
+                    if "**" in novo_texto:
+                        partes = novo_texto.split("**")
+                        run.text = ""  # Limpa o run original para evitar duplicações
+
+                        for i, parte in enumerate(partes):
+                            if parte:  # Garante que não adicionamos runs vazios
+                                novo_run = paragrafo.add_run(parte)
+                                if i % 2 == 1:  # Índices ímpares são o texto entre "**"
+                                    novo_run.bold = True
+                    else:
+                        run.text = novo_texto  # Apenas substitui normalmente se não tiver "**"
+
     
     # Reconhecimento de contadores dentro de tabelas
     for tabela in doc.tables:
@@ -178,7 +197,20 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
                 for paragrafo in cell.paragraphs:
                     for run in paragrafo.runs:
                         if "{counter:" in run.text:
-                            run.text = re.sub(pattern, substituir_match, run.text)
+                            novo_texto = re.sub(pattern, substituir_match, run.text)
+
+                            # Verifica se o novo texto contém "**" para formatação de negrito
+                            if "**" in novo_texto:
+                                partes = novo_texto.split("**")
+                                run.text = ""  # Limpa o run original para evitar duplicações
+
+                                for i, parte in enumerate(partes):
+                                    if parte:  # Garante que não adicionamos runs vazios
+                                        novo_run = paragrafo.add_run(parte)
+                                        if i % 2 == 1:  # Índices ímpares são o texto entre "**"
+                                            novo_run.bold = True
+                            else:
+                                run.text = novo_texto  # Apenas substitui normalmente se não tiver "**"
 
     return paragrafo
 
