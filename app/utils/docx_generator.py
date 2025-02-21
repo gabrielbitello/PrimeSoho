@@ -197,20 +197,7 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
                 for paragrafo in cell.paragraphs:
                     for run in paragrafo.runs:
                         if "{counter:" in run.text:
-                            novo_texto = re.sub(pattern, substituir_match, run.text)
-
-                            # Verifica se o novo texto contém "**" para formatação de negrito
-                            if "**" in novo_texto:
-                                partes = novo_texto.split("**")
-                                run.text = ""  # Limpa o run original para evitar duplicações
-
-                                for i, parte in enumerate(partes):
-                                    if parte:  # Garante que não adicionamos runs vazios
-                                        novo_run = paragrafo.add_run(parte)
-                                        if i % 2 == 1:  # Índices ímpares são o texto entre "**"
-                                            novo_run.bold = True
-                            else:
-                                run.text = novo_texto  # Apenas substitui normalmente se não tiver "**"
+                            run.text = re.sub(pattern, substituir_match, run.text)
 
     return paragrafo
 
