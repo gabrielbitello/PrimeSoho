@@ -113,12 +113,25 @@ def get_counter_value(x, y=None):
         else:
             subcounter_dict[x][y] += 1 
         return f"{counter_dict[x] - 1}.{subcounter_dict[x][y]}"  
+    
+    # Se Y for 'Y' e X for 0, altere X para 1 automaticamente
+    if y == 'Y' and x == '0':
+        x  = '1'
+        
 
     # Se Y não está presente, apenas incrementa X e retorna o valor atualizado
     valor_atual = counter_dict[x]  
     counter_dict[x] += 1  
+
     return str(valor_atual)
 
+# Função auxiliar para substituição dinâmica
+def substituir_match(match):
+    x = match.group(1)
+    y = match.group(2)
+    
+    novo_valor = get_counter_value(x, y) if y else get_counter_value(x)
+    return str(novo_valor)
 
 def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
     """Substitui variáveis no parágrafo conforme as regras, garantindo que cada contador seja atualizado corretamente."""
@@ -127,14 +140,7 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
     # Expressão regular para encontrar padrões como {counter:x} ou {counter:x:y}
     pattern = r"\{counter:(\d+)(?::(\d+))?\}"
 
-    # Função auxiliar para substituição dinâmica
-    def substituir_match(match):
-        x = match.group(1)
-        y = match.group(2)
-        novo_valor = get_counter_value(x, y) if y else get_counter_value(x)
-        return str(novo_valor)
-
-    # Substituir diretamente nos 'runs'
+    # Substituir diretamente nos 'runs' do parágrafo
     for run in paragrafo.runs:
         if "{counter:" in run.text:
             run.text = re.sub(pattern, substituir_match, run.text)
@@ -165,6 +171,15 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
                 if chave_formatada in run.text:
                     run.text = run.text.replace(chave_formatada, str(novo_valor))
     
+    # Reconhecimento de contadores dentro de tabelas
+    for tabela in doc.tables:
+        for row in tabela.rows:
+            for cell in row.cells:
+                for paragrafo in cell.paragraphs:
+                    for run in paragrafo.runs:
+                        if "{counter:" in run.text:
+                            run.text = re.sub(pattern, substituir_match, run.text)
+
     return paragrafo
 
 
