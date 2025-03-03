@@ -1,0 +1,32 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário Dinâmico</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_form.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#">Docs</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="Formulario">
+            <form method="POST">
+                {{ form_html | safe }}
+            </form>
+        </section>
+    </main>
+
+    <!-- Aqui será inserido o código JS gerado dinamicamente -->
+    <script src="{{ url_for('static', filename='js/script_form.js') }}"></script>
+    {{ js_code | safe }}
+</body>
+</html>

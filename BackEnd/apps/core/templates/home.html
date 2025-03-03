@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao Sistema</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static '/css/css-home.css' %}">
+
+</head>
+<body>
+
+    <!-- Barra de Navegação -->
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/login">Login</a></li>
+        </ul>
+    </nav>
+
+    <!-- Cabeçalho -->
+    <header>
+        <h1>Bem-vindo ao Sistema Jurídico</h1>
+        <p>Plataforma de Gestão de Processos e Clientes</p>
+    </header>
+
+    <!-- Seção Principal -->
+    <div class="main-section">
+        <h2>Uma Solução Completa para o Seu Escritório</h2>
+        <p>Com nossa plataforma, você pode gerenciar todos os seus processos, clientes e documentos de maneira simples e eficiente.</p>
+        <a href="/login" style="text-decoration: none; background-color: #333; color: white; padding: 10px 20px; border-radius: 5px;">Acessar Sistema</a>
+    </div>
+
+    <!-- Rodapé -->
+    <footer>
+        <p>&copy; 2025 Sistema Jurídico. Todos os direitos reservados.</p>
+    </footer>
+
+</body>
+</html>
