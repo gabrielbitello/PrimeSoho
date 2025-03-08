@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulário Dinâmico</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_form.css') }}">
+    <link rel="stylesheet" href="{% static 'juridico/css/style_form.css'' %}">
 </head>
 <body>
     <header>
@@ -20,13 +20,15 @@
     <main>
         <section class="Formulario">
             <form method="POST">
+                {% csrf_token %}
+
                 {{ form_html | safe }}
             </form>
         </section>
     </main>
 
     <!-- Aqui será inserido o código JS gerado dinamicamente -->
-    <script src="{{ url_for('static', filename='js/script_form.js') }}"></script>
+    <script src="{% static 'juridico/js/script_form.js'' %}"></script>
     {{ js_code | safe }}
 </body>
 </html>

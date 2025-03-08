@@ -7,6 +7,15 @@ import re
 counter_dict = {}
 subcounter_dict = {}
 
+
+# Obtém o diretório do app 'juridico'
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Define o caminho para o diretório 'docs' no mesmo diretório que o arquivo views.py
+docs_path = os.path.join(parent_dir, 'docs')
+
+
+
 def criar_tabela_ao_redor_do_valor(paragrafo, valor):
     """Cria uma tabela simples ao redor do valor, adicionando o valor à célula da tabela."""
     # Cria uma tabela com uma linha e uma coluna (ao redor do valor)
@@ -248,7 +257,7 @@ def verificar_condicoes(dados, yaml_data, campo_verificado):
 
 def gen_docx(dados, folder, yaml_data):
     """Preenche o modelo DOCX com os dados do formulário e do YAML."""
-    caminho_template = os.path.abspath(os.path.join('app', 'docs', folder, f'{folder}.docx'))
+    caminho_template = os.path.abspath(os.path.join(docs_path, folder, f'{folder}.docx'))
 
     unique_id = str(uuid.uuid4())[:8]
 
@@ -272,6 +281,6 @@ def gen_docx(dados, folder, yaml_data):
     substituir_variaveis_nas_tabelas(doc, dados, yaml_data)
 
     # Salva o arquivo gerado
-    caminho_saida = os.path.abspath(f'./app/output/{folder}_preenchido_{unique_id}.docx')
+    caminho_saida = os.path.abspath(f'./BackEnd/apps/juridico/output/{folder}_preenchido_{unique_id}.docx')
     doc.save(caminho_saida)
     return caminho_saida

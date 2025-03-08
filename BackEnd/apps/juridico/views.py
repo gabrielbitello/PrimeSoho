@@ -7,10 +7,14 @@ from .utils.forms import gerar_formulario
 from .utils.yaml_receiver import load_yaml, parse_yaml
 from .utils.docx_generator import gen_docx
 
+# Obtém o diretório onde o arquivo views.py está localizado
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Define o caminho para o diretório 'docs' no mesmo diretório que o arquivo views.py
+docs_path = os.path.join(current_dir, 'docs')
+
 def listar_formularios(request):
-    # Caminho para a pasta de documentos
-    docs_path = os.path.join(settings.BASE_DIR, 'app', 'docs')
-    
+
     # Lista de formulários disponíveis
     formularios = []
     
@@ -27,7 +31,7 @@ def listar_formularios(request):
 
 def formulario(request, folder):
     # Caminho da pasta onde os YAMLs estão localizados
-    yaml_file_path = os.path.join(settings.BASE_DIR, 'app', 'docs', folder, f'{folder}.yaml')
+    yaml_file_path = os.path.join(docs_path, folder, f'{folder}.yaml')
     
     # Verificar se o arquivo YAML existe
     if not os.path.exists(yaml_file_path):
@@ -62,12 +66,4 @@ def formulario(request, folder):
     # Passa o HTML do formulário e o código JS para o template
     return render(request, 'form.html', {'form_html': form_html, 'js_code': js_code})
 
-def receber_log(request):
-    if request.method == 'POST':
-        log_data = request.body
-        log = log_data.get('log')
-        # Aqui você pode armazenar os logs no banco de dados ou fazer o que quiser com eles
-        print(f"Log recebido: {log}")
-        return JsonResponse({'status': 'sucesso'}, status=200)
-    
-    return JsonResponse({'status': 'erro', 'message': 'Método não permitido'}, status=405)
+

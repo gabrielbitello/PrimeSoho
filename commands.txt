@@ -1,2 +1,2 @@
-.\venv\Scripts\activate
-python manage.py runserver
+.\BackEnd\venv\Scripts\activate
+python .\BackEnd\manage.py runserver
