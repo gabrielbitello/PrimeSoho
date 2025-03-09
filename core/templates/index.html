@@ -1,0 +1,60 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORE</title>
+    <link rel="stylesheet" href="{% static 'global/css/style_colors.css' %}">
+    <link rel="stylesheet" href="{% static 'global/css/style_nav.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/style_index.css' %}">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/usuario"><div id="icon-corretor"><svg id="img-user"><use xlink:href="{% static 'global/svg/user.svg' %}#user"></use></svg></div></a></li>
+                <li><a href="#">Imoveis</a></li>
+                <li><a href="/login">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+
+        <section class="start">
+            <div class="start-left">
+                <h1>Core</h1>
+                <img src="{% static 'core/Img/01-Logo-Prime-Principal.png.webp' %}" alt="Equipe Bia souza 2025">
+            </div>
+            <div class="start-right">
+                <p>Um painel desenvolvido para o gerenciamento da equipe de corretores da <span class="highlight">Bia souza</span></p>
+            </div>
+        </section>
+
+        <div id="line"></div>
+
+        <section class="imoveis">
+            <h2>Imoveis</h2>
+            <ul>
+                <li><a href="#" class="imoveis-list"><div><img class="imovel-img" src="{% static 'core/Img/IMV/imv1.jpeg' %}"></div><p class="imovel-valor">4.800.000R$</p></a></li>
+                <li><a href="#" class="imoveis-list"><div><img class="imovel-img" src="{% static 'core/Img/IMV/imv2.jpeg' %}"></div><p class="imovel-valor">4.800.000R$</p></a></li>
+                <li><a href="#" class="imoveis-list"><div><img class="imovel-img" src="{% static 'core/Img/IMV/imv3.jpeg' %}"></div><p class="imovel-valor">4.800.000R$</p></a></li>
+                <li><a href="#" class="imoveis-list"><div><img class="imovel-img" src="{% static 'core/Img/IMV/imv1.jpeg' %}"></div><p class="imovel-valor">4.800.000R$</p></a></li>
+                <li><a href="#" class="imoveis-list"><div><img class="imovel-img" src="{% static 'core/Img/IMV/imv2.jpeg' %}"></div><p class="imovel-valor">4.800.000R$</p></a></li>
+                <li><a href="#" class="imoveis-list"><div><img class="imovel-img" src="{% static 'core/Img/IMV/imv3.jpeg' %}"></div><p class="imovel-valor">4.800.000R$</p></a></li>
+                <li><a href="#" class="imoveis-list"><div><img class="imovel-img" src="{% static 'core/Img/IMV/imv1.jpeg' %}"></div><p class="imovel-valor">4.800.000R$</p></a></li>
+                <li><a href="#" class="imoveis-list"><div><img class="imovel-img" src="{% static 'core/Img/IMV/imv2.jpeg' %}"></div><p class="imovel-valor">4.800.000R$</p></a></li>
+                <li><a href="#" class="imoveis-list"><div><img class="imovel-img" src="{% static 'core/Img/IMV/imv3.jpeg' %}"></div><p class="imovel-valor">4.800.000R$</p></a></li>
+            </ul>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>©2025 Sistema de Automação. Todos os direitos reservados.</p>
+        <p>Contato: <a href="mailto:vg.bitello@gmail.com">vg.bitello@gmail.com</a></p>
+    </footer>
+</body>
+</html>

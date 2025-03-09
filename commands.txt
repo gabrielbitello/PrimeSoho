@@ -1,2 +1,2 @@
-.\BackEnd\venv\Scripts\activate
-python .\BackEnd\manage.py runserver
+.\venv\Scripts\activate
+python .\manage.py runserver 0.0.0.0:8000

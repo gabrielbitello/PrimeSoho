@@ -1,0 +1,44 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário Dinâmico</title>
+    <link rel="stylesheet" href="{% static 'juridico/css/style_form.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#">Docs</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="Formulario">
+            <form method="POST" id="dynamicForm">
+                {% csrf_token %}
+
+                {{ form_html | safe }}
+            </form>
+        </section>
+    </main>
+
+    <!-- Popup HTML -->
+    <div class="popup-overlay" style="display:none;">
+        <div id="popup" class="popup" style="display:none;">
+            <button class="close-btn" onclick="closePopup()">×</button>
+            <p id="popup-message"></p>
+            <a id="download-button" href="#" style="display:none;" class="btn btn-primary download-btn" target="_blank">Baixar DOCX</a>
+        </div>
+    </div>    
+
+
+    <!-- Aqui será inserido o código JS gerado dinamicamente -->
+    <script src="{% static 'juridico/js/script_form.js' %}"></script>
+</body>
+</html>

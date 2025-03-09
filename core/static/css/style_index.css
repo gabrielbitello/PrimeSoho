@@ -1,0 +1,248 @@
+
+/* Reset básico */
+body, h1, h2, p, ul, li, a {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Estilos gerais */
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--white);
+    color: var(--dark-blue);
+    line-height: 1.6;
+}
+
+main {
+    padding: 2rem;
+}
+
+#icon-corretor {
+    width: 3.4em;
+    border-radius: 50%;
+    background-color: #005A8D; /* Azul um pouco mais claro */
+    border: 3px solid #002A4A; /* Azul um pouco mais escuro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 6px; /* Espaçamento em relação à borda da barra de pesquisa */
+}
+
+#img-user {
+    width: 3.2em;
+    height: 3.2em;
+    color: #002A4A; 
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    color: var(--dark-blue);
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+h1::after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 2px;
+    background-color: var(--light-blue);
+    margin: 0.25rem auto 0; /* Centraliza horizontalmente e ajusta a margem superior */
+}
+
+h2 {
+    position: relative; /* Permite que o ::after seja posicionado em relação ao h2 */
+    font-size: 1.5rem;
+    font-family: 'Playfair Display', serif;
+    color: var(--dark-blue);
+    margin-bottom: 1rem;
+    text-align: center; /* Centraliza o texto */
+
+}
+
+h2::after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 2px;
+    background-color: var(--light-blue);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: -0.25rem; /* Ajusta a distância da linha em relação ao h2 */
+}
+
+.start {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.start-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 2rem; /* Espaçamento entre as colunas */
+}
+
+.start-right {
+    display: flex;
+    align-items: center;
+}
+
+.start h1 {
+    font-size: 2.5rem;
+    color: var(--dark-blue);
+    margin-bottom: 1rem; /* Espaçamento entre o h1 e a imagem */
+}
+
+.start img {
+    max-width: 60%;
+    height: auto;
+    margin-bottom: 5px; /* Espaçamento entre a imagem e o texto */
+}
+
+.start p {
+    font-size: 1.2rem;
+    color: var(--dark-blue);
+}
+
+.highlight {
+    color: var(--gold);
+    font-weight: bold;
+}
+
+#foto-time {
+    max-width: 100%;
+    height: auto;
+    margin: 1rem 0;
+}
+
+#line {
+    border-top: 2px solid var(--dark-blue);
+    margin: 2rem 0;
+}
+
+.imovel-valor {
+    margin-top: 0.5rem;
+    font-size: 1.1rem;
+    color: var(--gold);
+}
+
+footer {
+    background-color: var(--dark-blue);
+    color: var(--white);
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+}
+
+footer a {
+    color: var(--gold);
+    transition: color 0.3s;
+}
+
+footer a:hover {
+    color: var(--white);
+}
+
+
+
+
+.imoveis h2 {
+    font-size: 2rem;
+    color: var(--dark-blue);
+    margin-bottom: 1rem;
+}
+
+.imoveis ul {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.imoveis li {
+    text-align: center;
+    padding: 0.6em;
+}
+
+
+
+
+
+
+.imoveis-list {
+    background-color: var(--dark-blue); /* Fundo azul padrão */
+    padding: 3px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%; /* Responsivo: ajusta a largura */
+    max-width: 306px; /* Largura máxima */
+    height: 206px; /* Altura fixa */
+    text-decoration: none; /* Remove a decoração do link */
+    overflow: hidden; /* Impede vazamento do conteúdo */
+}
+
+.imoveis-list div {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; /* Largura total */
+    height: 194px; /* Altura fixa para todas as imagens */
+    overflow: hidden; /* Impede que a imagem ultrapasse os limites */
+}
+
+.imovel-img {
+    width: 100%; /* Força a imagem a ocupar toda a largura do contêiner */
+    height: 100%; /* Força a imagem a ocupar toda a altura do contêiner */
+    object-fit: fill; /* Distorce a imagem para preencher o contêiner */
+}
+
+.imovel-valor {
+    margin-top: 3px; /* Espaço do texto */
+    color: var(--white); /* Cor do texto */
+    align-self: flex-start; /* Alinha o texto no início */
+    flex-shrink: 0; /* Garante que o texto não encolha */
+    font-size: 1rem; /* Tamanho fixo do texto */
+}
+
+/* Media Queries */
+@media (max-width: 768px) { /* Ajustes para tablets */
+    .imoveis-list {
+        max-width: 250px; /* Reduz a largura */
+        height: 180px; /* Ajusta a altura total */
+    }
+    .imoveis-list div {
+        height: 160px; /* Ajusta a altura da imagem */
+    }
+    .imovel-valor {
+        font-size: 0.9rem; /* Reduz o tamanho do texto */
+    }
+    h1 {
+        margin-bottom: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) { /* Ajustes para smartphones */
+    .imoveis-list {
+        max-width: 200px; /* Reduz a largura */
+        height: 160px; /* Ajusta a altura total */
+    }
+    .imoveis-list div {
+        height: 140px; /* Ajusta a altura da imagem */
+    }
+    .imovel-valor {
+        font-size: 0.8rem; /* Ajusta o tamanho do texto */
+    }
+    h1 {
+        margin-bottom: 0.6rem;
+    }
+}
