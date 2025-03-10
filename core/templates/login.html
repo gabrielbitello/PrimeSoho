@@ -17,9 +17,11 @@
             <a class="back-button" href="../"><svg class="logo-svg"><use xlink:href="{% static 'svg/circle-cross.svg' %}#circle-cross"></use></svg></a>
             <div class="form-container">
                 <svg class="user-svg"><use xlink:href="{% static 'svg/user.svg' %}#user"></svg>
-                <form class="login-form">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" name="email" id="email" class="form-input" required>
+                <form class="login-form" action="{% url 'core:login_view' %}" method="post" novalidate>
+                    {% csrf_token %}
+
+                    <label for="username" class="form-label">Usuario</label>
+                    <input type="text" name="username" id="username" class="form-input" required>
                     <label for="password" class="form-label">Senha</label>
                     <input type="password" name="password" id="password" class="form-input" required>
                     <div class="form-options">

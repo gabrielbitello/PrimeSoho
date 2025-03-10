@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import pymysql
+
+
+pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,8 +30,13 @@ SECRET_KEY = 'django-insecure-_vb1)yj-(^jvv5k+vk57_2)ioo0bs@rj3*zr#of^72j&b@p7ah
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['http://127.0.0.1', 'localhost', 'dreamlandsmc.com.br']
+ALLOWED_HOSTS = ['http://127.0.0.1', 'localhost', 'dreamlandsmc.com.br', '192.168.100.11']
 
+#INTERNAL_IPS = [
+#    '191.218.132.32',
+#    'localhost',  # Adicione o IP de onde você está acessando o site
+#    "127.0.0.1",
+#]
 
 # Application definition
 
@@ -38,19 +47,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'stdimage',
+    #'debug_toolbar',
+
     'core',
     'juridico',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-#    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #'debug_toolbar.middleware.DebugToolbarMiddleware',
 #    'livereload.middleware.LiveReloadScript',
 ]
 
@@ -78,12 +91,16 @@ WSGI_APPLICATION = 'PrimeSoho.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-#}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'primesoho',
+        'USER': 'admin_primesoho',
+        'PASSWORD': 'A7z#fG9vL!p@6wQ',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+}
 
 
 # Password validation
@@ -140,3 +157,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # No settings.py
 # Temporariamente desabilite o cache de arquivos estáticos
 CACHE_BACKEND = 'django.core.cache.backends.locmem.LocMemCache'
+
+
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'  # Usar cache para sessões em vez de banco de dados
+SESSION_COOKIE_AGE = 3600  # 1 hora para expiração da sessão
+
+
+
+# No settings.py
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',  # Para desenvolvimento
+    }
+}
+
+
+# Adicionando o COOP aos cabeçalhos de segurança
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'

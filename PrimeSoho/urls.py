@@ -18,12 +18,19 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import handler404, handler500
 from core import views
+from PrimeSoho import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
     path('j/', include('juridico.urls')),
 ]
+
+#if settings.DEBUG:
+    #from debug_toolbar
+    #urlpatterns = [
+        #path('__debug__/', include(debug_toolbar.urls)),
+    #] + urlpatterns
 
 handler404 = views.error_404
 handler500 = views.error_500
