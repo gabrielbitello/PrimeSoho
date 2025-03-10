@@ -6,17 +6,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CORE-Login</title>
-    <link rel="stylesheet" href="{% static 'global/css/style_colors.css' %}">
-    <link rel="stylesheet" href="{% static 'core/css/style_login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_colors.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_login.css' %}">
 </head>
 <body>
 
     <main class="main-content">
 
         <section class="login-box">
-            <a class="back-button" href="../"><svg class="logo-svg"><use xlink:href="{% static 'global/svg/circle-cross.svg' %}#circle-cross"></use></svg></a>
+            <a class="back-button" href="../"><svg class="logo-svg"><use xlink:href="{% static 'svg/circle-cross.svg' %}#circle-cross"></use></svg></a>
             <div class="form-container">
-                <svg class="user-svg"><use xlink:href="{% static 'global/svg/user.svg' %}#user"></svg>
+                <svg class="user-svg"><use xlink:href="{% static 'svg/user.svg' %}#user"></svg>
                 <form class="login-form">
                     <label for="email" class="form-label">Email</label>
                     <input type="email" name="email" id="email" class="form-input" required>

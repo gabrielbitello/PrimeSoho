@@ -1,3 +1,9 @@
 .\venv\Scripts\activate
 $env:PYTHONPYCACHEPREFIX = "NUL"
 python .\manage.py runserver 0.0.0.0:8000
+
+python manage.py findstatic css/style_colors.css
+
+
+
+cd C:\Users\Gabriel\Documents\Documentos\Projetos\JPS\JuridicoPrimeSoho

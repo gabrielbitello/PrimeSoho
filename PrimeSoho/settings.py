@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-_vb1)yj-(^jvv5k+vk57_2)ioo0bs@rj3*zr#of^72j&b@p7ah
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['http://127.0.0.1:8000', 'http://localhost:8000', 'dreamlandsmc.com.br']
+ALLOWED_HOSTS = ['http://127.0.0.1', 'localhost', 'dreamlandsmc.com.br']
 
 
 # Application definition
@@ -38,19 +38,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'livereload',
     'core',
     'juridico',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+#    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#    'livereload.middleware.LiveReloadScript',
 ]
 
 ROOT_URLCONF = 'PrimeSoho.urls'
@@ -125,10 +126,17 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static_global'),  # Pasta global de estáticos (prioridade maior)
 ]
 
-
-STATIC_ROOT = 'static/'
+#STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+
+# No settings.py
+# Temporariamente desabilite o cache de arquivos estáticos
+CACHE_BACKEND = 'django.core.cache.backends.locmem.LocMemCache'

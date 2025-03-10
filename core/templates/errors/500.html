@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Não Encontrada</title>
+    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="{% static 'css/style_colors.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_errors.css' %}">
+
+</head>
+<body>
+    <div class="error-container">
+        <h1>500</h1>
+        <p>Desculpe, a página que você está procurando não foi encontrada, ou esta indisponivel no momento.</p>
+        <a href="../">Voltar para a Página Inicial</a>
+    </div>
+</body>
+</html>
