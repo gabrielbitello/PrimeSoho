@@ -32,7 +32,7 @@ def listar_formularios(request):
     # Renderiza a página com a lista de formulários
     return render(request, 'form_hub.html', {'formularios': formularios})
 
-@login_required(login_url='/login/')
+#@login_required(login_url='/login/')
 def formulario(request, folder):
     # Caminho da pasta onde os YAMLs estão localizados
     yaml_file_path = os.path.join(os.path.join(current_dir, 'docs'), folder, f'{folder}.yaml')
@@ -53,11 +53,14 @@ def formulario(request, folder):
     if request.method == 'POST':
         try:
             form_data = request.POST
+            
             # Agora você pode usar os dados do formulário para gerar o DOCX
             dados = {nome: form_data.get(nome) for nome, campo in parsed_data.items()}
 
             # Gerar o arquivo DOCX com os dados coletados
+            print(f'Gerando arquivo DOCX para o formulário {folder}...')
             docx_name = gen_docx(dados, folder, yaml_data)
+            print(f'Arquivo DOCX gerado com sucesso: {docx_name}')
 
             # Verifica se o arquivo foi gerado corretamente
             if os.path.exists(os.path.join(current_dir, 'output', docx_name)):
@@ -66,7 +69,7 @@ def formulario(request, folder):
                     return JsonResponse({"error": "Erro ao gerar o arquivo DOCX."}, status=500)
 
                 # Retornar a URL do arquivo gerado para o frontend
-                file_url = os.path.join('/output/', docx_name)  # Caminho relativo para o arquivo
+                file_url = os.path.join('/j/output/', docx_name)  # Caminho relativo para o arquivo
                 return JsonResponse({'message': 'O arquivo DOCX foi gerado com sucesso!', 'file_url': file_url})
             else:
                 return JsonResponse({"error": "Erro ao gerar o arquivo DOCX."}, status=500)
