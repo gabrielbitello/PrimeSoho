@@ -7,6 +7,9 @@ python manage.py findstatic css/style_colors.css
 
 python .\manage.py  shell
 
+python manage.py collectstatic
+
+
 
 
 cd C:\Users\Gabriel\Documents\Documentos\Projetos\JPS\JuridicoPrimeSoho

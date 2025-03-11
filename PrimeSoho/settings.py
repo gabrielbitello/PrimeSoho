@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-_vb1)yj-(^jvv5k+vk57_2)ioo0bs@rj3*zr#of^72j&b@p7ah'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['http://127.0.0.1', 'localhost', 'dreamlandsmc.com.br', '192.168.100.11']
 
@@ -150,7 +150,10 @@ STATICFILES_DIRS = [
 ]
 
 #STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-STATIC_ROOT = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -181,3 +184,24 @@ CACHES = {
 
 # Adicionando o COOP aos cabeçalhos de segurança
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
+
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': 'django_error.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
