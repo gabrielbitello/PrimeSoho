@@ -6,14 +6,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulário Dinâmico</title>
-    <link rel="stylesheet" href="{% static 'juridico/css/style_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_colors.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <header>
         <nav>
             <ul>
-                <li><a href="#">Docs</a></li>
+                <li><a href="/usuario"><div id="icon-corretor"><svg id="img-user"><use xlink:href="{% static 'svg/user.svg' %}#user"></use></svg></div></a></li>
+                <li><a href="{% url 'juridico:home' %}">juridico</a></li>
+                <li><a href="{% url 'juridico:form_hub' %}">Docx</a></li>
             </ul>
         </nav>
     </header>
@@ -39,6 +43,6 @@
 
 
     <!-- Aqui será inserido o código JS gerado dinamicamente -->
-    <script src="{% static 'juridico/js/script_form.js' %}"></script>
+    <script src="{% static 'js/script_form.js' %}"></script>
 </body>
 </html>

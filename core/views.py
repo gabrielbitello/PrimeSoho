@@ -4,7 +4,7 @@ from django.http import JsonResponse, HttpResponse
 from django.template import loader
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login 
-from django.views.decorators.cache import cache_page
+from django.contrib.auth.decorators import login_required
 
 # View para a página inicial
 def index(request):
@@ -34,11 +34,10 @@ def login_view(request):  # Mudamos o nome da função para evitar conflito
 
 
 # View para a página de home
+@login_required(login_url='/login/')
 def home(request):
-    if request.user.is_authenticated:
-        return render(request, 'home.html')
-    else:
-        return HttpResponse('Acesso negado')
+    return render(request, 'home.html')
+
 
 def error_404(request, exception):
     tempalte = loader.get_template('errors/404.html')

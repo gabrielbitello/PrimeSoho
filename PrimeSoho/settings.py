@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'stdimage',
     #'debug_toolbar',
+    'livereload',
 
     'core',
     'juridico',
@@ -64,7 +65,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #'debug_toolbar.middleware.DebugToolbarMiddleware',
-#    'livereload.middleware.LiveReloadScript',
+    'livereload.middleware.LiveReloadScript',
 ]
 
 ROOT_URLCONF = 'PrimeSoho.urls'
@@ -97,10 +98,15 @@ DATABASES = {
         'NAME': 'primesoho',
         'USER': 'admin_primesoho',
         'PASSWORD': 'A7z#fG9vL!p@6wQ',
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
+        "OPTIONS": {
+            "init_command": "SET SESSION wait_timeout=28800",  # Mantém conexões ativas
+        },
     }
 }
+
+DATABASES["default"]["CONN_MAX_AGE"] = 120  # Mantém a conexão por 120s
 
 
 # Password validation

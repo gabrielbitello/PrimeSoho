@@ -5,17 +5,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Formulários</title>
-    <link rel="stylesheet" href="{% static 'juridico/css/style_form.css' %}">
+    <title>CORE-Lista de Formulários</title>
+    <link rel="stylesheet" href="{% static 'css/style_colors.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_forms_hub.css' %}">
 </head>
 <body>
-    <div class="container">
-        <h1>Lista de Formulários</h1>
-        <ul>
-            {% for formulario in formularios %}
-                <li><a href="{% url 'juridico:formulario' formulario %}">{{ formulario }}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/usuario"><div id="icon-corretor"><svg id="img-user"><use xlink:href="{% static 'svg/user.svg' %}#user"></use></svg></div></a></li>
+                <li><a href="{% url 'core:home' %}">Home</a></li>
+                <li><a href="{% url 'juridico:home' %}">Juridico</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="S1">
+            <h1>Lista de DOCX disponiveis</h1>
+            <ul>
+                {% for formulario in formularios %}
+                    <li><a href="{% url 'juridico:formulario' formulario %}">{{ formulario }}</a></li>
+                {% endfor %}
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>©2025 Sistema de Automação. Todos os direitos reservados.</p>
+        <p>Contato: <a href="mailto:vg.bitello@gmail.com">vg.bitello@gmail.com</a></p>
+    </footer>
 </body>
 </html>

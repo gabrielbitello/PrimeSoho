@@ -1,0 +1,129 @@
+header {
+    background-color: var(--dark-blue);
+    padding: 1rem;
+}
+
+nav ul {
+    display: flex;
+    justify-content: space-between; /* Distribui os itens com espaço entre eles */
+    align-items: center;
+    padding: 0 20px; /* Adiciona espaçamento nas laterais */
+    flex-wrap: wrap; /* Permite que os itens se ajustem em várias linhas em telas menores */
+    gap: 1rem; /* Adiciona espaçamento uniforme entre os itens */
+    list-style: none; /* Remove os marcadores de lista */
+    margin: 0; /* Remove a margem padrão */
+}
+
+nav li {
+    flex: 1; /* Permite que os itens cresçam igualmente */
+    text-align: center; /* Centraliza o texto dos itens */
+}
+
+nav li:first-child, nav li:first-child a {
+    text-align: left; /* Alinha o primeiro item à esquerda */
+}
+
+nav li:last-child, nav li:last-child a {
+    text-align: right; /* Alinha o último item à direita */
+}
+
+nav a {
+    color: var(--white);
+    font-weight: bold;
+    transition: color 0.3s;
+    font-size: 1.2rem; /* Aumenta o tamanho das letras */
+    padding: 0.5rem 1rem; /* Adiciona padding para tornar os links mais clicáveis */
+    text-align: center; /* Centraliza o texto */
+    display: block; /* Garante que o link ocupe todo o espaço do item */
+}
+
+nav a:hover {
+    color: var(--gold);
+}
+
+
+#icon-corretor {
+    width: 3.4em;
+    border-radius: 50%;
+    background-color: #005A8D; /* Azul um pouco mais claro */
+    border: 3px solid #002A4A; /* Azul um pouco mais escuro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 6px; /* Espaçamento em relação à borda da barra de pesquisa */
+}
+
+#img-user {
+    width: 3.2em;
+    height: 3.2em;
+    color: #002A4A; 
+}
+
+
+
+
+/* Reset básico */
+body, h1, h2, p, ul, li, a {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Estilos gerais */
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--white);
+    color: var(--dark-blue);
+    line-height: 1.6;
+}
+
+main {
+    padding: 2rem;
+}
+
+
+
+
+
+
+
+
+footer {
+    background-color: var(--dark-blue);
+    color: var(--white);
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+}
+
+footer a {
+    color: var(--gold);
+    transition: color 0.3s;
+}
+
+footer a:hover {
+    color: var(--white);
+}
+
+
+/* Responsividade */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column; /* Alinha os itens verticalmente em telas menores */
+        gap: 0.5rem; /* Reduz o espaçamento entre os itens */
+    }
+
+    nav a {
+        font-size: 1rem; /* Reduz o tamanho da fonte em telas menores */
+        padding: 0.5rem; /* Ajusta o padding para telas menores */
+    }
+}
+
+@media (max-width: 480px) {
+    nav a {
+        font-size: 0.9rem; /* Reduz ainda mais o tamanho da fonte em telas muito pequenas */
+        padding: 0.4rem; /* Ajusta o padding para telas muito pequenas */
+    }
+}

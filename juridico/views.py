@@ -6,10 +6,16 @@ from django.conf import settings
 from .utils.forms import gerar_formulario
 from .utils.yaml_receiver import load_yaml, parse_yaml
 from .utils.docx_generator import gen_docx
+from django.contrib.auth.decorators import login_required
 
 # Obtém o diretório onde o arquivo views.py está localizado
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
+@login_required(login_url='/login/')
+def j_home(request):
+    return render(request, 'j_home.html')
+
+@login_required(login_url='/login/')
 def listar_formularios(request):
 
     # Lista de formulários disponíveis
@@ -26,6 +32,7 @@ def listar_formularios(request):
     # Renderiza a página com a lista de formulários
     return render(request, 'form_hub.html', {'formularios': formularios})
 
+@login_required(login_url='/login/')
 def formulario(request, folder):
     # Caminho da pasta onde os YAMLs estão localizados
     yaml_file_path = os.path.join(os.path.join(current_dir, 'docs'), folder, f'{folder}.yaml')

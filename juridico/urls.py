@@ -6,8 +6,9 @@ import os
 app_name = 'juridico'
 
 urlpatterns = [
-    path('formulario/', views.listar_formularios, name='listar_formularios'),
+    path('formulario/', views.listar_formularios, name='form_hub'),
     path('formulario/<str:folder>/', views.formulario, name='formulario'),
+    path('home/', views.j_home, name='home'),
 ]
 
 # Adiciona uma URL específica para a pasta output

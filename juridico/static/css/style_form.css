@@ -5,45 +5,6 @@
     box-sizing: border-box;
 }
 
-/* Corpo principal */
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f9fb;
-    color: #333;
-    line-height: 1.6;
-}
-
-/* Layout */
-header {
-    background-color: #003366; /* Azul escuro */
-    color: white;
-    padding: 20px 0;
-    text-align: center;
-}
-
-nav {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-nav a {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-footer {
-    background-color: #003366;
-    color: white;
-    text-align: center;
-    padding: 10px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-}
-
-/* Estilos para o popup */
 /* Estilos para o popup */
 .popup {
     display: none;

@@ -8,21 +8,25 @@
     <title>CORE</title>
     <link rel="stylesheet" href="{% static 'css/style_colors.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style_index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_j_home.css' %}">
 </head>
 <body>
     <header>
         <nav>
             <ul>
                 <li><a href="/usuario"><div id="icon-corretor"><svg id="img-user"><use xlink:href="{% static 'svg/user.svg' %}#user"></use></svg></div></a></li>
-                <li><a href="{% url 'juridico:home' %}">Juridico</a></li>
+                <li><a href="{% url 'core:home' %}">Home</a></li>
                 <li><a href=""></a></li>
             </ul>
         </nav>
     </header>
 
     <main>
-        
+        <section class="S1">
+            <div class="div_btns">
+                <button class="btn"><a href="{% url 'juridico:form_hub' %}">Criar DOCX</a></button>
+            </div>
+        </section>
     </main>
 
     <footer>
