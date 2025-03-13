@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.index, name='index'),  # Página inicial
     path('login/', views.login_view, name='login_view'),  # Página de login
     path('home/', views.home, name='home'),  # Página de home
+    path("recuperar_senha/", views.recover_password_view, name="recuperar_senha"),  # URL para recuperar senha 
 ]

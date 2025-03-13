@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-_vb1)yj-(^jvv5k+vk57_2)ioo0bs@rj3*zr#of^72j&b@p7ah'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['http://127.0.0.1', 'localhost', 'dreamlandsmc.com.br', '192.168.100.11']
 
@@ -205,3 +205,15 @@ LOGGING = {
         },
     },
 }
+
+
+#configuracao do email
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "localhost"
+EMAIL_PORT = 1025
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = 'no-repli@dreamlandsmc.com.br'
+
+
+LOGIN_REDIRECT_URL = None  # Não redireciona automaticamente

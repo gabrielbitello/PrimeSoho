@@ -260,39 +260,31 @@ def verificar_condicoes(dados, yaml_data, campo_verificado):
 def gen_docx(dados, folder, yaml_data):
     """Preenche o modelo DOCX com os dados do formulário e do YAML."""
     caminho_template = os.path.abspath(os.path.join(docs_path, folder, f'{folder}.docx'))
-    print(f"DEBUG: Caminho do template DOCX: {caminho_template}")
 
     unique_id = str(uuid.uuid4())[:8]
-    print(f"DEBUG: Unique ID gerado: {unique_id}")
 
     # Adiciona variáveis do YAML aos dados, se ainda não existirem
     for campo_yaml in yaml_data.get('Documentos', {}).get('Documentos-Config', []):
         nome_campo = campo_yaml.get('nome')
         if nome_campo and nome_campo not in dados:
             dados[nome_campo] = campo_yaml.get('variaveis', [None])[0] or ""
-            print(f"DEBUG: Adicionando variável do YAML aos dados: {nome_campo} = {dados[nome_campo]}")
 
     # Carrega o arquivo DOCX
     doc = Document(caminho_template)
-    print(f"DEBUG: Documento DOCX carregado com sucesso.")
 
     if not doc.paragraphs:
         raise ValueError(f"O template {caminho_template} não contém parágrafos.")
 
     # Substituição de variáveis no documento
     for paragrafo in doc.paragraphs:
-        print(f"DEBUG: Substituindo variáveis no parágrafo: {paragrafo.text}")
         substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc)
 
     # Substituição dentro das tabelas
-    print(f"DEBUG: Substituindo variáveis nas tabelas.")
     substituir_variaveis_nas_tabelas(doc, dados, yaml_data)
 
     # Salva o arquivo gerado
     caminho_saida = (f'{folder}_preenchido_{unique_id}.docx')
     output_path_formated = os.path.abspath(os.path.join(output_path, caminho_saida))
-    print(f"DEBUG: Caminho de saída completo: {output_path_formated}")
     doc.save(output_path_formated)
-    print(f"DEBUG: Documento salvo em: {output_path}")
 
     return caminho_saida

@@ -70,35 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-
-function showPopup(message, fileUrl = null) {
-    // Exibe a mensagem no popup
-    document.getElementById('popup-message').innerText = message;
-
-    const downloadLink = document.getElementById('download-button');
-
-    // Se um arquivo URL foi retornado, exibe o link para download
-    if (fileUrl) {
-        downloadLink.style.display = 'block';  // Exibe o link de download
-        downloadLink.href = fileUrl;  // Define o URL do arquivo
-
-        // Opcional: Exibe uma mensagem ou outros detalhes no popup
-    } else {
-        downloadLink.style.display = 'none';  // Oculta o link se não houver URL
-    }
-
-    // Exibe o overlay e o popup
-    document.querySelector('.popup-overlay').style.display = 'block';
-    document.getElementById('popup').style.display = 'block';
-}
-
-function closePopup() {
-    // Fecha o popup
-    document.querySelector('.popup-overlay').style.display = 'none';
-    document.getElementById('popup').style.display = 'none';
-    document.getElementById('download-link').style.display = 'none';  // Esconde o link de download
-}
-
 $(document).ready(function () {
     $('#dynamicForm').submit(function (event) {
         event.preventDefault(); // Impede o envio padrão do formulário
@@ -112,13 +83,49 @@ $(document).ready(function () {
             success: function (response) {
                 // Se a URL do arquivo foi retornada corretamente
                 if (response.file_url) {
-                    showPopup('O arquivo DOCX foi gerado com sucesso!', response.file_url);
+                    // Exemplo de popup com link para download do arquivo
+                    popup.Open_PopUp({
+                        type: 'success', // Tipo do popup, pode ser 'success', 'error', 'neutral'
+                        message: 'O arquivo DOCX foi gerado com sucesso!',
+                        buttons: [{
+                            label: 'Baixar DOCX',
+                            action: function () {
+                                window.location.href = response.file_url; // Redireciona para o link do arquivo
+                            },
+                            close: true // Fecha o popup após clicar no botão
+                        }],
+                        autoClose: 0 // Opcional: se não precisar de um tempo para fechar, pode deixar 0
+                    });
                 } else {
-                    showPopup('Ocorreu um erro ao gerar o arquivo DOCX.');
+                    // Exemplo de popup sem link, caso haja erro
+                    popup.Open_PopUp({
+                        type: 'error', // Tipo do popup
+                        message: 'Ocorreu um erro ao gerar o arquivo DOCX.',
+                        buttons: [{
+                            label: 'Fechar',
+                            action: function () {
+                                // Função de fechamento (não precisa de ação extra aqui)
+                            },
+                            close: true
+                        }],
+                        autoClose: 0
+                    });
                 }
             },
             error: function (xhr, status, error) {
-                showPopup('Ocorreu um erro: ' + error);
+                // Exibe um popup de erro
+                popup.Open_PopUp({
+                    type: 'error',
+                    message: 'Ocorreu um erro: ' + error,
+                    buttons: [{
+                        label: 'Fechar',
+                        action: function () {
+                            // Função de fechamento (não precisa de ação extra aqui)
+                        },
+                        close: true
+                    }],
+                    autoClose: 0
+                });
             }
         });
     });

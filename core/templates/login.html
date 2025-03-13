@@ -8,6 +8,8 @@
     <title>CORE-Login</title>
     <link rel="stylesheet" href="{% static 'css/style_colors.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/popup.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 
@@ -17,7 +19,7 @@
             <a class="back-button" href="../"><svg class="logo-svg"><use xlink:href="{% static 'svg/circle-cross.svg' %}#circle-cross"></use></svg></a>
             <div class="form-container">
                 <svg class="user-svg"><use xlink:href="{% static 'svg/user.svg' %}#user"></svg>
-                <form class="login-form" action="{% url 'core:login_view' %}" method="post" novalidate>
+                <form class="login-form" action="{% url 'core:login_view' %}" method="post" novalidate id="loginForm">
                     {% csrf_token %}
 
                     <label for="username" class="form-label">Usuario</label>
@@ -29,18 +31,34 @@
                             <input type="checkbox" name="remember" id="remember" class="form-checkbox">
                             <label for="remember" class="form-label">Lembrar-me</label>
                         </div>
-                        <a href="#" class="forgot-password">Esqueceu a senha?</a>
+                        <a href="" class="forgot-password" id="forgotPasswordLink">Esqueceu a senha?</a>
                     </div>
                     <input type="submit" value="Entrar" class="form-submit">
                 </form>
             </div>
         </section>
-
+        
     </main>
+
+    <!-- Estrutura do popup já existente -->
+    <div class="popup-overlay" id="popupOverlay" style="display: none;"></div>
+    <div class="popup" id="popup" style="display: none;">
+        <button class="close-btn" id="closePopup">×</button>
+        <div id="popup-message"></div>
+        <div class="input-container">
+            <label for="username-input">Nome de usuário:</label>
+            <input type="text" id="username-input" placeholder="Seu nome de usuário..." class="input-field">
+            <button class="submit-btn">Enviar</button>
+        </div>
+    </div>
+
 
     <footer class="footer">
         <p class="footer-copyright">©2025 Sistema de Automação. Todos os direitos reservados.</p>
         <p class="footer-contact">Contato: <a href="mailto:vg.bitello@gmail.com" class="footer-email">vg.bitello@gmail.com</a></p>
     </footer>
+
+    <script src="{% static 'js/js-login.js' %}"></script>
+    <script src="{% static 'js/popup.js' %}"></script>
 </body>
 </html>

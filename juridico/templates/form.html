@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{% static 'css/style_colors.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_base.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/popup.css' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
@@ -33,16 +34,21 @@
     </main>
 
     <!-- Popup HTML -->
-    <div class="popup-overlay" style="display:none;">
-        <div id="popup" class="popup" style="display:none;">
-            <button class="close-btn" onclick="closePopup()">×</button>
-            <p id="popup-message"></p>
-            <a id="download-button" href="#" style="display:none;" class="btn btn-primary download-btn" target="_blank">Baixar DOCX</a>
+    <div class="popup-overlay" id="popupOverlay" style="display: none;"></div>
+    <div class="popup" id="popup" style="display: none;">
+        <button class="close-btn" id="closePopup">×</button>
+        <div id="popup-message"></div>
+        <div class="input-container">
+            <label for="username-input">Nome de usuário:</label>
+            <input type="text" id="username-input" placeholder="Seu nome de usuário..." class="input-field">
+            <button class="submit-btn">Enviar</button>
         </div>
-    </div>    
-
+    </div>
+        
+    
 
     <!-- Aqui será inserido o código JS gerado dinamicamente -->
     <script src="{% static 'js/script_form.js' %}"></script>
+    <script src="{% static 'js/popup.js' %}"></script>
 </body>
 </html>
