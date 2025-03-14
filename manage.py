@@ -2,11 +2,9 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from smtp_server import start_smtp
 
 def main():
     """Run administrative tasks."""
-    #start_smtp()
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'PrimeSoho.settings')
     try:
         from django.core.management import execute_from_command_line

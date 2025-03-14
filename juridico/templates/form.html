@@ -27,7 +27,7 @@
 
     <main>
         <section class="Formulario">
-            <form method="POST" id="dynamicForm">
+            <form method="POST" id="dynamicForm" action="{{ request.path }}">
                 {{ form_html | safe }}
             </form>
         </section>

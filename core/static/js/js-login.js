@@ -23,7 +23,15 @@ function initLoginForm() {
 // Função para enviar a requisição de login
 async function handleLogin(data) {
     try {
+        // Verificando os dados antes de enviar
+        console.log('Dados a serem enviados:', data); // Verifique no console se os dados estão corretos
+
+        // Enviando a requisição para o Django
         const response = await api.post('login/', data);
+
+        // Verificando a resposta
+        console.log('Resposta do servidor:', response); // Verifique a resposta no console
+
         if (response.success) {
             popup.Open_PopUp({
                 type: 'success',
@@ -44,6 +52,7 @@ async function handleLogin(data) {
         });
     }
 }
+
 
 // Função para inicializar o clique no "Esqueci minha senha"
 function initForgotPasswordLink() {

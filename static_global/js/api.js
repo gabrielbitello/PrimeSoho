@@ -2,7 +2,7 @@ class HttpClient {
     constructor(baseURL = '', defaultHeaders = {}) {
         this.baseURL = baseURL;
         this.defaultHeaders = {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded', // Altera para o tipo de conteúdo de formulário
             ...defaultHeaders
         };
 
@@ -23,8 +23,9 @@ class HttpClient {
             headers: { ...this.defaultHeaders, ...headers } // Adiciona os cabeçalhos personalizados aos padrões
         };
 
+        // Converte os dados para o formato application/x-www-form-urlencoded, se existirem
         if (data) {
-            options.body = JSON.stringify(data); // Envia os dados como JSON no corpo da requisição
+            options.body = new URLSearchParams(data).toString(); // Converte os dados em formato de formulário
         }
 
         try {

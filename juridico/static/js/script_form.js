@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-const api = new HttpClient('/');
+const api = new HttpClient('/j/formulario/');
 
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("dynamicForm");
@@ -85,9 +85,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const formData = new FormData(form);
         const actionUrl = form.getAttribute("action"); // Obtém a URL do atributo 'action'
+        let lastSegment = actionUrl.split('/').filter(Boolean).pop(); // Obtém o último segmento após o último '/'
+
+        // Verifica se o último segmento não termina com '/' e adiciona
+        if (lastSegment.charAt(lastSegment.length - 1) !== '/') {
+            lastSegment += '/';
+        }
+
+        console.log(lastSegment);
+
+
+        // Converte FormData para um objeto simples que pode ser passado para o HttpClient
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
 
         try {
-            const response = await api.post(actionUrl, formData);
+            const response = await api.post(lastSegment, data); // Envia como dados de formulário
 
             if (response.file_url) {
                 popup.Open_PopUp({
