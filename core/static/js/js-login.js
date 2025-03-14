@@ -23,22 +23,30 @@ function initLoginForm() {
 // Função para enviar a requisição de login
 async function handleLogin(data) {
     try {
-        // Verificando os dados antes de enviar
-        console.log('Dados a serem enviados:', data); // Verifique no console se os dados estão corretos
-
         // Enviando a requisição para o Django
         const response = await api.post('login/', data);
 
-        // Verificando a resposta
-        console.log('Resposta do servidor:', response); // Verifique a resposta no console
-
         if (response.success) {
-            popup.Open_PopUp({
-                type: 'success',
-                message: 'Login realizado com sucesso!',
-                autoClose: 5,
-                redirectUrl: '/home/'
-            });
+            // Verifica se há um parâmetro "next" na URL
+            const redirectUrl = getRedirectUrl();
+            
+            // Se houver um "next", redireciona para ele
+            if (redirectUrl) {
+                popup.Open_PopUp({
+                    type: 'success',
+                    message: 'Login realizado com sucesso!',
+                    autoClose: 5,
+                    redirectUrl: redirectUrl
+                });
+            } else {
+                // Se não houver "next", redireciona para a página padrão
+                popup.Open_PopUp({
+                    type: 'success',
+                    message: 'Login realizado com sucesso!',
+                    autoClose: 5,
+                    redirectUrl: '/home/'
+                });
+            }
         } else {
             popup.Open_PopUp({
                 type: 'error',
@@ -53,6 +61,11 @@ async function handleLogin(data) {
     }
 }
 
+// Função para obter o valor do parâmetro "next" na URL
+function getRedirectUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('next') || null; // Retorna o valor de "next" ou null se não existir
+}
 
 // Função para inicializar o clique no "Esqueci minha senha"
 function initForgotPasswordLink() {

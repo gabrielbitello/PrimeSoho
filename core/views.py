@@ -34,8 +34,6 @@ def login_view(request):
             return JsonResponse({'success': True, 'message': 'Login realizado com sucesso!'})
         else:
             # Se as credenciais forem inválidas, retorna uma resposta JSON de erro
-            print(f'Usuário ou senha inválidos: {usuario} / {senha}')
-            print(f'Post: {request.POST}')
             return JsonResponse({'success': False, 'message': 'Usuário ou senha inválidos!'})
 
     # Se for uma requisição GET, apenas renderiza o formulário de login

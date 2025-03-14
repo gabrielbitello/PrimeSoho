@@ -31,7 +31,7 @@ def gerar_formulario(parsed_data):
             form_html += f'''
             <div class="form-group" id="campo_{nome}"{condicao_attr}>
                 <label for="{nome}">{descricao}:</label>
-                <input type="email" id="{nome}" name="{nome}" placeholder="prime.soho@primesoho.com.br" {requerido}>
+                <input type="email" id="{nome}" name="{nome}" class="email" placeholder="prime.soho@primesoho.com.br" {requerido}>
             </div>
             '''
         elif tipo == 'date':
@@ -45,14 +45,14 @@ def gerar_formulario(parsed_data):
             form_html += f'''
             <div class="form-group" id="campo_{nome}"{condicao_attr}>
                 <label for="{nome}">{descricao}:</label>
-                <input type="tel" id="{nome}" name="{nome}" pattern="\\(\\d{{2}}\\) \\d{{5}}-\\d{{4}}" placeholder="(XX) XXXXX-XXXX" {requerido}>
+                <input type="tel" id="{nome}" name="{nome}" class="phone" placeholder="+55 (XX) XXXXX-XXXX" {requerido}>
             </div>
             '''
         elif tipo == 'cpf':
             form_html += f'''
             <div class="form-group" id="campo_{nome}"{condicao_attr}>
                 <label for="{nome}">{descricao}:</label>
-                <input type="text" id="{nome}" name="{nome}" pattern="\\d{{3}}\\.\\d{{3}}\\.\\d{{3}}-\\d{{2}}" placeholder="XXX.XXX.XXX-XX" {requerido}>
+                <input type="text" id="{nome}" name="{nome}" class="cpf" placeholder="XXX.XXX.XXX-XX" {requerido}>
             </div>
             '''
         elif tipo == 'select' and 'variaveis' in campo and campo['variaveis']:
