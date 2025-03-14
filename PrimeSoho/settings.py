@@ -210,10 +210,11 @@ LOGGING = {
 #configuracao do email
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "localhost"
-EMAIL_PORT = 1025
+EMAIL_PORT = 25
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
-EMAIL_HOST_USER = 'no-repli@dreamlandsmc.com.br'
+EMAIL_HOST_USER = 'no-reply@dreamlandsmc.com.br'
+EMAIL_HOST_PASSWORD = 'no-reply'
 
 
 LOGIN_REDIRECT_URL = None  # Não redireciona automaticamente

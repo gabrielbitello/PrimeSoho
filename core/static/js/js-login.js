@@ -1,53 +1,53 @@
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', () => {
     // Inicializa o formulário de login e o clique do link "Esqueci minha senha"
     initLoginForm();
     initForgotPasswordLink();
 });
 
+// Instância do HttpClient para facilitar as requisições
+const api = new HttpClient('/');
+
 // Função para inicializar o formulário de login
 function initLoginForm() {
-    $('#loginForm').on('submit', function (event) {
+    document.getElementById('loginForm')?.addEventListener('submit', async (event) => {
         event.preventDefault(); // Impede o envio padrão do formulário
 
-        const formData = $(this).serialize(); // Coleta os dados do formulário
-        console.log("Formulário de login enviado com os dados:", formData);
-        handleLogin(formData);
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries()); // Converte para um objeto JS
+
+        console.log("Formulário de login enviado com os dados:", data);
+        await handleLogin(data);
     });
 }
 
 // Função para enviar a requisição de login
-function handleLogin(formData) {
-    $.ajax({
-        url: '/login/', // A URL do Django para o login
-        type: 'POST',
-        data: formData,
-        success: function (response) {
-            if (response.success) {
-                popup.Open_PopUp({
-                    type: 'success',
-                    message: 'Login realizado com sucesso!',
-                    autoClose: 5,
-                    redirectUrl: '/home/'
-                });
-            } else {
-                popup.Open_PopUp({
-                    type: 'error',
-                    message: response.message || 'Erro desconhecido.'
-                });
-            }
-        },
-        error: function (xhr, status, error) {
+async function handleLogin(data) {
+    try {
+        const response = await api.post('login/', data);
+        if (response.success) {
+            popup.Open_PopUp({
+                type: 'success',
+                message: 'Login realizado com sucesso!',
+                autoClose: 5,
+                redirectUrl: '/home/'
+            });
+        } else {
             popup.Open_PopUp({
                 type: 'error',
-                message: `Ocorreu um erro: ${error}`
+                message: response.message || 'Erro desconhecido.'
             });
         }
-    });
+    } catch (error) {
+        popup.Open_PopUp({
+            type: 'error',
+            message: `Ocorreu um erro: ${error.message}`
+        });
+    }
 }
 
 // Função para inicializar o clique no "Esqueci minha senha"
 function initForgotPasswordLink() {
-    $('#forgotPasswordLink').on('click', function (event) {
+    document.getElementById('forgotPasswordLink')?.addEventListener('click', (event) => {
         event.preventDefault(); // Previne o comportamento padrão
         showRecoveryPasswordPopup();
     });
@@ -65,38 +65,33 @@ function showRecoveryPasswordPopup() {
         }],
         buttons: [{
             label: 'Recuperar senha',
-            action: () => {
+            action: async () => {
                 const username = document.querySelector('input[name="username"]').value;
-                recoverPassword(username);
+                await recoverPassword(username);
             }
         }]
     });
 }
 
 // Função para recuperar a senha
-function recoverPassword(username) {
-    $.ajax({
-        url: '/recover-password/', // A URL para recuperação de senha
-        type: 'POST',
-        data: { username: username },
-        success: function (response) {
-            if (response.success) {
-                popup.Open_PopUp({
-                    type: 'success',
-                    message: 'Email enviado para recuperação de senha!'
-                });
-            } else {
-                popup.Open_PopUp({
-                    type: 'error',
-                    message: response.message || 'Erro ao tentar recuperar senha.'
-                });
-            }
-        },
-        error: function (xhr, status, error) {
+async function recoverPassword(username) {
+    try {
+        const response = await api.post('recover-password/', { username });
+        if (response.success) {
+            popup.Open_PopUp({
+                type: 'success',
+                message: 'Email enviado para recuperação de senha!'
+            });
+        } else {
             popup.Open_PopUp({
                 type: 'error',
-                message: `Erro ao tentar recuperar a senha: ${error}`
+                message: response.message || 'Erro ao tentar recuperar senha.'
             });
         }
-    });
+    } catch (error) {
+        popup.Open_PopUp({
+            type: 'error',
+            message: `Erro ao tentar recuperar a senha: ${error.message}`
+        });
+    }
 }

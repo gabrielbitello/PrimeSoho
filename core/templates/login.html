@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="{% static 'css/style_colors.css' %}">
     <link rel="stylesheet" href="{% static 'css/style_login.css' %}">
     <link rel="stylesheet" href="{% static 'css/popup.css' %}">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/api.js' %}"></script>
+
+    <meta name="csrf-token" content="{{ csrf_token }}">
 </head>
 <body>
 
@@ -20,8 +22,6 @@
             <div class="form-container">
                 <svg class="user-svg"><use xlink:href="{% static 'svg/user.svg' %}#user"></svg>
                 <form class="login-form" action="{% url 'core:login_view' %}" method="post" novalidate id="loginForm">
-                    {% csrf_token %}
-
                     <label for="username" class="form-label">Usuario</label>
                     <input type="text" name="username" id="username" class="form-input" required>
                     <label for="password" class="form-label">Senha</label>

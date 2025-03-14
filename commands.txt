@@ -1,18 +1,14 @@
+cd C:\Users\Gabriel\Documents\Documentos\Projetos\JPS\JuridicoPrimeSoho
 .\venv\Scripts\activate
 $env:PYTHONPYCACHEPREFIX = "NUL"
+
+
 python .\manage.py runserver 0.0.0.0:8000
+< ou >
+uvicorn PrimeSoho.asgi:application --host 0.0.0.0 --port 8000 --reload
+
+
 
 python manage.py findstatic css/style_colors.css
-
-
 python .\manage.py  shell
-
 python manage.py collectstatic
-
-
-
-
-cd C:\Users\Gabriel\Documents\Documentos\Projetos\JPS\JuridicoPrimeSoho
-
-
-uvicorn PrimeSoho.asgi:application --host 0.0.0.0 --port 8000 --reload
