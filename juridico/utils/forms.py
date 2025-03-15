@@ -79,6 +79,18 @@ def gerar_formulario(parsed_data):
                 <input type="checkbox" id="{nome}" name="{nome}" {requerido}>
             </div>
             '''
+        elif tipo == 'datalist' and 'variaveis' in campo and campo['variaveis']:
+            options = ''.join([f'<option value="{var}">{var}</option>' for var in campo['variaveis']])
+            form_html += f'''
+            <div class="form-group" id="campo_{nome}"{condicao_attr}>
+                <label for="{nome}">{descricao}:</label>
+                <input list="opcoes_{nome}" id="{nome}" name="{nome}" {requerido}>
+                <datalist id="opcoes_{nome}">
+                    {options}
+                </datalist>
+            </div>
+            '''
+
 
     form_html += '''
     <div class="form-group">

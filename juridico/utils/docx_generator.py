@@ -54,13 +54,22 @@ def parse_string(input_str):
     if ":" in input_str:
         parts = input_str.split(":")
         x = parts[0]
-        y = parts[1] if "/" not in parts[1] else parts[1].split("/")[0]
-        modifier = parts[1].split("/")[1] if "/" in parts[1] else None
+        if "/" in parts[1]:
+            y, modifier = parts[1].split("/")
+        else:
+            y = parts[1]
+            modifier = None
         return x, y, modifier
+    
+    elif "/" in input_str:
+        x, modifier = input_str.split("/")
+        return x, None, modifier
+    
     else:
         return input_str, None, None
 
-def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados):
+
+def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados, yaml):
     """Aplica as regras de forma automática com base nas configurações no YAML para o valor da variável."""
 
     # Se não houver regras, retornamos o valor sem alteração
@@ -101,17 +110,35 @@ def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados):
                 elif regra == "Formater" and isinstance(regra_valor, str):
                     def substituir_variavel(match):
                         chave = match.group(1)
-                        if chave in dados:
+
+                        # Tenta buscar no dicionário `dados`
+                        if chave in dados and dados[chave] is not None:
                             return str(dados[chave])
-                        elif chave in yaml_data:
-                            valor_chave = yaml_data[chave]
-                            if valor_chave is None:
-                                valor_chave = aplicar_regras_para_valor(None, yaml_data, chave, doc, dados)
-                            return str(valor_chave)
-                        return match.group(0)  # Mantém o placeholder se não encontrar
-                    
+                        else:
+                            # Busca no YAML dentro de `Documentos-Config`
+                            documentos_config = yaml.get('Documentos', {}).get('Documentos-Config', [])
+                            item_filtrado = next((item for item in documentos_config if item.get('nome') == chave), None)
+
+                            if item_filtrado:
+
+                                if item_filtrado.get('regras') or item_filtrado.get('condicao'):
+
+                                    if not verificar_condicoes(dados, item_filtrado, None):
+                                        return ""
+
+                                    variaveis_yaml = item_filtrado.get('variaveis', [])
+                                    novo_valor = variaveis_yaml[0] if variaveis_yaml else None
+
+                                    # Se `novo_valor` for None, aplicar regras adicionais
+                                    if novo_valor is None:
+                                        novo_valor = aplicar_regras_para_valor(None, item_filtrado, chave, doc, dados, None)
+                                    
+                                    return str(novo_valor) if novo_valor is not None else match.group(0)
+
+                            return ""
+
                     valor = re.sub(r'\{(.*?)\}', substituir_variavel, regra_valor)
-    
+
     return valor
 
 def get_counter_value(x, y=None):
@@ -181,7 +208,7 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
                 if variaveis_yaml:
                     novo_valor = variaveis_yaml[0]
 
-            novo_valor = aplicar_regras_para_valor(novo_valor, item_filtrado, chave, doc, dados)
+            novo_valor = aplicar_regras_para_valor(novo_valor, item_filtrado, chave, doc, dados, yaml_data)
 
             for run in paragrafo.runs:
                 if chave_formatada in run.text:
@@ -236,24 +263,54 @@ def verificar_condicoes(dados, yaml_data, campo_verificado):
     # Itera sobre as condições para o campo
     for chave, valor in condicao.items():
 
-        if chave in dados:
-            campo_valor = dados[chave]
+        # Caso a chave contenha o caractere '/', ela deve ser dividida e tratada como um "OU"
+        if '/' in chave:
+            # Dividir a chave pelo '/' e verificar se ao menos uma das partes tem o valor esperado
+            chaves = chave.split('/')
+            condicao_atendida = False
 
-            # Verifica se o valor da condição é uma lista
-            if isinstance(valor, list):
-                if campo_valor not in valor:
-                    return False
-            # Verifica a condição booleana
-            elif isinstance(valor, bool):
-                if valor and not campo_valor:
-                    return False
-                elif not valor and campo_valor:
-                    return False
-            # Caso a condição seja um valor simples
-            elif campo_valor != valor:
+            for chave_parte in chaves:
+                if chave_parte in dados:
+                    campo_valor = dados[chave_parte]
+
+                    # Verifica se o valor da condição é uma lista
+                    if isinstance(valor, list):
+                        if campo_valor in valor:
+                            condicao_atendida = True
+                            break
+                    # Verifica a condição booleana
+                    elif isinstance(valor, bool):
+                        if valor and not campo_valor:
+                            return False
+                        elif not valor and campo_valor:
+                            return False
+                    # Caso a condição seja um valor simples
+                    elif campo_valor == valor:
+                        condicao_atendida = True
+                        break
+
+            if not condicao_atendida:
                 return False
+
         else:
-            return False
+            if chave in dados:
+                campo_valor = dados[chave]
+
+                # Verifica se o valor da condição é uma lista
+                if isinstance(valor, list):
+                    if campo_valor not in valor:
+                        return False
+                # Verifica a condição booleana
+                elif isinstance(valor, bool):
+                    if valor and not campo_valor:
+                        return False
+                    elif not valor and campo_valor:
+                        return False
+                # Caso a condição seja um valor simples
+                elif campo_valor != valor:
+                    return False
+            else:
+                return False
 
     return True  # Se todas as condições foram atendidas
 
