@@ -209,12 +209,12 @@ LOGGING = {
 
 #configuracao do email
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "localhost"
-EMAIL_PORT = 25
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = False
-EMAIL_HOST_USER = 'no-reply@dreamlandsmc.com.br'
-EMAIL_HOST_PASSWORD = 'no-reply'
+EMAIL_HOST = "smtp-relay.brevo.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True  # Brevo usa TLS na porta 587
+EMAIL_HOST_USER = "883e54002@smtp-brevo.com"
+DEFAULT_FROM_EMAIL ='no-reply@dreamlandsmc.com.br'
+EMAIL_HOST_PASSWORD = 'MZCfSqUI16OBX4pF'
 
 
 LOGIN_REDIRECT_URL = None  # Não redireciona automaticamente

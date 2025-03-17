@@ -15,7 +15,6 @@ function initLoginForm() {
         const formData = new FormData(event.target);
         const data = Object.fromEntries(formData.entries()); // Converte para um objeto JS
 
-        console.log("Formulário de login enviado com os dados:", data);
         await handleLogin(data);
     });
 }
@@ -98,11 +97,11 @@ function showRecoveryPasswordPopup() {
 // Função para recuperar a senha
 async function recoverPassword(username) {
     try {
-        const response = await api.post('recover-password/', { username });
+        const response = await api.post('recuperar_senha/', { username });
         if (response.success) {
             popup.Open_PopUp({
                 type: 'success',
-                message: 'Email enviado para recuperação de senha!'
+                message: response.message || 'Email enviado para recuperação de senha!'
             });
         } else {
             popup.Open_PopUp({

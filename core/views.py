@@ -6,7 +6,15 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login 
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.conf import settings
+from django.utils.crypto import get_random_string
+from django.urls import reverse
+from django.contrib.auth.hashers import make_password
+from django.http import Http404
+import socket
 
+# Simular armazenamento de tokens (melhor usar um modelo no banco)
+password_reset_tokens = {}
 
 # View para a página inicial
 def index(request):
@@ -40,23 +48,91 @@ def login_view(request):
     return render(request, 'login.html')
 
 
-def recover_password_view(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        try:
-            user = User.objects.get(username=username)
-            # Enviar email com link para resetar senha
-            send_mail(
-                'Recuperação de Senha',
-                'Clique no link para redefinir sua senha: <LINK_DE_RECUPERACAO>',
-                'suporte@seusite.com',
-                [user.email],
-                fail_silently=False,
-            )
-            return JsonResponse({'success': True, 'message': 'Um email foi enviado para o seu endereço com instruções para recuperar sua senha.'})
-        except User.DoesNotExist:
-            return JsonResponse({'success': False, 'message': 'Usuário não encontrado. Verifique as informações e tente novamente.'})
-    return JsonResponse({'success': False, 'message': 'Requisição inválida.'})
+def recover_password_view(request, token=None):
+    try:
+        if request.method == 'POST':
+            if token:  
+                # 🌟 2️⃣ Se há um token, processa a redefinição de senha 🌟
+                try:
+                    new_password = request.POST.get('new_password')
+                    if not new_password:
+                        raise ValueError("Senha vazia recebida!")
+
+                    if token not in password_reset_tokens:
+                        raise KeyError("Token inválido ou expirado!")
+
+                    username = password_reset_tokens[token]
+                    user = User.objects.get(username=username)
+                    user.password = make_password(new_password)  # Criptografa a senha nova
+                    user.save()
+                    del password_reset_tokens[token]  # Remove o token após uso
+                    send_mail(
+                        'Senha Redefinida',
+                        'Sua senha foi redefinida com sucesso. Se você não fez isso, entre em contato conosco por: <a href="mailto:vg.bitello@gmail.com">vg.bitello@gmail.com</a>.',
+                        settings.DEFAULT_FROM_EMAIL,  
+                        [user.email],
+                        fail_silently=False,
+                    )
+                    
+                    return JsonResponse({'success': True, 'message': 'Senha redefinida com sucesso!'})
+
+                except KeyError as e:
+                    print(f"[ERROR] Erro de token: {str(e)}")
+                    return JsonResponse({'success': False, 'message': 'Token inválido ou expirado.'})
+                except User.DoesNotExist:
+                    print(f"[ERROR] Usuário não encontrado para token: {token}")
+                    return JsonResponse({'success': False, 'message': 'Usuário não encontrado.'})
+                except Exception as e:
+                    print(f"[ERROR] Erro inesperado ao redefinir senha: {str(e)}")
+                    return JsonResponse({'success': False, 'message': f'Erro interno: {str(e)}'})
+
+            else:  
+                # 🌟 1️⃣ Se não há token, processa o pedido de recuperação 🌟
+                try:
+                    username = request.POST.get('username')
+                    if not username:
+                        raise ValueError("Campo de usuário vazio!")
+
+                    user = User.objects.get(username=username)
+
+                    # Gerar e armazenar o token
+                    token = get_random_string(length=32)
+                    password_reset_tokens[token] = username  # Salvar o token temporariamente
+
+                    # Criar link real de recuperação
+                    reset_link = request.build_absolute_uri(reverse('core:recuperar_senha_token', kwargs={'token': token}))
+
+                    print(f"[DEBUG] Link de recuperação gerado para {username}: {reset_link}")
+
+                    # Enviar email com link para resetar senha
+                    send_mail(
+                        'Recuperação de Senha',
+                        f'Clique no link para redefinir sua senha: {reset_link}',
+                        settings.DEFAULT_FROM_EMAIL,  
+                        [user.email],
+                        fail_silently=False,
+                    )
+
+                    print(f"[INFO] E-mail de recuperação enviado para {user.email}")
+
+                except User.DoesNotExist:
+                    print(f"[WARNING] Tentativa de recuperação de senha para usuário inexistente: {username}")
+
+                except Exception as e:
+                    print(f"[ERROR] Erro inesperado ao solicitar recuperação: {str(e)}")
+                    return JsonResponse({'success': False, 'message': f'Erro interno: {str(e)}'})
+
+                return JsonResponse({'success': True, 'message': 'Se o usuário existir, um e-mail foi enviado com instruções para recuperar a senha.'})
+
+        # 🌟 3️⃣ Renderizar página diferente dependendo se há um token 🌟
+        if token and token in password_reset_tokens:
+            return render(request, 'recuperar_senha.html', {'token': token})
+        else:
+            raise Http404("Token inválido ou não encontrado.")
+
+    except Exception as e:
+        print(f"[CRITICAL] Erro fatal: {str(e)}")
+
 
 # View para a página de home
 @login_required(login_url='/login/')

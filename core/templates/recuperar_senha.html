@@ -1,0 +1,53 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORE - Redefinir Senha</title>
+    <link rel="stylesheet" href="{% static 'css/style_colors.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style_login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/popup.css' %}">
+    <script src="{% static 'js/api.js' %}"></script>
+
+    <meta name="csrf-token" content="{{ csrf_token }}">
+</head>
+<body>
+
+    <main class="main-content">
+
+        <section class="login-box">
+            <a class="back-button" href="../">
+                <svg class="logo-svg"><use xlink:href="{% static 'svg/circle-cross.svg' %}#circle-cross"></use></svg>
+            </a>
+            <div class="form-container">
+                <svg class="user-svg"><use xlink:href="{% static 'svg/user.svg' %}#user"></use></svg>
+                <h2 class="form-title">Redefinir Senha</h2>
+                <p class="form-subtext">Digite sua nova senha e a confirme para completar a redefinição.</p>
+
+                <form class="login-form" id="passwordResetConfirmForm">
+                    <label for="new_password" class="form-label">Nova Senha</label>
+                    <input type="password" name="new_password" id="new_password" class="form-input" required>
+
+                    <label for="confirm_password" class="form-label">Confirmar Senha</label>
+                    <input type="password" name="confirm_password" id="confirm_password" class="form-input" required>
+
+                    <input type="submit" value="Redefinir Senha" class="form-submit">
+                </form>
+
+                <p id="responseMessage" class="form-message hidden"></p>
+            </div>
+        </section>
+        
+    </main>
+
+    <footer class="footer">
+        <p class="footer-copyright">©2025 Sistema de Automação. Todos os direitos reservados.</p>
+        <p class="footer-contact">Contato: <a href="mailto:vg.bitello@gmail.com" class="footer-email">vg.bitello@gmail.com</a></p>
+    </footer>
+
+    <script src="{% static 'js/js-recuperar.js' %}"></script>
+
+</body>
+</html>

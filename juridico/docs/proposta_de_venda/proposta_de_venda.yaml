@@ -397,7 +397,7 @@ Documentos:
       regras: {}
 
     - nome: "Endereco_Conjuge_proponente"
-      tipo: "email"
+      tipo: "string"
       form: true
       descricao: "Endereco do conjuge do proponente"
       requerido: true
@@ -908,3 +908,9 @@ Documentos:
       regras:
         - "Formater": " – Observações: {Observacoes}"
         - "Counter": "2/B"
+
+
+
+
+
+# Falta adicionar os capos para a troca de imovel e/ou veiculo

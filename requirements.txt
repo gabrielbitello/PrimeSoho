@@ -1,9 +1,11 @@
 asgiref==3.8.1
 atpublic==5.1
 attrs==25.2.0
+beautifulsoup4==4.13.3
 click==8.1.8
 colorama==0.4.6
 Django==5.1.7
+django-bootstrap5==25.1
 django-debug-toolbar==5.0.1
 django-livereload-server==0.5.1
 django-stdimage==6.0.2
@@ -16,6 +18,7 @@ pillow==11.1.0
 PyMySQL==1.1.1
 python-docx==1.1.2
 PyYAML==6.0.2
+soupsieve==2.6
 sqlparse==0.5.3
 tornado==6.4.2
 typing_extensions==4.12.2
