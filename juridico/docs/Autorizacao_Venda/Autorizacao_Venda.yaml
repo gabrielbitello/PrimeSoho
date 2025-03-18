@@ -1,0 +1,618 @@
+Documentos:
+  #Adicionar as opç~~eos de formuilario, para poder clonar uam tabela expecifica com um rastreador
+  Documentos-Config:
+    - nome: "PJ"
+      tipo: "checkbox"
+      form: true
+      descricao: "É Pessoa Jurídica?"
+      requerido: false
+      condicao: {}
+      variaveis: 
+        - "PJ"
+      regras: {}
+
+    - nome: "Nome_proprietario"
+      tipo: "string"
+      form: true
+      descricao: "Nome/Razão Social"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Responsavel_CNPJ"
+      tipo: "string"
+      form: true
+      descricao: "Responsável pelo CNPJ"
+      requerido: true
+      condicao: 
+        PJ: "PJ"
+      variaveis: {}
+      regras: {}
+
+    - nome: "Profissao_proprietario"
+      tipo: "string"
+      form: true
+      descricao: "Profissão/Atividade"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Estado_Civil"
+      tipo: "select"
+      form: true
+      descricao: "Estado Civil"
+      requerido: true
+      condicao: 
+        PJ: false
+      variaveis:
+        - "Solteiro"
+        - "União Estável"
+        - "Casado"
+        - "Divorciado"
+        - "Viúvo"
+      regras: {}
+
+    - nome: "Regime_Casamento"
+      tipo: "select"
+      form: true
+      descricao: "Regime da união"
+      requerido: true
+      condicao: 
+        Estado_Civil: 
+          - "Casado"
+          - "União Estável"
+        PJ: false
+      variaveis:
+        - "Comunhão Parcial de Bens"
+        - "Comunhão Total de Bens"
+        - "Separação Total de Bens"
+        - "Participação Final nos Aquestos"
+      regras: {}
+
+    - nome: "Nacionaldiade"
+      tipo: "datalist"
+      form: true
+      descricao: "Nacionalidade"
+      requerido: true
+      condicao: {}
+      variaveis: 
+        - "Brasileiro"
+        - "Americano"
+        - "Argentino"
+        - "Alemão"
+        - "Francês"
+        - "Italiano"
+        - "Japonês"
+        - "Chinês"
+        - "Coreano"
+        - "Mexicano"
+        - "Português"
+        - "Russo"
+        - "Espanhol"
+        - "Sueco"
+        - "Suíço"
+        - "Inglês"
+        - "Canadense"
+        - "Australiano"
+        - "Neozelandês"
+        - "Egípcio"
+        - "Indiano"
+        - "Turco"
+        - "Grego"
+        - "Holandês"
+        - "Norueguês"
+        - "Dinamarquês"
+        - "Finlandês"
+        - "Polonês"
+        - "Tailandês"
+        - "Sul-Africano"
+        - "Vietnamita"
+        - "Indonésio"
+        - "Malaio"
+        - "Filipino"
+        - "Ucraniano"
+        - "Húngaro"
+        - "Tcheco"
+        - "Irlandês"
+        - "Escocês"
+        - "Iraniano"
+        - "Paquistanês"
+        - "Saudita"
+        - "Emiradense"
+        - "Venezuelano"
+        - "Colombiano"
+        - "Chileno"
+        - "Peruano"
+        - "Israelense"
+        - "Austríaco"
+        - "Belga"
+        - "Boliviano"
+        - "Búlgaro"
+        - "Camaronês"
+        - "Costarriquenho"
+        - "Croata"
+        - "Equatoriano"
+        - "Eslovaco"
+        - "Esloveno"
+        - "Estoniano"
+        - "Etíope"
+        - "Ganês"
+        - "Guatemalteco"
+        - "Haitiano"
+        - "Hondurenho"
+        - "Iraquiano"
+        - "Jamaicano"
+        - "Kuwaitiano"
+        - "Letão"
+        - "Libanês"
+        - "Lituano"
+        - "Luxemburguês"
+        - "Marroquino"
+        - "Nicaraguense"
+        - "Nigeriano"
+        - "Panamenho"
+        - "Paraguaio"
+        - "Polinésio"
+        - "Queniano"
+        - "Romeno"
+        - "Sérvio"
+        - "Sírio"
+        - "Sul-Coreano"
+        - "Tunisiano"
+        - "Uruguaio"
+        - "Zimbabuano"
+      regras: {}
+
+    - nome: "UF_proprietario"
+      tipo: "select"
+      form: true
+      descricao: "Unidade Federativa do proprietario"
+      requerido: true
+      condicao: 
+        Nacionaldiade: 
+          - "Brasileiro"
+      variaveis: 
+        - "PR"
+        - "AC"
+        - "AL"
+        - "AP"
+        - "AM"
+        - "BA"
+        - "CE"
+        - "DF"
+        - "ES"
+        - "GO"
+        - "MA"
+        - "MT"
+        - "MS"
+        - "MG"
+        - "PA"
+        - "PB"
+        - "PE"
+        - "PI"
+        - "RJ"
+        - "RN"
+        - "RS"
+        - "RO"
+        - "RR"
+        - "SC"
+        - "SP"
+        - "SE"
+        - "TO"
+      regras: 
+        - "Formater": "{UF_proprietario} - "
+
+    - nome: "Doc_proprietario"
+      tipo: "string"
+      form: true
+      descricao: "Documento do proprietario"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Endereco_proprietario"
+      tipo: "string"
+      form: true
+      descricao: "Endereço do proprietario"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Numero_proprietario"
+      tipo: "phone"
+      form: true
+      descricao: "Numero do proprietario"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Email_proprietario"
+      tipo: "email"
+      form: true
+      descricao: "E-mail do proprietario"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+#------------------------------------------------------------
+
+    - nome: "Endereco_imovel"
+      tipo: "string"
+      form: true
+      descricao: "Endereço do imóvel"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Numero_imovel"
+      tipo: "number"
+      form: true
+      descricao: "Número do imóvel"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Tipo_Imovel"
+      tipo: "select"
+      form: true
+      descricao: "Tipo do imóvel"
+      requerido: true
+      condicao: {}
+      variaveis: 
+        - "Casa"
+        - "Casa na planta"
+        - "Casa em Condomínio"
+        - "Casa em Condomínio na planta"
+        - "Apartamento"
+        - "Apartamento na planta"
+        - "Loft"
+        - "Loft na planta"
+        - "Studio"
+        - "Studio na planta"
+        - "Sala Comercial"
+        - "Sala Comercial na planta"
+        - "Sala Comercial em Condomínio"
+        - "Sala Comercial em Condomínio na planta"
+        - "Chácara"
+        - "Fazenda"
+        - "Terreno"
+        - "Terreno Comercial"
+        - "Terreno em Condomínio"
+      regras: {}
+
+    - nome: "Nome_Aglomerado"
+      tipo: "string"
+      form: true
+      descricao: "Nome do aglomerado"
+      requerido: true
+      condicao: 
+        Tipo_Imovel: 
+          - "Casa em Condomínio"
+          - "Apartamento"
+          - "Loft"
+          - "Studio"
+          - "Sala Comercial em Condomínio"
+          - "Terreno em Condomínio"
+          - "Casa em Condomínio na planta"
+          - "Apartamento na planta"
+          - "Loft na planta"
+          - "Studio na planta"
+          - "Sala Comercial em Condomínio na planta"
+      variaveis: {}
+      regras: 
+        - "Formater": "- Condomínio {Nome_Aglomerado} "
+
+    - nome: "Complemento_imovel"
+      tipo: "string"
+      form: true
+      descricao: "Complemento do imóvel"
+      requerido: true
+      condicao: 
+        Tipo_Imovel: 
+          - "Casa em Condomínio"
+          - "Apartamento"
+          - "Loft"
+          - "Studio"
+          - "Sala Comercial em Condomínio"
+          - "Terreno em Condomínio"
+          - "Casa em Condomínio na planta"
+          - "Apartamento na planta"
+          - "Loft na planta"
+          - "Studio na planta"
+          - "Sala Comercial em Condomínio na planta"
+      variaveis: {}
+      regras: {}
+
+    - nome: "Cidade_imovel"
+      tipo: "datalist"
+      form: true
+      descricao: "Cidade do imóvel"
+      requerido: true
+      condicao: {}
+      variaveis:
+        - "Curitiba"
+        - "São José dos Pinhais"
+        - "Pinhais"
+        - "Colombo"
+      regras: {}
+
+    - nome: "Bairro_imovel"
+      tipo: "datalist"
+      form: true
+      descricao: "Bairro do imóvel"
+      requerido: true
+      condicao: {}
+      variaveis: 
+        - "Água Verde"
+        - "Alto da XV"
+        - "Batel"
+        - "Bigorrilho"
+        - "Boa Vista"
+        - "Boqueirão"
+        - "Cajuru"
+        - "Campo Comprido"
+        - "Capão Raso"
+        - "Centro"
+        - "CIC"
+        - "Cidade Industrial"
+        - "Cristo Rei"
+        - "Fazendinha"
+        - "Guaíra"
+        - "Hauer"
+        - "Higienópolis"
+        - "Jardim Botânico"
+        - "Jardim das Américas"
+        - "Jardim Social"
+        - "Mercês"
+        - "Mossunguê"
+        - "Portão"
+        - "Santa Felicidade"
+        - "Santa Quitéria"
+        - "São Braz"
+        - "São Francisco"
+        - "São João"
+        - "São Lourenço"
+        - "São Vicente"
+        - "Sítio Cercado"
+        - "Tatuquara"
+        - "Uberaba"
+        - "Umbará"
+        - "Vila Isabel"
+        - "Vila Oficinas"
+        - "Xaxim"
+        - "Afonso Pena"
+        - "Borda do Campo"
+        - "Centro"
+        - "Colônia Rio Grande"
+        - "Costeira"
+        - "Guatupê"
+        - "Iguaçu"
+        - "Ipê"
+        - "Jardim Aeroporto"
+        - "Jardim Independência"
+        - "Jardim Jurema"
+        - "Jardim Progresso"
+        - "Jardim São José"
+        - "Jardim São Paulo"
+        - "Jardim União"
+        - "Jardim Vitória"
+        - "Monza"
+        - "Morro do Agudo"
+        - "Periquitos"
+        - "Quissisana"
+        - "Rio Pequeno"
+        - "Sertãozinho"
+        - "Sete de Setembro"
+        - "Sítio Cercado"
+        - "Sossego"
+        - "Vila Amélia"
+        - "Vila Augusta"
+        - "Vila Ipiranga"
+        - "Vila Maringá"
+        - "Vila Nova"
+        - "Vila Progresso"
+        - "Vila São Pedro"
+        - "Vila São Vicente"
+        - "Vila Sônia"
+        - "Centro"
+        - "Embu"
+        - "Estância Pinhais"
+        - "Jardim Cláudia"
+        - "Jardim Karla"
+        - "Jardim Luciana"
+        - "Jardim Ouro Verde"
+        - "Jardim Santa Mônica"
+        - "Jardim Vargem Grande"
+        - "Maria Antonieta"
+        - "Monza"
+        - "Parque das Águas"
+        - "Parque das Nações"
+        - "Parque do Estados"
+        - "Parque Industrial"
+        - "Parque São Jorge"
+        - "Parque São Vicente"
+        - "Vila Amélia"
+        - "Vila Carolina"
+        - "Vila Cristina"
+        - "Vila Esperança"
+        - "Vila Hauer"
+        - "Vila Irati"
+        - "Vila Maracanã"
+        - "Vila Marumbi"
+        - "Vila Nova"
+        - "Vila Progresso"
+        - "Vila São José"
+        - "Vila São Vicente"
+        - "Vila Sônia"
+        - "Bairro Alto"
+        - "Boca Maldita"
+        - "Centro"
+        - "Ciprestes"
+        - "Guaraituba"
+        - "Jardim Ana Terra"
+        - "Jardim Araucária"
+        - "Jardim Colônia"
+        - "Jardim das Américas"
+        - "Jardim Itália"
+        - "Jardim Maracanã"
+        - "Jardim Paulista"
+        - "Jardim São Gabriel"
+        - "Jardim São João"
+        - "Jardim São Pedro"
+        - "Jardim União"
+        - "Maracanã"
+        - "Osasco"
+        - "Rio Verde"
+        - "Serraria do Rocha"
+        - "Vila Augusta"
+        - "Vila Caximba"
+        - "Vila Cristina"
+        - "Vila Hauer"
+        - "Vila Irati"
+        - "Vila Marumbi"
+        - "Vila Nova"
+        - "Vila Progresso"
+        - "Vila São José"
+        - "Vila São Vicente"
+        - "Vila Sônia"
+      regras: {}
+
+    - nome: "Matricula_imovel"
+      tipo: "string"
+      form: true
+      descricao: "Matrícula do imóvel"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Indicacao_fiscal_imovel"
+      tipo: "string"
+      form: true
+      descricao: "Indicação fiscal do imóvel"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Tipo_Contrato"
+      tipo: "checkbox"
+      form: true
+      descricao: "Exclusividade?"
+      requerido: false
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Exclusividade"
+      tipo: "string"
+      form: false
+      descricao: ""
+      requerido: false
+      condicao: 
+        Tipo_Contrato: true
+      variaveis: 
+        - "com exclusividade"
+      regras: {}
+
+    - nome: "Sem_Exclusividade"
+      tipo: "string"
+      form: false
+      descricao: ""
+      requerido: false
+      condicao: 
+        Tipo_Contrato: false
+      variaveis: 
+        - "sem exclusividade"
+      regras: {}
+
+    - nome: "Ganhos_Comissao"
+      tipo: "number"
+      form: true
+      descricao: "Porcentagem do valor da comissão"
+      requerido: false
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Valor_Imovel"
+      tipo: "number"
+      form: true
+      descricao: "Valor do imóvel"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Valor_Imovel_Extenso"
+      tipo: "string"
+      form: false
+      descricao: ""
+      requerido: false
+      condicao: 
+        Valor_Imovel: true
+      variaveis: {}
+      regras: 
+        - "Number_To_Text": "{Valor_Imovel}"
+
+    - nome: "Condicao_Pagamento"
+      tipo: "textarea"
+      form: true
+      descricao: "Condição de pagamento"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Valor_Pagamento_Texto"
+      tipo: "string"
+      form: false
+      descricao: ""
+      requerido: false
+      condicao: 
+        Valor_Imovel: true
+      variaveis: {}
+      regras: 
+        - "Formater": "R$ {Valor_Imovel} ({Valor_Imovel_Extenso}) - {Condicao_Pagamento}"
+
+        #
+        #
+        # NÃO SEI OQ POR EM PRAZO DE REALIZAÇÃO DE TRABALHO DE CORRETAGEM
+        #
+        #
+
+    - nome: "Documento_Apresentados"
+      tipo: "textarea"
+      form: true
+      descricao: "Documento apresentados"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Corretor"
+      tipo: "string"
+      form: true
+      descricao: "Corretor associado"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+
+    - nome: "Data"
+      tipo: "date"
+      form: true
+      descricao: "Data"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}

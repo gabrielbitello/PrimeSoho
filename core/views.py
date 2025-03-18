@@ -11,7 +11,8 @@ from django.utils.crypto import get_random_string
 from django.urls import reverse
 from django.contrib.auth.hashers import make_password
 from django.http import Http404
-import socket
+from .models import Token_Recuperar_Senha
+from django.utils import timezone
 
 # Simular armazenamento de tokens (melhor usar um modelo no banco)
 password_reset_tokens = {}
@@ -61,11 +62,11 @@ def recover_password_view(request, token=None):
                     if token not in password_reset_tokens:
                         raise KeyError("Token inválido ou expirado!")
 
-                    username = password_reset_tokens[token]
+                    username = Token_Recuperar_Senha.objects.filter(token=token, ativo=True).first().usuario
                     user = User.objects.get(username=username)
                     user.password = make_password(new_password)  # Criptografa a senha nova
                     user.save()
-                    del password_reset_tokens[token]  # Remove o token após uso
+                    Token_Recuperar_Senha.objects.filter(token=token, ativo=True).update(ativo=False, data_utilizacao=timezone.now())
                     send_mail(
                         'Senha Redefinida',
                         'Sua senha foi redefinida com sucesso. Se você não fez isso, entre em contato conosco por: <a href="mailto:vg.bitello@gmail.com">vg.bitello@gmail.com</a>.',
@@ -102,8 +103,6 @@ def recover_password_view(request, token=None):
                     # Criar link real de recuperação
                     reset_link = request.build_absolute_uri(reverse('core:recuperar_senha_token', kwargs={'token': token}))
 
-                    print(f"[DEBUG] Link de recuperação gerado para {username}: {reset_link}")
-
                     # Enviar email com link para resetar senha
                     send_mail(
                         'Recuperação de Senha',
@@ -113,19 +112,16 @@ def recover_password_view(request, token=None):
                         fail_silently=False,
                     )
 
-                    print(f"[INFO] E-mail de recuperação enviado para {user.email}")
-
-                except User.DoesNotExist:
-                    print(f"[WARNING] Tentativa de recuperação de senha para usuário inexistente: {username}")
+                    DataDB = Token_Recuperar_Senha(usuario=username, token=token)
+                    DataDB.save()
 
                 except Exception as e:
-                    print(f"[ERROR] Erro inesperado ao solicitar recuperação: {str(e)}")
                     return JsonResponse({'success': False, 'message': f'Erro interno: {str(e)}'})
 
                 return JsonResponse({'success': True, 'message': 'Se o usuário existir, um e-mail foi enviado com instruções para recuperar a senha.'})
 
         # 🌟 3️⃣ Renderizar página diferente dependendo se há um token 🌟
-        if token and token in password_reset_tokens:
+        if token and Token_Recuperar_Senha.objects.filter(token=token, ativo=True).exists():
             return render(request, 'recuperar_senha.html', {'token': token})
         else:
             raise Http404("Token inválido ou não encontrado.")

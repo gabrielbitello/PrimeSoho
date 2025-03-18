@@ -2,11 +2,10 @@
 import os
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from django.conf import settings
-from .utils.forms import gerar_formulario
 from .utils.yaml_receiver import load_yaml, parse_yaml
 from .utils.docx_generator import gen_docx
 from django.contrib.auth.decorators import login_required
+from .forms import DynamicForm
 
 # Obtém o diretório onde o arquivo views.py está localizado
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -77,7 +76,8 @@ def formulario(request, folder):
             return JsonResponse({'error': str(e)}, status=500)
     
     # Gerar o formulário dinâmico com base nos dados do YAML
-    form_html = gerar_formulario(parsed_data)  # Recebe ambos: HTML e JS
+    form = DynamicForm(parsed_data)
+    print(form)
     
     # Passa o HTML do formulário e o código JS para o template
-    return render(request, 'form.html', {'form_html': form_html})
+    return render(request, 'form.html', {'form': form})

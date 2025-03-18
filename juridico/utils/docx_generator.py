@@ -248,6 +248,18 @@ def substituir_variaveis_nas_tabelas(doc, dados, yaml_data):
                 for paragrafo in cell.paragraphs:
                     substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc)
 
+def substituir_variaveis_no_rodape(doc, dados, yaml_data):
+    """Substitui variáveis nos rodapés do documento."""
+    for section in doc.sections:
+        for rodape in section.footer.paragraphs:
+            substituir_variaveis_no_paragrafo(rodape, dados, yaml_data, doc)
+
+def substituir_variaveis_no_cabecalho(doc, dados, yaml_data):
+    """Substitui variáveis nos cabeçalhos do documento."""
+    for section in doc.sections:
+        for cabecalho in section.header.paragraphs:
+            substituir_variaveis_no_paragrafo(cabecalho, dados, yaml_data, doc)
+
 def verificar_condicoes(dados, yaml_data, campo_verificado):
     """Verifica as condições de um campo, buscando no YAML as condições associadas ao campo."""
 
@@ -338,6 +350,12 @@ def gen_docx(dados, folder, yaml_data):
 
     # Substituição dentro das tabelas
     substituir_variaveis_nas_tabelas(doc, dados, yaml_data)
+
+    
+    substituir_variaveis_no_rodape(doc, dados, yaml_data)
+
+    
+    substituir_variaveis_no_cabecalho(doc, dados, yaml_data)
 
     # Salva o arquivo gerado
     caminho_saida = (f'{folder}_preenchido_{unique_id}.docx')

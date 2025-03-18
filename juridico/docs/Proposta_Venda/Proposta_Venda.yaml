@@ -687,7 +687,7 @@ Documentos:
       descricao: "A prime deve vender o imovel?"
       requerido: false
       condicao: 
-        Forma_Entrada: 
+        Forma_Pagamento_Total: 
           - "imóvel"
       variaveis: {}
       regras: {}
@@ -851,21 +851,21 @@ Documentos:
       requerido: true
       condicao: {}
       variaveis: 
-      - " - No ato da assinatura da escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital"
-      - " - No ato da assinatura da contrato de financiamento bancário, junto a Instituição Financeira competente."
+        - " - No ato da assinatura da escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital"
+        - " - No ato da assinatura da contrato de financiamento bancário, junto a Instituição Financeira competente."
       regras:
         - "Counter": "2/B"
 
     - nome: "Data_Limite_Imovel"
       tipo: "datalist"
       form: true
-      descricao: "Condições de entrega"
+      descricao: "Condições de entrega do imovel"
       requerido: true
       condicao: 
         Forma_Pagamento_Total/Forma_Entrada: "imóvel"
       variaveis: 
-      - " - No ato da assinatura da escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital"
-      - " - No ato da assinatura da contrato de financiamento bancário, junto a Instituição Financeira competente."
+        - " - No ato da assinatura da escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital"
+        - " - No ato da assinatura da contrato de financiamento bancário, junto a Instituição Financeira competente."
       regras:
         - "Counter": "2/B"
 

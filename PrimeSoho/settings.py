@@ -135,6 +135,12 @@ LANGUAGE_CODE = 'pt-br'
 
 TIME_ZONE = 'America/Sao_Paulo'
 
+DATETIME_FORMAT = "Y-m-d H:i:s"
+DATE_FORMAT = "Y-m-d"
+TIME_FORMAT = "H:i:s"
+
+USE_L10N = False 
+
 USE_I18N = True
 
 USE_TZ = True
