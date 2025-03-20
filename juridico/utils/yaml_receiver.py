@@ -36,6 +36,22 @@ def parse_yaml(data):
                 'requerido': item.get('requerido', False),
                 'condicao': processar_condicao(item.get('condicao', [])),
                 'variaveis': processar_variaveis(item.get('variaveis', [])),
-                'regras': processar_regras(item.get('regras', []))
+                'regras': processar_regras(item.get('regras', [])),
+                'grupo': item.get('grupo', '')
+            }
+    return parsed_data
+
+def parse_yaml_options(data):
+    documentos = data.get('Documentos', {}).get('Opcoes', [])
+    parsed_data = {}
+
+    multiplicador = documentos.get('Multiplicador', [])
+
+    for item in multiplicador:
+        grupo = item.get('grupo')
+        if grupo:
+            parsed_data[grupo] = {
+                'max': item.get('max', 1),
+                'buscador': item.get('buscador', '')
             }
     return parsed_data

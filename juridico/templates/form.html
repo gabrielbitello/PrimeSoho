@@ -29,9 +29,49 @@
     <main>
         <section class="Formulario">
             <form method="POST" id="dynamicForm" action="{{ request.path }}">
-                {{ form }}
+                
+                <!-- Campos independentes -->
+                <div class="independent-fields">
+                    {% for field in independent_form %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="error">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    
+                    {{ independent_form.datalist_html|safe }}
+                </div>
+                
+                <!-- Campos agrupados (formsets) -->
+                {% for grupo, formset in formsets.items %}
+                    <div class="grupo-campos" data-grupo="{{ grupo }}">
+                        <h3>{{ grupo }}</h3>
+                        {{ formset.management_form }}
+
+                        {{ opcoes_formatadas|safe }}
+                        
+                        {% for form in formset %}
+                            <div class="formset-form">
+                                {% for field in form %}
+                                    <div class="form-group">
+                                        {{ field.label_tag }}
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="error">{{ field.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-primary">Enviar</button>
             </form>
-            {{ form.get_datalist_html|safe }}
+            {{ independent_form.get_datalist_html|safe }}
         </section>
     </main>
 
@@ -46,10 +86,7 @@
             <button class="submit-btn">Enviar</button>
         </div>
     </div>
-        
-    
 
-    <!-- Aqui será inserido o código JS gerado dinamicamente -->
     <script src="{% static 'js/script_form.js' %}"></script>
     <script src="{% static 'js/popup.js' %}"></script>
 </body>

@@ -1,5 +1,19 @@
+# Arquivo de configuração de documentos para o processo de Autorização de Venda
+#
+#
+#------------------------------------------------------------
+#
+#Campos que estão dentro de u mgrupo não podem ter condições que verifiquem campos fora do mesmo grupo
+#
+#------------------------------------------------------------
+
 Documentos:
-  #Adicionar as opç~~eos de formuilario, para poder clonar uam tabela expecifica com um rastreador
+  Opcoes:
+    Multiplicador: 
+      - grupo: "proprietario"
+        max: 8
+        buscador: "0379"
+
   Documentos-Config:
     - nome: "PJ"
       tipo: "checkbox"
@@ -10,6 +24,7 @@ Documentos:
       variaveis: 
         - "PJ"
       regras: {}
+      grupo: "proprietario"
 
     - nome: "Nome_proprietario"
       tipo: "string"
@@ -19,6 +34,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      grupo: "proprietario"
 
     - nome: "Responsavel_CNPJ"
       tipo: "string"
@@ -29,6 +45,7 @@ Documentos:
         PJ: "PJ"
       variaveis: {}
       regras: {}
+      grupo: "proprietario"
 
     - nome: "Profissao_proprietario"
       tipo: "string"
@@ -38,6 +55,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      grupo: "proprietario"
 
     - nome: "Estado_Civil"
       tipo: "select"
@@ -53,6 +71,7 @@ Documentos:
         - "Divorciado"
         - "Viúvo"
       regras: {}
+      grupo: "proprietario"
 
     - nome: "Regime_Casamento"
       tipo: "select"
@@ -60,16 +79,17 @@ Documentos:
       descricao: "Regime da união"
       requerido: true
       condicao: 
+        PJ: false
         Estado_Civil: 
           - "Casado"
           - "União Estável"
-        PJ: false
       variaveis:
         - "Comunhão Parcial de Bens"
         - "Comunhão Total de Bens"
         - "Separação Total de Bens"
         - "Participação Final nos Aquestos"
       regras: {}
+      grupo: "proprietario"
 
     - nome: "Nacionaldiade"
       tipo: "datalist"
@@ -164,6 +184,7 @@ Documentos:
         - "Uruguaio"
         - "Zimbabuano"
       regras: {}
+      grupo: "proprietario"
 
     - nome: "UF_proprietario"
       tipo: "select"
@@ -203,6 +224,7 @@ Documentos:
         - "TO"
       regras: 
         - "Formater": "{UF_proprietario} - "
+      grupo: "proprietario"
 
     - nome: "Doc_proprietario"
       tipo: "string"
@@ -212,6 +234,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      grupo: "proprietario"
 
     - nome: "Endereco_proprietario"
       tipo: "string"
@@ -221,6 +244,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      grupo: "proprietario"
 
     - nome: "Numero_proprietario"
       tipo: "phone"
@@ -230,6 +254,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      grupo: "proprietario"
 
     - nome: "Email_proprietario"
       tipo: "email"
@@ -239,6 +264,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      grupo: "proprietario"
 
 #------------------------------------------------------------
 

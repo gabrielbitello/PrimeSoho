@@ -1,4 +1,6 @@
 Documentos:
+  Opcoes:
+    Multiplicador: {}
   Documentos-Config:
     - nome: "Endereco_imovel"
       tipo: "string"

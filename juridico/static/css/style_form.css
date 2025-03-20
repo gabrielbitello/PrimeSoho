@@ -108,6 +108,17 @@ main input, main select, main textarea {
     animation: fadeIn 0.5s ease-in-out;
 }
 
+.flex {
+    display: flex;
+    justify-content: space-between; /* Espaço igual entre os itens */
+    gap: 10px; /* Espaçamento de 10px entre os itens */
+}
+
+.flex > * {
+    flex: 1; /* Faz com que todos os itens tenham o mesmo tamanho */
+    margin: 0 5px; /* Adiciona espaçamento lateral entre os itens */
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -118,9 +129,21 @@ main input, main select, main textarea {
 }
 
 /* Botões */
-button {
+#enviar {
     width: 100%;
     padding: 14px;
+    background-color: #003366;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.flex button {
+    width: 100%;
+    padding: 10px;
     background-color: #003366;
     color: white;
     border: none;
