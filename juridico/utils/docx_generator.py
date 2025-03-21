@@ -94,18 +94,6 @@ def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados, ya
                     if valor_para_converter is not None:
                         valor = converter_numero_para_texto(valor_para_converter)
                 
-                # Aplica contagem a partir de um valor usando regex
-                elif regra == "Counter" and isinstance(regra_valor, str):
-                    XY_value = regra_valor
-                    if XY_value:
-                        x, y, modifier = parse_string(XY_value)
-                        counter_value = get_counter_value(x, y)
-                        
-                        if modifier == "B":
-                            counter_value = f"**{counter_value}**"  # Adiciona marcadores de negrito
-                        
-                        valor = counter_value + valor  # Mantém o fluxo de valor corretamente
-                
                 # Aplica formatação de texto substituindo chaves por valores correspondentes
                 elif regra == "Formater" and isinstance(regra_valor, str):
                     def substituir_variavel(match):
@@ -138,6 +126,17 @@ def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados, ya
                             return ""
 
                     valor = re.sub(r'\{(.*?)\}', substituir_variavel, regra_valor)
+                
+                # Aplica contagem a partir de um valor usando regex
+                elif regra == "Counter" and isinstance(regra_valor, str):
+                    XY_value = regra_valor
+                    if XY_value:
+                        x, y, modifier = parse_string(XY_value)
+                        counter_value = get_counter_value(x, y)
+                        if modifier == "B":
+                            counter_value = f"**{counter_value} - **"  # Adiciona marcadores de negrito
+                        
+                        valor = counter_value + valor # Mantém o fluxo de valor corretamente
 
     return valor
 
@@ -336,7 +335,7 @@ def gen_docx(dados, folder, yaml_data):
     for campo_yaml in yaml_data.get('Documentos', {}).get('Documentos-Config', []):
         nome_campo = campo_yaml.get('nome')
         if nome_campo and nome_campo not in dados:
-            dados[nome_campo] = campo_yaml.get('variaveis', [None])[0] or ""
+            dados[nome_campo] = None
 
     # Carrega o arquivo DOCX
     doc = Document(caminho_template)

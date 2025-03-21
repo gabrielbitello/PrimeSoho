@@ -16,70 +16,51 @@ document.addEventListener("DOMContentLoaded", function() {
 
 document.addEventListener('DOMContentLoaded', function() {
     function verificarCondicoes() {
-        console.log('=== INÍCIO DA VERIFICAÇÃO DE CONDIÇÕES ===');
         // Seleciona todos os elementos com data-condicao dentro de main
         let camposCondicionais = document.querySelectorAll('main *[data-condicao]');
         
-        console.log(`Encontrados ${camposCondicionais.length} campos condicionais`);
-        
-        camposCondicionais.forEach((campo, index) => {
-            console.log(`\n--- Analisando campo #${index + 1} ---`);
-            
+        camposCondicionais.forEach((campo) => {
             let condicoesStr = campo.dataset.condicao;
 
-            console.log('Condição (string):', condicoesStr);
+            if (!condicoesStr) {
+                return;
+            }
             
             let condicoes;
             try {
                 condicoes = JSON.parse(condicoesStr); // Parse do JSON
-                console.log('Condição (objeto):', condicoes);
             } catch (e) {
-                console.error('Erro ao analisar JSON:', e);
+                console.error("Erro ao analisar condição:", e);
                 return; // Se ocorrer erro ao analisar, ignore o campo
             }
 
-            let conditionsMet = true;
-
             // Caso as condições estejam em formato de objeto, converta para uma lista simplificada
             if (typeof condicoes === 'object' && !Array.isArray(condicoes)) {
-                console.log('Convertendo objeto para array de condições');
                 condicoes = Object.entries(condicoes).map(([chave, valor]) => {
-                    console.log(`  Convertendo: ${chave} => ${JSON.stringify(valor)}`);
                     return { [chave]: valor };
                 });
-                console.log('Condições após conversão:', condicoes);
             }
 
-            // Agora, vamos manipular as condições com base no novo formato
-            conditionsMet = condicoes.some((condicao, condIndex) => {
-                console.log(`\nVerificando condição #${condIndex + 1}:`, condicao);
-            
+            // Verifica se alguma das condições é atendida
+            let conditionsMet = condicoes.some((condicao) => {
                 // Obter todas as chaves do objeto
                 let chaves = Object.keys(condicao);
-                console.log('Chaves encontradas:', chaves);
                 
                 // Verifica se a condição é uma string e contém '/'
                 if (chaves.some(chave => chave.includes('/'))) {
-                    console.log('Detectada condição com "/"');
-            
                     // Para cada chave que contém '/', divida a chave e extraia o que está antes da barra
-                    let resultadoCondicao = chaves.some(chave => {
-                        console.log(`\nProcessando chave com '/': ${chave}`);
+                    return chaves.some(chave => {
                         let partesChave = chave.split('/'); // Divida a chave na barra
-                        console.log('Partes da chave:', partesChave);
             
                         // Agora, vamos processar cada parte da chave
-                        return partesChave.some((parteChave, index) => {
-                            console.log(`Verificando parte ${index + 1}: ${parteChave}`);
-                            
+                        return partesChave.some((parteChave) => {
                             // Pegue o valor esperado da condição para cada parte da chave
                             let valorEsperado = condicao[chave].toString().trim().toLowerCase(); 
-                            console.log(`Valor esperado: "${valorEsperado}"`);
             
                             // Verifica se o campo realmente existe no DOM
                             let elementoControlador = document.getElementById(parteChave);
                             if (!elementoControlador) {
-                                console.log(`ERRO: Elemento #${parteChave} não encontrado no DOM`);
+                                console.warn(`Campo controlador não encontrado: ${parteChave}`);
                                 return false; // Retorna falso se o campo não for encontrado
                             }
                             
@@ -87,33 +68,23 @@ document.addEventListener('DOMContentLoaded', function() {
                             if (elementoControlador.type === 'checkbox') {
                                 let isChecked = elementoControlador.checked;
                                 let isExpectedChecked = (valorEsperado === 'true');
-                                console.log(`Checkbox #${parteChave}: atual=${isChecked}, esperado=${isExpectedChecked}`);
                                 return isChecked === isExpectedChecked;
                             } else {
                                 // Obtém o valor do campo para outros tipos de input
                                 let valorAtual = elementoControlador.value.toString().trim().toLowerCase();
-                                console.log(`Campo #${parteChave}: atual="${valorAtual}", esperado="${valorEsperado}"`);
-                        
-                                // Comparar o valor atual com o valor esperado
-                                let resultado = valorAtual === valorEsperado;
-                                console.log(`Comparação: ${resultado ? 'APROVADA' : 'REPROVADA'}`);
-                                return resultado;
+                                return valorAtual === valorEsperado;
                             }
                         });
                     });
-            
-                    console.log(`Resultado final da condição com '/': ${resultadoCondicao ? 'APROVADA' : 'REPROVADA'}`);
-                    return resultadoCondicao;
                 }
             
                 // Caso contrário, se for uma condição simples de campo-valor
                 let [chave, valorEsperado] = Object.entries(condicao)[0];
-                console.log(`Condição simples: #${chave} = ${JSON.stringify(valorEsperado)}`);
                 
                 let elementoControlador = document.getElementById(chave);
 
                 if (!elementoControlador) {
-                    console.log(`ERRO: Elemento #${chave} não encontrado no DOM`);
+                    console.warn(`Campo controlador não encontrado: ${chave}`);
                     return false;
                 }
 
@@ -121,67 +92,81 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (elementoControlador.type === 'checkbox') {
                     let isChecked = elementoControlador.checked;
                     let isExpectedChecked = (valorEsperado === true || valorEsperado === 'true');
-                    console.log(`Checkbox #${chave}: atual=${isChecked}, esperado=${isExpectedChecked}`);
-                    let resultado = isChecked === isExpectedChecked;
-                    console.log(`Comparação: ${resultado ? 'APROVADA' : 'REPROVADA'}`);
-                    return resultado;
+                    return isChecked === isExpectedChecked;
                 } else {
                     let valorAtual = elementoControlador.value.toString().trim().toLowerCase();
-                    console.log(`Campo #${chave}: atual="${valorAtual}"`);
                     
                     let esperado = Array.isArray(valorEsperado) ? 
                         valorEsperado.map(val => val.toString().trim().toLowerCase()) : 
                         [valorEsperado.toString().trim().toLowerCase()];
                     
-                    console.log(`Valores esperados:`, esperado);
-
-                    let resultado = esperado.includes(valorAtual);
-                    console.log(`Comparação: ${resultado ? 'APROVADA' : 'REPROVADA'}`);
-                    return resultado;
+                    return esperado.includes(valorAtual);
                 }
             });
 
-            console.log(`\nResultado final para o campo: ${conditionsMet ? 'APROVADA' : 'REPROVADA'}`);
-
-            // Agora verificamos a div que contém tanto o campo quanto o label
-            let divContainer = campo.closest('div');
-            let label = divContainer ? divContainer.querySelector('label') : null;
+            // CORREÇÃO: Verificar se o próprio elemento é um input ou contém inputs
+            // Se campo for um input, label, select, etc., encontre o input diretamente
+            let inputs;
+            if (campo.tagName === 'INPUT' || campo.tagName === 'SELECT' || campo.tagName === 'TEXTAREA') {
+                inputs = [campo];
+            } else {
+                // Se for uma div ou outro contêiner, procure inputs dentro dele
+                inputs = campo.querySelectorAll('input, select, textarea');
+            }
 
             if (conditionsMet) {
-                // Exibe o campo e o label
-                console.log('Exibindo o campo e o label');
+                // Exibe o campo
                 campo.style.display = "block";
-                if (label) label.style.display = "block"; // Mostra o label se a condição for atendida
                 
-                let input = campo.querySelector('input, select, textarea, datalist, checkbox');
-                if (input) {
-                    console.log('Habilitando o input');
+                // Ativa todos os inputs dentro do campo
+                inputs.forEach(input => {
                     input.disabled = false;
+                    console.log(`Habilitando campo: ${input.id || input.name}`);
+                });
+                
+                // Se o campo estiver dentro de um div com label, exibe o label também
+                let divContainer = campo.closest('div');
+                if (divContainer) {
+                    let labels = divContainer.querySelectorAll('label');
+                    labels.forEach(label => {
+                        label.style.display = "block";
+                    });
                 }
             } else {
-                // Esconde o campo e o label
-                console.log('Escondendo o campo e o label');
+                // Esconde o campo
                 campo.style.display = "none";
-                if (label) label.style.display = "none"; // Esconde o label também
                 
-                let input = campo.querySelector('input, select, textarea, datalist, checkbox');
-                if (input) {
-                    console.log('Desabilitando o input');
+                // Desativa todos os inputs dentro do campo
+                inputs.forEach(input => {
                     input.disabled = true;
+                    console.log(`Desabilitando campo: ${input.id || input.name}`);
+                });
+                
+                // Se o campo estiver dentro de um div com label, esconde o label também
+                let divContainer = campo.closest('div');
+                if (divContainer) {
+                    let labels = divContainer.querySelectorAll('label');
+                    labels.forEach(label => {
+                        label.style.display = "none";
+                    });
                 }
             }
         });
-        
-        console.log('=== FIM DA VERIFICAÇÃO DE CONDIÇÕES ===\n');
     }
 
+    // Adiciona logs para verificar se a função está sendo executada
+    console.log("Script de condições carregado");
+
     // Ouvinte de evento para campos de input, select, checkbox, etc.
-    document.querySelectorAll('input, select, textarea, checkbox, datalist').forEach(elemento => {
-        elemento.addEventListener('change', verificarCondicoes);
+    document.querySelectorAll('input, select, textarea').forEach(elemento => {
+        elemento.addEventListener('change', function() {
+            console.log(`Campo alterado: ${elemento.id || elemento.name}`);
+            verificarCondicoes();
+        });
     });
 
     // Executa a verificação inicial
-    console.log('Executando verificação inicial');
+    console.log("Executando verificação inicial de condições");
     verificarCondicoes();
 });
 
@@ -193,58 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Função executada quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
-    // Código original para adicionar item
-    document.querySelectorAll('.adicionar-item').forEach(function(button) {
-        button.addEventListener('click', function() {
-            const grupo = this.getAttribute('data-grupo');
-            
-            // Solução: Usar um seletor mais específico
-            const formset = document.querySelector(`div[data-grupo="${grupo}"]`);
-            
-            // Verificar se o formset existe antes de tentar acessá-lo
-            if (!formset) {
-                console.error(`Formset para grupo "${grupo}" não encontrado`);
-                return; // Sair da função se o formset não for encontrado
-            }
-            
-            const forms = formset.querySelectorAll('.formset-form');
-            if (forms.length === 0) {
-                console.error(`Nenhum formulário encontrado no formset do grupo "${grupo}"`);
-                return;
-            }
-            
-            const totalForms = formset.querySelector('[name$="-TOTAL_FORMS"]');
-            if (!totalForms) {
-                console.error(`Campo de total de formulários não encontrado para o grupo "${grupo}"`);
-                return;
-            }
-            
-            // Clonar o último formulário
-            const newForm = forms[forms.length - 1].cloneNode(true);
-            
-            // Atualizar os índices nos IDs e names
-            const formRegex = new RegExp(`(\\d+)-`, 'g');
-            const newIndex = parseInt(totalForms.value);
-            
-            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `${newIndex}-`);
-            
-            // Limpar os valores dos campos
-            newForm.querySelectorAll('input, select, textarea').forEach(function(input) {
-                input.value = '';
-                if (input.type === 'checkbox') {
-                    input.checked = false;
-                }
-            });
-            
-            // Adicionar o novo formulário ao formset
-            forms[forms.length - 1].after(newForm);
-            
-            // Atualizar o contador total de formulários
-            totalForms.value = newIndex + 1;
-        });
-    });
-    
-    // NOVO CÓDIGO: Gerenciar cópias baseado no valor do input
+    // Gerenciar cópias baseado no valor do input
     document.querySelectorAll('.multiplicador').forEach(function(button) {
         button.addEventListener('click', function() {
             // Pegar o ID do botão
@@ -386,9 +320,12 @@ document.addEventListener("DOMContentLoaded", function () {
         formData.forEach((value, key) => {
             data[key] = value;
         });
+        console.log(data);
 
         try {
             const response = await api.post(lastSegment, data); // Envia como dados de formulário
+
+            console.log(response);
 
             if (response.file_url) {
                 popup.Open_PopUp({

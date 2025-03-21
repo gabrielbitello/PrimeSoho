@@ -71,69 +71,88 @@ def formulario(request, folder):
     formsets = {}
     
     if request.method == 'POST':
-        # Processar dados do POST
+        # Processar dados do formulário principal
         independent_form = DynamicForm(independent_fields, request.POST)
-        
+
         # Processar os formsets
         valid_formsets = True
         formsets_data = {}
-        
+
         for grupo, campos_grupo in grouped_fields.items():
             # Criar o FormSet específico para este grupo
             GroupFormSet = formset_factory(
-                create_group_form_class(campos_grupo), 
+                create_group_form_class(campos_grupo),
                 extra=1
             )
-            
+
             # Instanciar o formset com os dados do POST
             formset = GroupFormSet(
-                request.POST, 
+                request.POST,
                 prefix=f'grupo_{grupo}'  # Importante: usar um prefixo para evitar conflitos de nomes
             )
-            
+
             formsets[grupo] = formset
-            
+
             # Validar o formset
             if formset.is_valid():
                 formsets_data[grupo] = [form.cleaned_data for form in formset]
             else:
                 valid_formsets = False
                 break  # Interrompe se algum formset for inválido
-        
-        # Validar o formulário principal e todos os formsets
+        # Agora, ao validar o formulário principal, você pode fazer a validação pós-processamento
         if independent_form.is_valid() and valid_formsets:
+            # Verificação dos campos obrigatórios manualmente
+            for field_name, field in independent_form.fields.items():
+                if field.required:  # Se o campo é obrigatório
+                    # Se o campo não foi enviado ou se o campo está vazio, você ignora
+                    if field_name not in independent_form.cleaned_data or independent_form.cleaned_data[field_name] == '':
+                        # Caso o campo não tenha sido enviado ou esteja vazio, adicione erro
+                        independent_form.add_error(field_name, f'O campo {field.label} é obrigatório.')
+
+            # Após isso, se houver algum erro, você pode retornar a resposta com os erros
+            if independent_form.errors:
+                return JsonResponse({
+                    'error': 'Por favor, preencha todos os campos obrigatórios corretamente.',
+                    'errors': independent_form.errors
+                }, status=400)
+            
+        try:
+            # Combinar dados do formulário principal e dos formsets
+            dados = independent_form.cleaned_data.copy()
+            dados.update(formsets_data)
+
+            # Gerar o arquivo DOCX
             try:
-                # Combinar dados do formulário principal e dos formsets
-                dados = independent_form.cleaned_data.copy()
-                dados.update(formsets_data)
-                
-                # Gerar o arquivo DOCX
                 docx_name = gen_docx(dados, folder, yaml_data)
-                
-                if os.path.exists(os.path.join(current_dir, 'output', docx_name)):
-                    file_url = os.path.join('/j/output/', docx_name)
-                    return JsonResponse({
-                        'message': 'O arquivo DOCX foi gerado com sucesso!', 
-                        'file_url': file_url
-                    })
-                else:
-                    return JsonResponse({"error": "Erro ao gerar o arquivo DOCX."}, status=500)
             except Exception as e:
                 return JsonResponse({
-                    'error': f'Erro durante o processamento do formulário: {str(e)}'
+                    'error': f'Erro ao gerar o arquivo DOCX: {str(e)}'
                 }, status=500)
+
+            if os.path.exists(os.path.join(current_dir, 'output', docx_name)):
+                file_url = os.path.join('/j/output/', docx_name)
+                return JsonResponse({
+                    'message': 'O arquivo DOCX foi gerado com sucesso!',
+                    'file_url': file_url
+                })
+            else:
+                return JsonResponse({"error": "Erro ao gerar o arquivo DOCX."}, status=500)
+        except Exception as e:
+            return JsonResponse({
+                'error': f'Erro durante o processamento do formulário: {str(e)}'
+            }, status=500)
     else:
-        # GET request - criar formulário vazio
+        # Requisição GET - criar formulário vazio
         independent_form = DynamicForm(independent_fields)
-        
-        # Criar formsets vazios para cada grupo
-        for grupo, campos_grupo in grouped_fields.items():
-            GroupFormSet = formset_factory(
-                create_group_form_class(campos_grupo), 
-                extra=1
-            )
-            formsets[grupo] = GroupFormSet()
-    
+
+    # Criar formsets vazios para cada grupo
+    for grupo, campos_grupo in grouped_fields.items():
+        GroupFormSet = formset_factory(
+            create_group_form_class(campos_grupo),
+            extra=1
+        )
+        formsets[grupo] = GroupFormSet()
+
     # Gerar as opções formatadas
     try:
         opcoes_formatadas = opcoes_generator(parsed_data_options)
@@ -141,13 +160,14 @@ def formulario(request, folder):
         return JsonResponse({
             'error': f'Erro ao gerar opções formatadas: {str(e)}'
         }, status=500)
-    
+
     return render(request, 'form.html', {
         'independent_form': independent_form,
         'formsets': formsets,
         'opcoes_formatadas': opcoes_formatadas,
         'folder': folder  # Pode ser útil no template
     })
+
 
 def create_group_form_class(campos_grupo):
     """
@@ -198,9 +218,17 @@ def create_group_form_class(campos_grupo):
     # Adiciona campos ao formulário do grupo
     for nome, campo_info in campos_grupo.items():
         # Converte as informações do campo em um campo Django real
-        field = create_django_field(nome, campo_info)
+        result = create_django_field(nome, campo_info)
+
+        if isinstance(result, tuple) and len(result) == 2:
+            field, datalist = result
+        else:
+            field, datalist = result, None
+
         if field:
             GroupForm.base_fields[nome] = field
+            if datalist:
+                GroupForm.datalist_html = datalist  # Armazena o HTML dos datalists
     
     return GroupForm
 
@@ -217,7 +245,9 @@ def create_django_field(nome, campo_info):
     """
     if not campo_info.get('form', False):
         return None
-        
+    
+    datalist_html = ""
+    
     descricao = campo_info['descricao']
     tipo = campo_info['tipo']
     requerido = campo_info['requerido']
@@ -231,6 +261,7 @@ def create_django_field(nome, campo_info):
     widget_attrs = {
         'class': 'form-control',
         'placeholder': '',
+        'required': requerido,
         'data-condicao': condicao_attr
     }
     
@@ -272,8 +303,13 @@ def create_django_field(nome, campo_info):
                                     widget=forms.CheckboxInput(attrs=widget_attrs))
     elif tipo == 'datalist' and 'variaveis' in campo_info:
         widget_attrs['list'] = f'opcoes_{nome}'
+
+        datalist_html = f'<datalist id="opcoes_{nome}">'
+        for opcao in campo_info['variaveis']:
+            datalist_html += f'<option value="{opcao}">'
+        datalist_html += '</datalist>'
         return forms.CharField(label=descricao, required=requerido, 
-                                widget=forms.TextInput(attrs=widget_attrs))
+                                widget=forms.TextInput(attrs=widget_attrs)), datalist_html
                                 
     
     return None  # Retorna None se o tipo não for reconhecido

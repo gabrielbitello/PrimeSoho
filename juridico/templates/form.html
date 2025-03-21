@@ -64,12 +64,13 @@
                                         {% endif %}
                                     </div>
                                 {% endfor %}
+                                {{ form.datalist_html|safe }}
                             </div>
                         {% endfor %}
                     </div>
                 {% endfor %}
 
-                <button type="submit" class="btn btn-primary">Enviar</button>
+                <button type="submit" id="enviar" class="btn btn-primary">Enviar</button>
             </form>
             {{ independent_form.get_datalist_html|safe }}
         </section>

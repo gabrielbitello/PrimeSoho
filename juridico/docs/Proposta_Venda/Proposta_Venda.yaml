@@ -505,7 +505,7 @@ Documentos:
           - "Transferência"
           - "Dinheiro"
       variaveis:
-        - " - O valor do Sinal de Negócio, figura nesta proposta, somente como garantia da presente negociação, ficando regido pela Lei de “Arras” (Artigos 417 e seguintes do Código Civil), visto ele se achar incluso no valor descrito no item “3” abaixo. Devendo referida importância, ser devolvida aos proponentes, no ato da assinatura do instrumento particular de compromisso particular de compra e venda. escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital. contrato de financiamento bancário, junto a Instituição Financeira competente."
+        - "O valor do Sinal de Negócio, figura nesta proposta, somente como garantia da presente negociação, ficando regido pela Lei de “Arras” (Artigos 417 e seguintes do Código Civil), visto ele se achar incluso no valor descrito no item “3” abaixo. Devendo referida importância, ser devolvida aos proponentes, no ato da assinatura do instrumento particular de compromisso particular de compra e venda. escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital. contrato de financiamento bancário, junto a Instituição Financeira competente."
       regras:
         - "Counter": "1:1/B"
 
@@ -590,7 +590,7 @@ Documentos:
           - "imóvel"
       variaveis: {}
       regras:
-        - "Formater": " – R${Entrada_Imovel} ({Entrada_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), através da entrega do seguinte imóvel:"
+        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), através da entrega do seguinte imóvel:"
         - "Counter": "1/B"
         #Falta adicionar a logica que preenche as campos referentes aos dados do imovel
 
@@ -603,7 +603,7 @@ Documentos:
         Forma_Imovel_Entrada: true
       variaveis: {}
       regras:
-        - "Formater": "- O(s) vendedor(es), poderá optar em não transferir o imóvel para seu nome, e vende-lo a terceiros interessados, para tanto, deverá ser feito um contrato particular de compra e venda, quitado, em caráter irrevogável e irretratável, sem direito à arrependimento, concomitante com a outorga pelos proponentes, de um instrumento público de mandato, a ser lavrado no Tabelionato competente, com poderes para ele(s) vendedor(es), venderem o imóvel, por valor não superior a R$ {Entrada_Imovel}, podendo outorgar e assinar escritura pública de compra e venda, ou outra de direito, receber o preço, passar recibos, dar quitação, e demais poderes pertinentes ao ato. Cujos instrumentos deverão ser assinados concomitantemente com o documento de transferência do imóvel objeto desta proposta."
+        - "Formater": "O(s) vendedor(es), poderá optar em não transferir o imóvel para seu nome, e vende-lo a terceiros interessados, para tanto, deverá ser feito um contrato particular de compra e venda, quitado, em caráter irrevogável e irretratável, sem direito à arrependimento, concomitante com a outorga pelos proponentes, de um instrumento público de mandato, a ser lavrado no Tabelionato competente, com poderes para ele(s) vendedor(es), venderem o imóvel, por valor não superior a R$ {Entrada_Imovel}, podendo outorgar e assinar escritura pública de compra e venda, ou outra de direito, receber o preço, passar recibos, dar quitação, e demais poderes pertinentes ao ato. Cujos instrumentos deverão ser assinados concomitantemente com o documento de transferência do imóvel objeto desta proposta."
         - "Counter": "1:2/B"
         
     - nome: "Forma_Financiamento_Entrada_Texto"
@@ -616,7 +616,7 @@ Documentos:
           - "financiamento"
       variaveis: {}
       regras:
-        - "Formater": " – R${Entrada_Imovel} ({Entrada_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de financiamento bancário, junto a Instituição Financeira, competente."
+        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de financiamento bancário, junto a Instituição Financeira, competente."
         - "Counter": "1/B"
         
     - nome: "Forma_FGTS_Entrada_Texto"
@@ -629,7 +629,7 @@ Documentos:
           - "F.G.T.S."
       variaveis: {}
       regras:
-        - "Formater": " – R${Entrada_Imovel} ({Entrada_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de saque de valores da conta vinculada ao Fundo de Garantia por tempo de serviço (F.G.T.S.), deles proponentes."
+        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de saque de valores da conta vinculada ao Fundo de Garantia por tempo de serviço (F.G.T.S.), deles proponentes."
         - "Counter": "1/B"
         
     - nome: "Forma_TED_Entrada_Texto"
@@ -642,7 +642,7 @@ Documentos:
           - "T.E.D."
       variaveis: {}
       regras:
-        - "Formater": " – R${Entrada_Imovel} ({Entrada_Imovel_Extenso}), em cuja importância, se acha incluso o valor do sinal de negócio, a serem pagos pelos proponentes, ao(s) vendedor(es), com recursos próprios, via Transferência Eletrônica Disponível (T.E.D.), no ato da assinatura do contrato de financiamento bancário, junto a Instituição Financeira competente, cuja quitação de referida importância, será dada com a simples comprovação do referido depósito, pelo(s) vendedor(es)."
+        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso}), em cuja importância, se acha incluso o valor do sinal de negócio, a serem pagos pelos proponentes, ao(s) vendedor(es), com recursos próprios, via Transferência Eletrônica Disponível (T.E.D.), no ato da assinatura do contrato de financiamento bancário, junto a Instituição Financeira competente, cuja quitação de referida importância, será dada com a simples comprovação do referido depósito, pelo(s) vendedor(es)."
         - "Counter": "1/B"
         
 
@@ -704,7 +704,7 @@ Documentos:
           - "imóvel"
       variaveis: {}
       regras:
-        - "Formater": " – R${Valor_Imovel} ({Valor_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), através da entrega do seguinte imóvel:"
+        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), através da entrega do seguinte imóvel:"
         - "Counter": "1/B"
         #Falta adicionar a logica que preenche as campos referentes aos dados do imovel
 
@@ -717,7 +717,7 @@ Documentos:
         Forma_Imovel_Total: true
       variaveis: {}
       regras:
-        - "Formater": "- O(s) vendedor(es), poderá optar em não transferir o imóvel para seu nome, e vende-lo a terceiros interessados, para tanto, deverá ser feito um contrato particular de compra e venda, quitado, em caráter irrevogável e irretratável, sem direito à arrependimento, concomitante com a outorga pelos proponentes, de um instrumento público de mandato, a ser lavrado no Tabelionato competente, com poderes para ele(s) vendedor(es), venderem o imóvel, por valor não superior a R$ {Entrada_Imovel}, podendo outorgar e assinar escritura pública de compra e venda, ou outra de direito, receber o preço, passar recibos, dar quitação, e demais poderes pertinentes ao ato. Cujos instrumentos deverão ser assinados concomitantemente com o documento de transferência do imóvel objeto desta proposta."
+        - "Formater": "O(s) vendedor(es), poderá optar em não transferir o imóvel para seu nome, e vende-lo a terceiros interessados, para tanto, deverá ser feito um contrato particular de compra e venda, quitado, em caráter irrevogável e irretratável, sem direito à arrependimento, concomitante com a outorga pelos proponentes, de um instrumento público de mandato, a ser lavrado no Tabelionato competente, com poderes para ele(s) vendedor(es), venderem o imóvel, por valor não superior a R$ {Entrada_Imovel}, podendo outorgar e assinar escritura pública de compra e venda, ou outra de direito, receber o preço, passar recibos, dar quitação, e demais poderes pertinentes ao ato. Cujos instrumentos deverão ser assinados concomitantemente com o documento de transferência do imóvel objeto desta proposta."
         - "Counter": "1:3/B"
         
     - nome: "Forma_Financiamento_Total_Texto"
@@ -730,7 +730,7 @@ Documentos:
           - "financiamento"
       variaveis: {}
       regras:
-        - "Formater": " – R${Valor_Imovel} ({Valor_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de financiamento bancário, junto a Instituição Financeira, competente."
+        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de financiamento bancário, junto a Instituição Financeira, competente."
         - "Counter": "1/B"
         
     - nome: "Forma_FGTS_Total_Texto"
@@ -743,7 +743,7 @@ Documentos:
           - "F.G.T.S."
       variaveis: {}
       regras:
-        - "Formater": " – R${Valor_Imovel} ({Valor_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de saque de valores da conta vinculada ao Fundo de Garantia por tempo de serviço (F.G.T.S.), deles proponentes."
+        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de saque de valores da conta vinculada ao Fundo de Garantia por tempo de serviço (F.G.T.S.), deles proponentes."
         - "Counter": "1/B"
         
     - nome: "Forma_TED_Total_Texto"
@@ -756,7 +756,7 @@ Documentos:
           - "T.E.D."
       variaveis: {}
       regras:
-        - "Formater": " – R${Valor_Imovel} ({Valor_Imovel_Extenso}), em cuja importância, se acha incluso o valor do sinal de negócio, a serem pagos pelos proponentes, ao(s) vendedor(es), com recursos próprios, via Transferência Eletrônica Disponível (T.E.D.), no ato da assinatura do contrato de financiamento bancário, junto a Instituição Financeira competente, cuja quitação de referida importância, será dada com a simples comprovação do referido depósito, pelo(s) vendedor(es)."
+        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso}), em cuja importância, se acha incluso o valor do sinal de negócio, a serem pagos pelos proponentes, ao(s) vendedor(es), com recursos próprios, via Transferência Eletrônica Disponível (T.E.D.), no ato da assinatura do contrato de financiamento bancário, junto a Instituição Financeira competente, cuja quitação de referida importância, será dada com a simples comprovação do referido depósito, pelo(s) vendedor(es)."
         - "Counter": "1/B"
         
 
@@ -803,7 +803,7 @@ Documentos:
       condicao:
         Forma_Pagamento_Total/Forma_Entrada: "F.G.T.S."
       variaveis:
-        - "e liberação de FGTS"
+        - "liberação de FGTS"
       regras: {}
 
     - nome: "Data_V_Financiamento"
@@ -828,7 +828,7 @@ Documentos:
           - "F.G.T.S."
       variaveis: {}
       regras:
-        - "Formater": " – Contrato de {Data_V_FGTS}{Data_V_Com}{Data_V_Financiamento} será assinado em até {Data_limite} ({Data_limite_Extenso}) dias, junto ao Agente Financeiro competente."
+        - "Formater": "Contrato de {Data_V_FGTS}{Data_V_Com}{Data_V_Financiamento} será assinado em até {Data_limite} ({Data_limite_Extenso}) dias, junto ao Agente Financeiro competente."
         - "Counter": "2/B"
         
     - nome: "Data_TED"
@@ -843,7 +843,7 @@ Documentos:
           - "T.E.D."
       variaveis: {}
       regras:
-        - "Formater": "  – A escritura será assinada em até: {Data_limite} ({Data_limite_Extenso}) dias, contados desta data, junto ao Tabelionato competente."
+        - "Formater": "A escritura será assinada em até: {Data_limite} ({Data_limite_Extenso}) dias, contados desta data, junto ao Tabelionato competente."
         - "Counter": "2/B"
         
     - nome: "Data_Limite"
@@ -853,8 +853,8 @@ Documentos:
       requerido: true
       condicao: {}
       variaveis: 
-        - " - No ato da assinatura da escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital"
-        - " - No ato da assinatura da contrato de financiamento bancário, junto a Instituição Financeira competente."
+        - "No ato da assinatura da escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital"
+        - "No ato da assinatura da contrato de financiamento bancário, junto a Instituição Financeira competente."
       regras:
         - "Counter": "2/B"
 
@@ -866,8 +866,8 @@ Documentos:
       condicao: 
         Forma_Pagamento_Total/Forma_Entrada: "imóvel"
       variaveis: 
-        - " - No ato da assinatura da escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital"
-        - " - No ato da assinatura da contrato de financiamento bancário, junto a Instituição Financeira competente."
+        - "No ato da assinatura da escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital"
+        - "No ato da assinatura da contrato de financiamento bancário, junto a Instituição Financeira competente."
       regras:
         - "Counter": "2/B"
 
@@ -897,7 +897,7 @@ Documentos:
       condicao:
       variaveis: {}
       regras:
-        - "Formater": " – Ficam permanecendo no imóvel: {Ficam_Imovel}"
+        - "Formater": "Ficam permanecendo no imóvel: {Ficam_Imovel}"
         - "Counter": "2/B"
         
     - nome: "Observacoes_Texto"
@@ -908,7 +908,7 @@ Documentos:
       condicao:
       variaveis: {}
       regras:
-        - "Formater": " – Observações: {Observacoes}"
+        - "Formater": "Observações: {Observacoes}"
         - "Counter": "2/B"
 
 

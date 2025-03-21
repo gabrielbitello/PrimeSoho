@@ -11,9 +11,9 @@ def opcoes_generator(opcoes):
 
                 campos += '<div class="flex">'
                 campos += f'<div>\n<label for="{nome}">Numero de {nome}:</label>\n<input type="number" name="{nome}" id="{nome}" class="form-control multiplicador" value="1" placeholder="1" max={max} min="1"/>\n</div>\n'
+                campos += f'<input type="hidden" name="submit_type" value="add_formset_row" id="submit-type-hidden">\n'
                 campos += f'<button id="{nome}" class="form-control multiplicador" data-grupo="{nome}" onclick="alert(\'Numero alterado!\')">Confirmar</button>\n'
                 campos == '</div>'
             campos += '</div>'
             opcoes_formatadas += campos
-    print (opcoes_formatadas)
     return opcoes_formatadas
