@@ -4,6 +4,7 @@ from num2words import num2words
 from docx import Document
 import re
 from copy import deepcopy
+import datetime
 
 counter_dict = {}
 subcounter_dict = {}
@@ -176,37 +177,96 @@ def substituir_match(match):
     novo_valor = get_counter_value(x, y) if y else get_counter_value(x)
     return str(novo_valor)
 
+def processar_dados(dados, parsed_data_options):
+    novos_dados = {}
+    contadores = {}
+    
+    print("Processando dados")
+    for nome, config in parsed_data_options.items():
+
+        if nome in dados:
+            valor = dados[nome]
+            if isinstance(valor, list):
+                for i, item in enumerate(valor):
+                    if isinstance(item, dict):
+                        for chave, val in item.items():
+                            if chave not in contadores:
+                                contadores[chave] = 0
+                            else:
+                                contadores[chave] += 1
+                            nova_chave = f"form-{contadores[chave]}-{chave}"
+                            novos_dados[nova_chave] = val
+                    else:
+                        nova_chave = f"form-{i}-{nome}"
+                        novos_dados[nova_chave] = item
+            elif isinstance(valor, dict):
+                for chave, val in valor.items():
+                    if chave not in contadores:
+                        contadores[chave] = 0
+                    else:
+                        contadores[chave] += 1
+                    nova_chave = f"form-{contadores[chave]}-{chave}"
+                    novos_dados[nova_chave] = val
+            else:
+                nova_chave = f"form-0-{nome}"
+                novos_dados[nova_chave] = valor
+    
+    return novos_dados
+
+def processar_inputs_especiais(texto_original):
+    contadores = {}
+    
+    def substituir_input(match):
+        nome = match.group(1)
+        if nome.startswith('form-'):
+            # Se já estiver no formato {form-X-Nome}, não alterar
+            return match.group(0)
+        if nome not in contadores:
+            contadores[nome] = 0
+        else:
+            contadores[nome] += 1
+        return f"{{form-{contadores[nome]}-{nome}}}"
+    
+    # Padrão atualizado para capturar tanto {#Nome} quanto {form-X-Nome}
+    padrao = r'{(?:#|\w+-)(\w+)}'
+    texto_processado = re.sub(padrao, substituir_input, texto_original)
+    
+    print(f"Texto original: {texto_original}")
+    print(f"Texto processado: {texto_processado}")
+    
+    return texto_processado
+
+def extrair_nome(chave: str) -> str:
+    partes = chave.split('-')
+    return '-'.join(partes[2:])  # Ignora as duas primeiras partes
+
+
 def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc, parsed_data_options, linha=None, tabela_o=None):
     """Substitui variáveis no parágrafo conforme as regras, garantindo que cada contador seja atualizado corretamente."""
-    campos_processados = {}
 
     # Extrair todo o texto do parágrafo para uma única string
     texto_original = "".join(run.text for run in paragrafo.runs)
+    print(f"Texto original: {texto_original}")
 
-    # Encontrar todas as chaves no formato {{#Exemplo}}
-    chaves_com_hash = re.findall(r"{{#\w+}}", texto_original)
+    # Processar inputs especiais
+    print (f"substituindo texto original")
+    texto_processado = processar_inputs_especiais(texto_original)
+    print ("texto processado")
 
-    # Processa cada chave encontrada
-    for chave_formatada in chaves_com_hash:
-        if chave_formatada in campos_processados:
-            campos_processados[chave_formatada] += 1
-        else:
-            campos_processados[chave_formatada] = 0
 
-        # Atualiza chave_formatada com o índice atual
-        index = campos_processados[chave_formatada]
-        nova_chave_formatada = f'{{form-{index}-{chave_formatada[3:]}}}'  # "chave_formatada[3:]" remove o '#'
+    # Limpa os runs atuais do parágrafo
+    for run in paragrafo.runs:
+        run.text = ""
 
-        # Substitui no texto original
-        texto_original = texto_original.replace(chave_formatada, nova_chave_formatada)
+    # Adiciona o texto processado ao parágrafo
+    paragrafo.add_run(texto_processado)
 
     # Limpa os runs atuais do parágrafo
     for run in paragrafo.runs:
         run.text = ""  # Limpa o texto original do run
 
     # Adiciona o texto atualizado ao parágrafo
-    print(f"Texto original: {texto_original}")
-    paragrafo.add_run(texto_original)
+    paragrafo.runs[0].text = texto_processado
 
     # Expressão regular para encontrar padrões como {counter:x} ou {counter:x:y}
     pattern = r"\{counter:(\d+)(?::(\d+))?\}"
@@ -216,18 +276,26 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc, parsed_d
         if "{counter:" in run.text:
             run.text = re.sub(pattern, substituir_match, run.text)
 
-    
+    #----------------------------------------------------
+    #
+    #Problema para substituir variaveis do form-factory se existir mais de 1 campo
+    #
+    #----------------------------------------------------
 
     # Processa outras variáveis além de counter
     for chave, valor in dados.items():
         chave_formatada = f"{{{chave}}}"
-        if chave_formatada in texto_original:
+        if chave.startswith("form"):
+            chave_reformatada = extrair_nome(chave)
+        else:
+            chave_reformatada = chave
+        if chave_formatada in texto_processado:
             print(f"Chave especial encontrada: {chave_formatada}")
 
             documentos_config = yaml_data.get('Documentos', {}).get('Documentos-Config', [])
-            item_filtrado = next((item for item in documentos_config if item.get('nome') == chave), None)
+            item_filtrado = next((item for item in documentos_config if item.get('nome') == chave_reformatada), None)
 
-            if not verificar_condicoes(dados, item_filtrado, chave):
+            if not verificar_condicoes(dados, item_filtrado, chave_reformatada):
                 for run in paragrafo.runs:
                     if chave_formatada in run.text:
                         run.text = run.text.replace(chave_formatada, '')
@@ -239,7 +307,7 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc, parsed_d
                 if variaveis_yaml:
                     novo_valor = variaveis_yaml[0]
 
-            novo_valor = aplicar_regras_para_valor(novo_valor, item_filtrado, chave, doc, dados, yaml_data)
+            novo_valor = aplicar_regras_para_valor(novo_valor, item_filtrado, chave_reformatada, doc, dados, yaml_data)
 
             for run in paragrafo.runs:
                 if chave_formatada in run.text:
@@ -392,7 +460,8 @@ def gen_docx(dados, folder, yaml_data, parsed_data_options):
     for campo_yaml in yaml_data.get('Documentos', {}).get('Documentos-Config', []):
         nome_campo = campo_yaml.get('nome')
         if nome_campo and nome_campo not in dados:
-            dados[nome_campo] = None
+            if not campo_yaml.get('grupo'):
+                dados[nome_campo] = None
 
     # Carrega o arquivo DOCX
     doc = Document(caminho_template)
@@ -421,6 +490,14 @@ def gen_docx(dados, folder, yaml_data, parsed_data_options):
                                     inserir_tabela_apos(tabela_original, nova_tabela)
                                     print (f"Nova tabela inserida após a tabela original.")
                                 break
+
+    print ("processando dados")
+    dados_processados = processar_dados(dados, parsed_data_options)
+    for chave, valor in dados_processados.items():
+        dados[chave] = valor
+    for grupo in parsed_data_options:
+        del dados[grupo]
+    print (f"dados processados: {dados_processados} e dados: {dados}")	
 
     if not doc.paragraphs:
         raise ValueError(f"O template {caminho_template} não contém parágrafos.")

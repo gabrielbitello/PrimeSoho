@@ -91,7 +91,7 @@ Documentos:
       regras: {}
       grupo: "proprietario"
 
-    - nome: "Nacionaldiade"
+    - nome: "Nacionalidade"
       tipo: "datalist"
       form: true
       descricao: "Nacionalidade"
@@ -187,13 +187,11 @@ Documentos:
       grupo: "proprietario"
 
     - nome: "UF_proprietario"
-      tipo: "select"
+      tipo: "datalist"
       form: true
       descricao: "Unidade Federativa do proprietario"
       requerido: true
-      condicao: 
-        Nacionaldiade: 
-          - "Brasileiro"
+      condicao: {}
       variaveis: 
         - "PR"
         - "AC"
@@ -378,10 +376,10 @@ Documentos:
       requerido: true
       condicao: {}
       variaveis:
-        - "Curitiba"
-        - "São José dos Pinhais"
-        - "Pinhais"
-        - "Colombo"
+        - "Curitiba/PR"
+        - "São José dos Pinhais/PR"
+        - "Pinhais/PR"
+        - "Colombo/PR"
       regras: {}
 
     - nome: "Bairro_imovel"
@@ -629,7 +627,7 @@ Documentos:
         #
         #
 
-    - nome: "Documento_Apresentados"
+    - nome: "Documentos_Apresentados"
       tipo: "textarea"
       form: true
       descricao: "Documento apresentados"
