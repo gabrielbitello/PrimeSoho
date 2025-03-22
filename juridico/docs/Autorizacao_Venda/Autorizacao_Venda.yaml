@@ -42,7 +42,7 @@ Documentos:
       descricao: "Responsável pelo CNPJ"
       requerido: true
       condicao: 
-        PJ: "PJ"
+        PJ: true
       variaveis: {}
       regras: {}
       grupo: "proprietario"
@@ -233,6 +233,20 @@ Documentos:
       requerido: true
       condicao: {}
       variaveis: {}
+      regras: {}
+      grupo: "proprietario"
+
+    - nome: "Doc_constitutivos"
+      tipo: "datalist"
+      form: true
+      descricao: "Documento consultivo da empresa"
+      requerido: true
+      condicao: 
+        PJ: true
+      variaveis: 
+        - "Contrato Social"
+        - "Última Alteração Contratual Consolidada"
+        - "Contrato Social e Última Alteração Contratual Consolidada"
       regras: {}
       grupo: "proprietario"
 
@@ -607,7 +621,7 @@ Documentos:
         Valor_Imovel: true
       variaveis: {}
       regras: 
-        - "Formater": "R$ {Valor_Imovel} ({Valor_Imovel_Extenso}) - {Condicao_Pagamento}"
+        - "Formater": "R$ {Valor_Imovel} ({Valor_Imovel_Extenso}  Reais) - {Condicao_Pagamento}"
 
         #
         #
@@ -632,6 +646,25 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+
+    - nome: "Corretor_Email"
+      tipo: "email"
+      form: true
+      descricao: "Email do corretor"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
+    - nome: "Corretor_Numero"
+      tipo: "phone"
+      form: true
+      descricao: "Numero do corretor"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+
 
 
     - nome: "Data"

@@ -3,6 +3,7 @@ import uuid
 from num2words import num2words
 from docx import Document
 import re
+from copy import deepcopy
 
 counter_dict = {}
 subcounter_dict = {}
@@ -34,11 +35,11 @@ def criar_tabela_ao_redor_do_valor(paragrafo, valor):
     return paragrafo
 
 def converter_numero_para_texto(valor):
-    """Converte um número para texto em português."""
     if valor is None:
         return ""
     try:
-        return num2words(int(valor), lang='pt_BR')
+        valor_str = str(valor).replace('.', '').replace(' ', '')
+        return num2words(int(valor_str), lang='pt_BR')
     except ValueError:
         return ""
 
@@ -175,9 +176,37 @@ def substituir_match(match):
     novo_valor = get_counter_value(x, y) if y else get_counter_value(x)
     return str(novo_valor)
 
-def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
+def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc, parsed_data_options, linha=None, tabela_o=None):
     """Substitui variáveis no parágrafo conforme as regras, garantindo que cada contador seja atualizado corretamente."""
+    campos_processados = {}
+
+    # Extrair todo o texto do parágrafo para uma única string
     texto_original = "".join(run.text for run in paragrafo.runs)
+
+    # Encontrar todas as chaves no formato {{#Exemplo}}
+    chaves_com_hash = re.findall(r"{{#\w+}}", texto_original)
+
+    # Processa cada chave encontrada
+    for chave_formatada in chaves_com_hash:
+        if chave_formatada in campos_processados:
+            campos_processados[chave_formatada] += 1
+        else:
+            campos_processados[chave_formatada] = 0
+
+        # Atualiza chave_formatada com o índice atual
+        index = campos_processados[chave_formatada]
+        nova_chave_formatada = f'{{form-{index}-{chave_formatada[3:]}}}'  # "chave_formatada[3:]" remove o '#'
+
+        # Substitui no texto original
+        texto_original = texto_original.replace(chave_formatada, nova_chave_formatada)
+
+    # Limpa os runs atuais do parágrafo
+    for run in paragrafo.runs:
+        run.text = ""  # Limpa o texto original do run
+
+    # Adiciona o texto atualizado ao parágrafo
+    print(f"Texto original: {texto_original}")
+    paragrafo.add_run(texto_original)
 
     # Expressão regular para encontrar padrões como {counter:x} ou {counter:x:y}
     pattern = r"\{counter:(\d+)(?::(\d+))?\}"
@@ -187,11 +216,14 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
         if "{counter:" in run.text:
             run.text = re.sub(pattern, substituir_match, run.text)
 
+    
+
     # Processa outras variáveis além de counter
     for chave, valor in dados.items():
         chave_formatada = f"{{{chave}}}"
-
         if chave_formatada in texto_original:
+            print(f"Chave especial encontrada: {chave_formatada}")
+
             documentos_config = yaml_data.get('Documentos', {}).get('Documentos-Config', [])
             item_filtrado = next((item for item in documentos_config if item.get('nome') == chave), None)
 
@@ -212,12 +244,12 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
             for run in paragrafo.runs:
                 if chave_formatada in run.text:
                     novo_texto = run.text.replace(chave_formatada, str(novo_valor))
-
+            
                     # Verifica se o novo valor tem marcadores de negrito (**)
                     if "**" in novo_texto:
                         partes = novo_texto.split("**")
                         run.text = ""  # Limpa o run original para evitar duplicações
-
+            
                         for i, parte in enumerate(partes):
                             if parte:  # Garante que não adicionamos runs vazios
                                 novo_run = paragrafo.add_run(parte)
@@ -225,7 +257,17 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
                                     novo_run.bold = True
                     else:
                         run.text = novo_texto  # Apenas substitui normalmente se não tiver "**"
-
+                
+                    # Verifica se tabela_o não é None e o novo texto é vazio
+                    if tabela_o is not None and not novo_texto.strip():
+                        # Itera sobre as linhas da tabela
+                        for linha in tabela_o.rows:
+                            # Verifica se todas as células da linha estão vazias
+                            if all(not celula.text.strip() for celula in linha.cells):
+                                tabela_o._tbl.remove(linha._tr)  # Remove a linha da tabela
+                                break  # Sai do loop após remover a linha
+        else:
+            print(f"Chave não encontrada no texto: {chave_formatada}")
     
     # Reconhecimento de contadores dentro de tabelas
     for tabela in doc.tables:
@@ -239,25 +281,25 @@ def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc):
     return paragrafo
 
 
-def substituir_variaveis_nas_tabelas(doc, dados, yaml_data):
+def substituir_variaveis_nas_tabelas(doc, dados, yaml_data, parsed_data_options):
     """Substitui variáveis dentro de tabelas do documento."""
     for table_index, table in enumerate(doc.tables):
         for row_index, row in enumerate(table.rows):
             for cell_index, cell in enumerate(row.cells):
                 for paragrafo in cell.paragraphs:
-                    substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc)
+                    substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc, parsed_data_options, row, table)
 
-def substituir_variaveis_no_rodape(doc, dados, yaml_data):
+def substituir_variaveis_no_rodape(doc, dados, yaml_data, parsed_data_options):
     """Substitui variáveis nos rodapés do documento."""
     for section in doc.sections:
         for rodape in section.footer.paragraphs:
-            substituir_variaveis_no_paragrafo(rodape, dados, yaml_data, doc)
+            substituir_variaveis_no_paragrafo(rodape, dados, yaml_data, doc, parsed_data_options)
 
-def substituir_variaveis_no_cabecalho(doc, dados, yaml_data):
+def substituir_variaveis_no_cabecalho(doc, dados, yaml_data, parsed_data_options):
     """Substitui variáveis nos cabeçalhos do documento."""
     for section in doc.sections:
         for cabecalho in section.header.paragraphs:
-            substituir_variaveis_no_paragrafo(cabecalho, dados, yaml_data, doc)
+            substituir_variaveis_no_paragrafo(cabecalho, dados, yaml_data, doc, parsed_data_options)
 
 def verificar_condicoes(dados, yaml_data, campo_verificado):
     """Verifica as condições de um campo, buscando no YAML as condições associadas ao campo."""
@@ -325,7 +367,22 @@ def verificar_condicoes(dados, yaml_data, campo_verificado):
 
     return True  # Se todas as condições foram atendidas
 
-def gen_docx(dados, folder, yaml_data):
+def inserir_tabela_apos(tabela_original, nova_tabela):
+    """Insere uma tabela duplicada após a tabela original."""
+    tabela_elemento_original = tabela_original._element
+    nova_tabela_elemento = nova_tabela._element
+    tabela_elemento_original.addnext(nova_tabela_elemento)
+
+def inserir_linha_abaixo(tabela, linha_original):
+    """Insere uma nova linha logo abaixo da linha original da tabela."""
+    # Cria uma nova linha com células vazias, com o mesmo número de células da linha original
+    nova_linha = tabela.add_row()
+
+    for i, celula in enumerate(linha_original.cells):
+        nova_linha.cells[i].text = ""  # Você pode definir o conteúdo da nova linha aqui, se necessário
+
+
+def gen_docx(dados, folder, yaml_data, parsed_data_options):
     """Preenche o modelo DOCX com os dados do formulário e do YAML."""
     caminho_template = os.path.abspath(os.path.join(docs_path, folder, f'{folder}.docx'))
 
@@ -340,24 +397,49 @@ def gen_docx(dados, folder, yaml_data):
     # Carrega o arquivo DOCX
     doc = Document(caminho_template)
 
+    for grupo in parsed_data_options:
+        if grupo in dados:
+            print (f"Grupo: {grupo}")
+            buscador = parsed_data_options[grupo].get('buscador')
+            print (f"Buscador: {buscador}")
+            multiplicador = dados[grupo]
+            numero_de_dicionarios = sum(1 for item in multiplicador if isinstance(item, dict))
+            numero_de_dicionarios = numero_de_dicionarios - 1
+
+            if numero_de_dicionarios:
+                for tabela in doc.tables:
+                    for linha in tabela.rows:
+                        for celula in linha.cells:
+                            if buscador in celula.text:
+                                # Encontrou a tabela que contém o texto do buscador
+                                tabela_original = tabela
+                                for _ in range(numero_de_dicionarios):
+                                    # Cria uma cópia da tabela original
+                                    nova_tabela = deepcopy(tabela_original)
+
+                                    # Insere a nova tabela logo após a tabela original
+                                    inserir_tabela_apos(tabela_original, nova_tabela)
+                                    print (f"Nova tabela inserida após a tabela original.")
+                                break
+
     if not doc.paragraphs:
         raise ValueError(f"O template {caminho_template} não contém parágrafos.")
 
     # Substituição de variáveis no documento
     for paragrafo in doc.paragraphs:
-        substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc)
+        substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc, parsed_data_options)
 
     # Substituição dentro das tabelas
-    substituir_variaveis_nas_tabelas(doc, dados, yaml_data)
+    substituir_variaveis_nas_tabelas(doc, dados, yaml_data, parsed_data_options)
 
-    
-    substituir_variaveis_no_rodape(doc, dados, yaml_data)
+    # Substituição no rodapé
+    substituir_variaveis_no_rodape(doc, dados, yaml_data, parsed_data_options)
 
-    
-    substituir_variaveis_no_cabecalho(doc, dados, yaml_data)
+    # Substituição no cabeçalho
+    substituir_variaveis_no_cabecalho(doc, dados, yaml_data, parsed_data_options)
 
     # Salva o arquivo gerado
-    caminho_saida = (f'{folder}_preenchido_{unique_id}.docx')
+    caminho_saida = f'{folder}_preenchido_{unique_id}.docx'
     output_path_formated = os.path.abspath(os.path.join(output_path, caminho_saida))
     doc.save(output_path_formated)
 

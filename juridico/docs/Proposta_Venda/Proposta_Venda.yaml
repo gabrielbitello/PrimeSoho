@@ -490,7 +490,7 @@ Documentos:
       condicao:
         Forma_Sinal: "Cheque"
       variaveis:
-        - " - O cheque que representa o valor do Sinal de Negócio, figura nesta proposta, somente como garantia da presente negociação, ficando regido pela Lei de “Arras” (Artigos 417 e seguintes do Código Civil), visto que seu valor se acha incluso no valor descrito no item “3” abaixo. Devendo referido cheque de sinal, ser devolvido aos proponentes, no ato da assinatura do instrumento particular de compromisso particular de compra e venda. escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital. contrato de financiamento bancário, junto a Instituição Financeira competente."
+        - "O cheque que representa o valor do Sinal de Negócio, figura nesta proposta, somente como garantia da presente negociação, ficando regido pela Lei de “Arras” (Artigos 417 e seguintes do Código Civil), visto que seu valor se acha incluso no valor descrito no item “3” abaixo. Devendo referido cheque de sinal, ser devolvido aos proponentes, no ato da assinatura do instrumento particular de compromisso particular de compra e venda. escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital. contrato de financiamento bancário, junto a Instituição Financeira competente."
       regras:
         - "Counter": "1:1/B"
 
@@ -590,7 +590,7 @@ Documentos:
           - "imóvel"
       variaveis: {}
       regras:
-        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), através da entrega do seguinte imóvel:"
+        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), através da entrega do seguinte imóvel:"
         - "Counter": "1/B"
         #Falta adicionar a logica que preenche as campos referentes aos dados do imovel
 
@@ -616,7 +616,7 @@ Documentos:
           - "financiamento"
       variaveis: {}
       regras:
-        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de financiamento bancário, junto a Instituição Financeira, competente."
+        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de financiamento bancário, junto a Instituição Financeira, competente."
         - "Counter": "1/B"
         
     - nome: "Forma_FGTS_Entrada_Texto"
@@ -629,7 +629,7 @@ Documentos:
           - "F.G.T.S."
       variaveis: {}
       regras:
-        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de saque de valores da conta vinculada ao Fundo de Garantia por tempo de serviço (F.G.T.S.), deles proponentes."
+        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de saque de valores da conta vinculada ao Fundo de Garantia por tempo de serviço (F.G.T.S.), deles proponentes."
         - "Counter": "1/B"
         
     - nome: "Forma_TED_Entrada_Texto"
@@ -642,7 +642,7 @@ Documentos:
           - "T.E.D."
       variaveis: {}
       regras:
-        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso}), em cuja importância, se acha incluso o valor do sinal de negócio, a serem pagos pelos proponentes, ao(s) vendedor(es), com recursos próprios, via Transferência Eletrônica Disponível (T.E.D.), no ato da assinatura do contrato de financiamento bancário, junto a Instituição Financeira competente, cuja quitação de referida importância, será dada com a simples comprovação do referido depósito, pelo(s) vendedor(es)."
+        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso} Reais), em cuja importância, se acha incluso o valor do sinal de negócio, a serem pagos pelos proponentes, ao(s) vendedor(es), com recursos próprios, via Transferência Eletrônica Disponível (T.E.D.), no ato da assinatura do contrato de financiamento bancário, junto a Instituição Financeira competente, cuja quitação de referida importância, será dada com a simples comprovação do referido depósito, pelo(s) vendedor(es)."
         - "Counter": "1/B"
         
 
@@ -704,7 +704,7 @@ Documentos:
           - "imóvel"
       variaveis: {}
       regras:
-        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), através da entrega do seguinte imóvel:"
+        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), através da entrega do seguinte imóvel:"
         - "Counter": "1/B"
         #Falta adicionar a logica que preenche as campos referentes aos dados do imovel
 
@@ -730,7 +730,7 @@ Documentos:
           - "financiamento"
       variaveis: {}
       regras:
-        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de financiamento bancário, junto a Instituição Financeira, competente."
+        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de financiamento bancário, junto a Instituição Financeira, competente."
         - "Counter": "1/B"
         
     - nome: "Forma_FGTS_Total_Texto"
@@ -743,7 +743,7 @@ Documentos:
           - "F.G.T.S."
       variaveis: {}
       regras:
-        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso}), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de saque de valores da conta vinculada ao Fundo de Garantia por tempo de serviço (F.G.T.S.), deles proponentes."
+        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de saque de valores da conta vinculada ao Fundo de Garantia por tempo de serviço (F.G.T.S.), deles proponentes."
         - "Counter": "1/B"
         
     - nome: "Forma_TED_Total_Texto"
@@ -756,7 +756,7 @@ Documentos:
           - "T.E.D."
       variaveis: {}
       regras:
-        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso}), em cuja importância, se acha incluso o valor do sinal de negócio, a serem pagos pelos proponentes, ao(s) vendedor(es), com recursos próprios, via Transferência Eletrônica Disponível (T.E.D.), no ato da assinatura do contrato de financiamento bancário, junto a Instituição Financeira competente, cuja quitação de referida importância, será dada com a simples comprovação do referido depósito, pelo(s) vendedor(es)."
+        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso} Reais), em cuja importância, se acha incluso o valor do sinal de negócio, a serem pagos pelos proponentes, ao(s) vendedor(es), com recursos próprios, via Transferência Eletrônica Disponível (T.E.D.), no ato da assinatura do contrato de financiamento bancário, junto a Instituição Financeira competente, cuja quitação de referida importância, será dada com a simples comprovação do referido depósito, pelo(s) vendedor(es)."
         - "Counter": "1/B"
         
 
