@@ -4,520 +4,605 @@ from num2words import num2words
 from docx import Document
 import re
 from copy import deepcopy
-import datetime
+from typing import Optional, Union, Dict, Any, List
 
-counter_dict = {}
-subcounter_dict = {}
+# Constants
+PARENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DOCS_PATH = os.path.join(PARENT_DIR, 'docs')
+OUTPUT_PATH = os.path.join(PARENT_DIR, 'output')
+
+# Global Dictionaries (Consider using classes or a more encapsulated approach if this becomes more complex)
+COUNTER_DICT: Dict[int, int] = {}
+SUBCOUNTER_DICT: Dict[int, Dict[int, int]] = {}
+
+COUNTERS: Dict[str, int] = {}  # Initialize the counters dictionary
+
+def create_table_around_value(paragraph, value: str):
+    """
+    Creates a simple table around the given value within a Word document paragraph.
+
+    Args:
+        paragraph: The docx.paragraph.Paragraph object where the table will be inserted.
+        value: The string value to be placed inside the table.
+
+    Returns:
+        The original paragraph, for chaining or further manipulation.
+    """
+    table = paragraph.add_paragraph().add_run().add_table(rows=1, cols=1)
+    cell = table.cell(0, 0)
+    cell.text = value
+    table.style = 'Table Grid'
+    return paragraph
 
 
-# Obtém o diretório do app 'juridico'
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+def convert_number_to_text(value: Optional[Union[int, float, str]]) -> str:
+    """
+    Converts a numerical value to its textual representation in Brazilian Portuguese.
 
-# Define o caminho para o diretório 'docs' no mesmo diretório que o arquivo views.py
-docs_path = os.path.join(parent_dir, 'docs')
+    Args:
+        value: The numerical value to convert. Can be an integer, float, or string.  None is accepted and returns "".
 
-output_path = os.path.join(parent_dir, 'output')
-
-
-
-def criar_tabela_ao_redor_do_valor(paragrafo, valor):
-    """Cria uma tabela simples ao redor do valor, adicionando o valor à célula da tabela."""
-    # Cria uma tabela com uma linha e uma coluna (ao redor do valor)
-    tabela = paragrafo.add_paragraph().add_run().add_table(rows=1, cols=1)
-
-    # Adiciona o valor à célula da tabela
-    celula = tabela.cell(0, 0)
-    celula.text = valor
-
-    # Aplica estilo à tabela (bordas internas apenas)
-    tabela.style = 'Table Grid'
-
-    # Retorna o parágrafo com a tabela ao redor do valor
-    return paragrafo
-
-def converter_numero_para_texto(valor):
-    if valor is None:
+    Returns:
+        The textual representation of the number, or an empty string if conversion fails.
+    """
+    if value is None:
         return ""
     try:
-        valor_str = str(valor).replace('.', '').replace(' ', '')
-        return num2words(int(valor_str), lang='pt_BR')
+        value_str = str(value).replace('.', '').replace(' ', '')
+        return num2words(int(value_str), lang='pt_BR')
     except ValueError:
         return ""
 
-def substituir_texto(paragrafo, campo, valor):
-    """Substitui todas as ocorrências de {campo} no parágrafo por valor."""
-    campo_formatado = f"{{{campo}}}"
-    if campo_formatado in paragrafo.text:
-        novo_texto = paragrafo.text.replace(campo_formatado, str(valor) if valor else "")
-        paragrafo.clear()
-        paragrafo.add_run(novo_texto)
+def replace_text(paragraph, field: str, value: str):
+    """
+    Replaces all occurrences of {field} in the paragraph with the given value.
 
-def parse_string(input_str):
+    Args:
+        paragraph: The docx.paragraph.Paragraph object to modify.
+        field: The string representing the placeholder to replace (e.g., 'name').
+        value: The string value to insert in place of the placeholder.
+    """
+    formatted_field = f"{{{field}}}"
+    if formatted_field in paragraph.text:
+        new_text = paragraph.text.replace(formatted_field, str(value) if value else "")
+        paragraph.clear()
+        paragraph.add_run(new_text)
+
+def parse_string(input_str: str) -> tuple[str, Optional[str], Optional[str]]:
+    """
+    Parses a string to extract components based on delimiters ":" and "/".
+
+    Args:
+        input_str: The string to parse (e.g., "x:y/modifier" or "x/modifier" or "x").
+
+    Returns:
+        A tuple containing x, y (optional), and modifier (optional).
+    """
     if ":" in input_str:
-        parts = input_str.split(":")
-        x = parts[0]
-        if "/" in parts[1]:
-            y, modifier = parts[1].split("/")
+        x, rest = input_str.split(":", 1)
+        if "/" in rest:
+            y, modifier = rest.split("/")
         else:
-            y = parts[1]
+            y = rest
             modifier = None
         return x, y, modifier
-    
     elif "/" in input_str:
         x, modifier = input_str.split("/")
         return x, None, modifier
-    
     else:
         return input_str, None, None
 
+def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: str, doc: Document, data: Dict[str, Any], yaml: Dict[str, Any]) -> Any:
+    """
+    Applies rules to a value based on configurations in the YAML file.
 
-def aplicar_regras_para_valor(valor, yaml_data, campo_verificado, doc, dados, yaml):
-    """Aplica as regras de forma automática com base nas configurações no YAML para o valor da variável."""
+    Args:
+        value: The initial value to be processed.
+        yaml_data: The YAML data containing rules and configurations.
+        field_verified: The field being verified (used for context in rules).
+        doc: The Document object (used if rules require document context).
+        data: The data dictionary containing values for formatting.
+        yaml: The entire YAML configuration for broader context access.
 
-    # Se não houver regras, retornamos o valor sem alteração
+    Returns:
+        The modified value after applying all relevant rules.
+    """
     if not yaml_data.get('regras'):
-        return valor
+        return value
 
-    # Obtém as regras para o campo verificado, se houver
-    regras_aplicadas = yaml_data.get('regras', [])
+    for rule_obj in yaml_data.get('regras', []):
+        if isinstance(rule_obj, dict):
+            for rule, rule_value in rule_obj.items():
+                if rule == "Add_box" and rule_value:
+                    pass  # Placeholder for future action
+                elif rule == "Number_To_Text" and isinstance(rule_value, str):
+                    value_to_convert = data.get(rule_value)
+                    if value_to_convert is not None:
+                        value = convert_number_to_text(value_to_convert)
+                elif rule == "Formater" and isinstance(rule_value, str):
+                    value = format_text_with_data(rule_value, data, yaml)
+                elif rule == "Counter" and isinstance(rule_value, str):
+                    value = handle_counter_rule(rule_value, value)
 
-    # Iterando sobre as regras (agora assumimos que é uma lista)
-    for regra_obj in regras_aplicadas:
-        if isinstance(regra_obj, dict):
-            for regra, regra_valor in regra_obj.items():
-                
-                # Exemplo de regra para adicionar uma caixa
-                if regra == "Add_box" and regra_valor:
-                    inc = "inc"  # Placeholder para ação necessária
-                
-                # Converte número para texto, se a regra for válida
-                elif regra == "Number_To_Text" and isinstance(regra_valor, str):
-                    valor_para_converter = dados.get(regra_valor, None)
-                    if valor_para_converter is not None:
-                        valor = converter_numero_para_texto(valor_para_converter)
-                
-                # Aplica formatação de texto substituindo chaves por valores correspondentes
-                elif regra == "Formater" and isinstance(regra_valor, str):
-                    def substituir_variavel(match):
-                        chave = match.group(1)
+    return value
 
-                        # Tenta buscar no dicionário `dados`
-                        if chave in dados and dados[chave] is not None:
-                            return str(dados[chave])
-                        else:
-                            # Busca no YAML dentro de `Documentos-Config`
-                            documentos_config = yaml.get('Documentos', {}).get('Documentos-Config', [])
-                            item_filtrado = next((item for item in documentos_config if item.get('nome') == chave), None)
+def format_text_with_data(format_string: str, data: Dict[str, Any], yaml: Dict[str, Any]) -> str:
+    """
+    Formats a string using values from the provided data dictionary and YAML configurations.
 
-                            if item_filtrado:
+    Args:
+        format_string: The string containing placeholders to be replaced.
+        data: The dictionary containing data values.
+        yaml: The YAML configuration for accessing document-level configurations.
 
-                                if item_filtrado.get('regras') or item_filtrado.get('condicao'):
+    Returns:
+        The formatted string.
+    """
+    def replace_variable(match):
+        key = match.group(1)
 
-                                    if not verificar_condicoes(dados, item_filtrado, None):
-                                        return ""
-
-                                    variaveis_yaml = item_filtrado.get('variaveis', [])
-                                    novo_valor = variaveis_yaml[0] if variaveis_yaml else None
-
-                                    # Se `novo_valor` for None, aplicar regras adicionais
-                                    if novo_valor is None:
-                                        novo_valor = aplicar_regras_para_valor(None, item_filtrado, chave, doc, dados, None)
-                                    
-                                    return str(novo_valor) if novo_valor is not None else match.group(0)
-
-                            return ""
-
-                    valor = re.sub(r'\{(.*?)\}', substituir_variavel, regra_valor)
-                
-                # Aplica contagem a partir de um valor usando regex
-                elif regra == "Counter" and isinstance(regra_valor, str):
-                    XY_value = regra_valor
-                    if XY_value:
-                        x, y, modifier = parse_string(XY_value)
-                        counter_value = get_counter_value(x, y)
-                        if modifier == "B":
-                            counter_value = f"**{counter_value} - **"  # Adiciona marcadores de negrito
-                        
-                        valor = counter_value + valor # Mantém o fluxo de valor corretamente
-
-    return valor
-
-def get_counter_value(x, y=None):
-    x = int(x) 
-    y = int(y) if y is not None else None  
-    # Se X ainda não foi inicializado, ele começa em 1 (sem incrementar ainda)
-    if x not in counter_dict:
-        counter_dict[x] = 1
-        subcounter_dict[x] = {}
-
-    # Se Y está presente, não incrementa X, mas usa o valor atual dele e gerencia Y
-    if y is not None:
-        if y not in subcounter_dict[x]:
-            subcounter_dict[x][y] = 1  
+        # Try to find the value in the `data` dictionary
+        if key in data and data[key] is not None:
+            return str(data[key])
         else:
-            subcounter_dict[x][y] += 1 
-        return f"{counter_dict[x] - 1}.{subcounter_dict[x][y]}"  
-    
-    # Se Y for 'Y' e X for 0, altere X para 1 automaticamente
+            # Look up in the YAML within `Documentos-Config`
+            document_configs = yaml.get('Documentos', {}).get('Documentos-Config', [])
+            item_filtered = next((item for item in document_configs if item.get('nome') == key), None)
+
+            if item_filtered:
+                if item_filtered.get('regras') or item_filtered.get('condicao'):
+                    if not verify_conditions(data, item_filtered, None):
+                        return ""
+
+                    variables_yaml = item_filtered.get('variaveis', [])
+                    new_value = variables_yaml[0] if variables_yaml else None
+
+                    if new_value is None:
+                        new_value = apply_rules_to_value(None, item_filtered, key, None, data, None)
+
+                    return str(new_value) if new_value is not None else match.group(0)
+
+        return ""
+
+    return re.sub(r'{(.*?)}', replace_variable, format_string)
+
+def handle_counter_rule(rule_value: str, value: Any) -> str:
+    """
+    Handles the counter rule by parsing the rule value and updating the counter.
+
+    Args:
+        rule_value: The string containing the counter rule (e.g., "x:y/B").
+        value: The current value to which the counter value will be prepended.
+
+    Returns:
+        The updated value with the counter prepended.
+    """
+    if rule_value:
+        x, y, modifier = parse_string(rule_value)
+        counter_value = get_counter_value(x, y)
+        if modifier == "B":
+            counter_value = f"**{counter_value} - **"
+        return counter_value + str(value)  # Ensure value is converted to string
+
+    return str(value)  # Ensure value is converted to string
+
+def get_counter_value(x: str, y: Optional[str] = None) -> str:
+    """
+    Retrieves and increments counter values based on x and y identifiers.
+
+    Args:
+        x: The primary counter identifier.
+        y: The secondary counter identifier (optional).
+
+    Returns:
+        The string representation of the counter value.
+    """
+    x_int = int(x)
+    y_int = int(y) if y is not None else None
+
+    if x_int not in COUNTER_DICT:
+        COUNTER_DICT[x_int] = 1
+        SUBCOUNTER_DICT[x_int] = {}
+
+    if y_int is not None:
+        if y_int not in SUBCOUNTER_DICT[x_int]:
+            SUBCOUNTER_DICT[x_int][y_int] = 1
+        else:
+            SUBCOUNTER_DICT[x_int][y_int] += 1
+        return f"{COUNTER_DICT[x_int] - 1}.{SUBCOUNTER_DICT[x_int][y_int]}"
+
     if y == 'Y' and x == '0':
-        x  = '1'
-        
+        x_int = 1
 
-    # Se Y não está presente, apenas incrementa X e retorna o valor atualizado
-    valor_atual = counter_dict[x]  
-    counter_dict[x] += 1  
+    current_value = COUNTER_DICT[x_int]
+    COUNTER_DICT[x_int] += 1
 
-    return str(valor_atual)
+    return str(current_value)
 
-# Função auxiliar para substituição dinâmica
-def substituir_match(match):
+def replace_match(match: re.Match) -> str:
+    """
+    Replaces a regex match with a counter value.
+
+    Args:
+        match: The regex match object.
+
+    Returns:
+        The string representation of the new counter value.
+    """
     x = match.group(1)
     y = match.group(2)
-    
-    novo_valor = get_counter_value(x, y) if y else get_counter_value(x)
-    return str(novo_valor)
+    new_value = get_counter_value(x, y) if y else get_counter_value(x)
+    return str(new_value)
 
-def processar_dados(dados, parsed_data_options):
-    novos_dados = {}
-    contadores = {}
-    
-    print("Processando dados")
-    for nome, config in parsed_data_options.items():
+def process_data(data: Dict[str, Any], parsed_data_options: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Processes data based on parsed data options to create new data entries.
 
-        if nome in dados:
-            valor = dados[nome]
-            if isinstance(valor, list):
-                for i, item in enumerate(valor):
+    Args:
+        data: The original data dictionary.
+        parsed_data_options: Configuration options for processing data.
+
+    Returns:
+        A new dictionary with processed data.
+    """
+    new_data = {}
+    counters = {}
+
+    print("Processing data")
+    for name, config in parsed_data_options.items():
+        if name in data:
+            value = data[name]
+            if isinstance(value, list):
+                for i, item in enumerate(value):
                     if isinstance(item, dict):
-                        for chave, val in item.items():
-                            if chave not in contadores:
-                                contadores[chave] = 0
+                        for key, val in item.items():
+                            if key not in counters:
+                                counters[key] = 0
                             else:
-                                contadores[chave] += 1
-                            nova_chave = f"form-{contadores[chave]}-{chave}"
-                            novos_dados[nova_chave] = val
+                                counters[key] += 1
+                            new_key = f"form-{counters[key]}-{key}"
+                            new_data[new_key] = val
                     else:
-                        nova_chave = f"form-{i}-{nome}"
-                        novos_dados[nova_chave] = item
-            elif isinstance(valor, dict):
-                for chave, val in valor.items():
-                    if chave not in contadores:
-                        contadores[chave] = 0
+                        new_key = f"form-{i}-{name}"
+                        new_data[new_key] = item
+            elif isinstance(value, dict):
+                for key, val in value.items():
+                    if key not in counters:
+                        counters[key] = 0
                     else:
-                        contadores[chave] += 1
-                    nova_chave = f"form-{contadores[chave]}-{chave}"
-                    novos_dados[nova_chave] = val
+                        counters[key] += 1
+                    new_key = f"form-{counters[key]}-{key}"
+                    new_data[new_key] = val
             else:
-                nova_chave = f"form-0-{nome}"
-                novos_dados[nova_chave] = valor
-    
-    return novos_dados
+                new_key = f"form-0-{name}"
+                new_data[new_key] = value
 
-def processar_inputs_especiais(texto_original):
-    contadores = {}
-    
-    def substituir_input(match):
-        nome = match.group(1)
-        if nome.startswith('form-'):
-            # Se já estiver no formato {form-X-Nome}, não alterar
+    return new_data
+
+def process_special_inputs(original_text: str) -> str:
+    """
+    Processes special inputs in the text to format them correctly, incrementing counters for repeated names.
+
+    Args:
+        original_text: The original text containing special inputs (e.g., "{#Nome}").
+
+    Returns:
+        The processed text with formatted special inputs (e.g., "{form-0-Nome}", "{form-1-Nome}").
+    """
+
+    def replace_input(match: re.Match) -> str:
+        """
+        Replaces a match with the formatted input, incrementing the counter if the name is repeated.
+        """
+        name: str = match.group(1)  # Extract the name from the match
+        if name.startswith('form-'):
+            # If already in the format {form-X-Nome}, do not alter it
             return match.group(0)
-        if nome not in contadores:
-            contadores[nome] = 0
+
+        if name not in COUNTERS:
+            # If the name is encountered for the first time, initialize its counter
+            COUNTERS[name] = 0
         else:
-            contadores[nome] += 1
-        return f"{{form-{contadores[nome]}-{nome}}}"
-    
-    # Padrão atualizado para capturar tanto {#Nome} quanto {form-X-Nome}
-    padrao = r'{(?:#|\w+-)(\w+)}'
-    texto_processado = re.sub(padrao, substituir_input, texto_original)
-    
-    print(f"Texto original: {texto_original}")
-    print(f"Texto processado: {texto_processado}")
-    
-    return texto_processado
+            # If the name has appeared before, increment its counter
+            COUNTERS[name] += 1
 
-def extrair_nome(chave: str) -> str:
-    partes = chave.split('-')
-    return '-'.join(partes[2:])  # Ignora as duas primeiras partes
+        # Return the new formatted string
+        return f"{{form-{COUNTERS[name]}-{name}}}"
 
+    # Pattern to capture {#Nome} or {any-prefix-Nome} but prioritize {#Nome}
+    pattern = r'{(?:#|\w+-)(\w+)}'
 
-def substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc, parsed_data_options, linha=None, tabela_o=None):
-    """Substitui variáveis no parágrafo conforme as regras, garantindo que cada contador seja atualizado corretamente."""
+    processed_text: str = re.sub(pattern, replace_input, original_text)
 
-    # Extrair todo o texto do parágrafo para uma única string
-    texto_original = "".join(run.text for run in paragrafo.runs)
-    print(f"Texto original: {texto_original}")
+    print(f"Original text: {original_text}")
+    print(f"Processed text: {processed_text}")
 
-    # Processar inputs especiais
-    print (f"substituindo texto original")
-    texto_processado = processar_inputs_especiais(texto_original)
-    print ("texto processado")
+    return processed_text
 
+def extract_name(key: str) -> str:
+    """
+    Extracts the name from a formatted key string.
 
-    # Limpa os runs atuais do parágrafo
-    for run in paragrafo.runs:
+    Args:
+        key: The formatted key string (e.g., "form-0-name").
+
+    Returns:
+        The extracted name (e.g., "name").
+    """
+    parts = key.split('-')
+    return '-'.join(parts[2:])
+
+def replace_variables_in_paragraph(paragraph: object, data: Dict[str, Any], yaml_data: Dict[str, Any], doc: object, parsed_data_options: Dict[str, Any], row: object = None, table_o: object = None) -> object:
+    """
+    Replaces variables in a paragraph, handling counters and conditional formatting.
+
+    Args:
+        paragraph: The docx.paragraph.Paragraph object to process.
+        data: The dictionary containing data values.
+        yaml_data: The YAML configuration for accessing document configurations.
+        doc: The Document object.
+        parsed_data_options: Configuration options for data processing.
+        row: The table row object (if the paragraph is in a table).
+        table_o: The table object (if the paragraph is in a table).
+
+    Returns:
+        The modified paragraph object.
+    """
+    # Extract the entire text from the paragraph's runs
+    original_text = "".join(run.text for run in paragraph.runs)
+
+    # Process special inputs
+    processed_text = process_special_inputs(original_text)
+
+    # Clear existing runs in the paragraph
+    for run in paragraph.runs:
         run.text = ""
 
-    # Adiciona o texto processado ao parágrafo
-    paragrafo.add_run(texto_processado)
+    # Add the processed text back to the paragraph
+    new_run = paragraph.add_run(processed_text) # Create only one new run
+    
+    # Regular expression to find patterns like {counter:x} or {counter:x:y}
+    counter_pattern = r"{counter:(\d+)(?::(\d+))?}"
 
-    # Limpa os runs atuais do parágrafo
-    for run in paragrafo.runs:
-        run.text = ""  # Limpa o texto original do run
-
-    # Adiciona o texto atualizado ao parágrafo
-    paragrafo.runs[0].text = texto_processado
-
-    # Expressão regular para encontrar padrões como {counter:x} ou {counter:x:y}
-    pattern = r"\{counter:(\d+)(?::(\d+))?\}"
-
-    # Substituir diretamente nos 'runs' do parágrafo
-    for run in paragrafo.runs:
+    # Substitute directly in the runs of the paragraph
+    for run in paragraph.runs:
         if "{counter:" in run.text:
-            run.text = re.sub(pattern, substituir_match, run.text)
+            run.text = re.sub(counter_pattern, replace_match, run.text)
 
-    #----------------------------------------------------
-    #
-    #Problema para substituir variaveis do form-factory se existir mais de 1 campo
-    #
-    #----------------------------------------------------
+    # Process other variables besides counters
+    for key, value in data.items():
+        formatted_key = f"{{{key}}}"
 
-    # Processa outras variáveis além de counter
-    for chave, valor in dados.items():
-        chave_formatada = f"{{{chave}}}"
-        if chave.startswith("form"):
-            chave_reformatada = extrair_nome(chave)
-        else:
-            chave_reformatada = chave
-        if chave_formatada in texto_processado:
-            print(f"Chave especial encontrada: {chave_formatada}")
+        # Check if the formatted key exists in the processed text BEFORE attempting to replace it
+        if formatted_key in new_run.text:  # Changed to new_run.text
+            print(f"Special key found: {formatted_key}")
 
-            documentos_config = yaml_data.get('Documentos', {}).get('Documentos-Config', [])
-            item_filtrado = next((item for item in documentos_config if item.get('nome') == chave_reformatada), None)
+            # Get the reformatted key (removing "form-X-" prefix if it exists)
+            reformatted_key = extract_name(key) if key.startswith("form") else key
 
-            if not verificar_condicoes(dados, item_filtrado, chave_reformatada):
-                for run in paragrafo.runs:
-                    if chave_formatada in run.text:
-                        run.text = run.text.replace(chave_formatada, '')
+            # Look up the item configuration from the YAML file
+            document_configs = yaml_data.get('Documentos', {}).get('Documentos-Config', [])
+            item_filtered = next((item for item in document_configs if item.get('nome') == reformatted_key), None)
+
+            # If there are conditions and they are not met, skip the replacement
+            if item_filtered and not verify_conditions(data, item_filtered, reformatted_key):
+                new_run.text = new_run.text.replace(formatted_key, '')
                 continue
 
-            novo_valor = valor or ''
-            if not novo_valor:
-                variaveis_yaml = item_filtrado.get('variaveis', []) if item_filtrado else []
-                if variaveis_yaml:
-                    novo_valor = variaveis_yaml[0]
+            # Get the new value to replace the formatted key with
+            new_value = str(value) if value is not None else ''
+            if not new_value and item_filtered and item_filtered.get('variaveis'):
+                new_value = str(item_filtered['variaveis'][0]) if item_filtered['variaveis'][0] is not None else ''
 
-            novo_valor = aplicar_regras_para_valor(novo_valor, item_filtrado, chave_reformatada, doc, dados, yaml_data)
+            # Apply rules to the new value
+            if item_filtered:
+                new_value = apply_rules_to_value(new_value, item_filtered, reformatted_key, doc, data, yaml_data)
 
-            for run in paragrafo.runs:
-                if chave_formatada in run.text:
-                    novo_texto = run.text.replace(chave_formatada, str(novo_valor))
-            
-                    # Verifica se o novo valor tem marcadores de negrito (**)
-                    if "**" in novo_texto:
-                        partes = novo_texto.split("**")
-                        run.text = ""  # Limpa o run original para evitar duplicações
-            
-                        for i, parte in enumerate(partes):
-                            if parte:  # Garante que não adicionamos runs vazios
-                                novo_run = paragrafo.add_run(parte)
-                                if i % 2 == 1:  # Índices ímpares são o texto entre "**"
-                                    novo_run.bold = True
-                    else:
-                        run.text = novo_texto  # Apenas substitui normalmente se não tiver "**"
-                
-                    # Verifica se tabela_o não é None e o novo texto é vazio
-                    if tabela_o is not None and not novo_texto.strip():
-                        # Itera sobre as linhas da tabela
-                        for linha in tabela_o.rows:
-                            # Verifica se todas as células da linha estão vazias
-                            if all(not celula.text.strip() for celula in linha.cells):
-                                tabela_o._tbl.remove(linha._tr)  # Remove a linha da tabela
-                                break  # Sai do loop após remover a linha
-        else:
-            print(f"Chave não encontrada no texto: {chave_formatada}")
-    
-    # Reconhecimento de contadores dentro de tabelas
-    for tabela in doc.tables:
-        for row in tabela.rows:
+            # Replace the formatted key with the new value
+            if formatted_key in new_run.text:  # Double-check that the key is still in the text
+                new_text = new_run.text.replace(formatted_key, str(new_value))
+
+                # Handle bold text markers
+                if "**" in new_text:
+                    parts = new_text.split("**")
+                    new_run.text = ""
+                    for i, part in enumerate(parts):
+                        run = paragraph.add_run(part)
+                        if i % 2 == 1:
+                            run.bold = True
+                else:
+                    new_run.text = new_text
+
+                # Remove the row if the new text is empty
+                if table_o is not None and not new_text.strip():
+                    for row in table_o.rows:
+                        if all(not cell.text.strip() for cell in row.cells):
+                            table_o._tbl.remove(row._tr)
+                            break
+
+    # Recognize counters inside tables
+    for table in doc.tables:
+        for row in table.rows:
             for cell in row.cells:
-                for paragrafo in cell.paragraphs:
-                    for run in paragrafo.runs:
+                for par in cell.paragraphs:
+                    for run in par.runs:
                         if "{counter:" in run.text:
-                            run.text = re.sub(pattern, substituir_match, run.text)
+                            run.text = re.sub(counter_pattern, replace_match, run.text)
 
-    return paragrafo
+    return paragraph
 
-
-def substituir_variaveis_nas_tabelas(doc, dados, yaml_data, parsed_data_options):
-    """Substitui variáveis dentro de tabelas do documento."""
+def replace_variables_in_tables(doc: Document, data: Dict[str, Any], yaml_data: Dict[str, Any], parsed_data_options: Dict[str, Any]):
+    """Replaces variables inside tables of the document."""
     for table_index, table in enumerate(doc.tables):
         for row_index, row in enumerate(table.rows):
             for cell_index, cell in enumerate(row.cells):
-                for paragrafo in cell.paragraphs:
-                    substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc, parsed_data_options, row, table)
+                for paragraph in cell.paragraphs:
+                    replace_variables_in_paragraph(paragraph, data, yaml_data, doc, parsed_data_options, row, table)
 
-def substituir_variaveis_no_rodape(doc, dados, yaml_data, parsed_data_options):
-    """Substitui variáveis nos rodapés do documento."""
+def replace_variables_in_footers(doc: Document, data: Dict[str, Any], yaml_data: Dict[str, Any], parsed_data_options: Dict[str, Any]):
+    """Replaces variables in the footers of the document."""
     for section in doc.sections:
-        for rodape in section.footer.paragraphs:
-            substituir_variaveis_no_paragrafo(rodape, dados, yaml_data, doc, parsed_data_options)
+        for footer in section.footer.paragraphs:
+            replace_variables_in_paragraph(footer, data, yaml_data, doc, parsed_data_options)
 
-def substituir_variaveis_no_cabecalho(doc, dados, yaml_data, parsed_data_options):
-    """Substitui variáveis nos cabeçalhos do documento."""
+def replace_variables_in_headers(doc: Document, data: Dict[str, Any], yaml_data: Dict[str, Any], parsed_data_options: Dict[str, Any]):
+    """Replaces variables in the headers of the document."""
     for section in doc.sections:
-        for cabecalho in section.header.paragraphs:
-            substituir_variaveis_no_paragrafo(cabecalho, dados, yaml_data, doc, parsed_data_options)
+        for header in section.header.paragraphs:
+            replace_variables_in_paragraph(header, data, yaml_data, doc, parsed_data_options)
 
-def verificar_condicoes(dados, yaml_data, campo_verificado):
-    """Verifica as condições de um campo, buscando no YAML as condições associadas ao campo."""
+def verify_conditions(data: Dict[str, Any], yaml_data: Dict[str, Any], field_verified: str) -> bool:
+    """
+    Verifies conditions for a field based on YAML configurations.
 
-    # Obtém as condições do YAML relacionadas ao campo
-    condicao = yaml_data.get('condicao', {})
+    Args:
+        data: The dictionary containing data values.
+        yaml_data: The YAML configuration data.
+        field_verified: The field being verified.
 
-    if not condicao:
-        return True  # Se não houver condição, o campo é considerado válido.
+    Returns:
+        True if all conditions are met or no conditions are specified, False otherwise.
+    """
+    condition = yaml_data.get('condicao', {})
 
-    if not isinstance(condicao, dict):
+    if not condition:
+        return True
+
+    if not isinstance(condition, dict):
         return False
 
-    # Itera sobre as condições para o campo
-    for chave, valor in condicao.items():
+    for key, value in condition.items():
+        if '/' in key:
+            keys = key.split('/')
+            condition_met = False
 
-        # Caso a chave contenha o caractere '/', ela deve ser dividida e tratada como um "OU"
-        if '/' in chave:
-            # Dividir a chave pelo '/' e verificar se ao menos uma das partes tem o valor esperado
-            chaves = chave.split('/')
-            condicao_atendida = False
+            for key_part in keys:
+                if key_part in data:
+                    field_value = data[key_part]
 
-            for chave_parte in chaves:
-                if chave_parte in dados:
-                    campo_valor = dados[chave_parte]
-
-                    # Verifica se o valor da condição é uma lista
-                    if isinstance(valor, list):
-                        if campo_valor in valor:
-                            condicao_atendida = True
+                    if isinstance(value, list):
+                        if field_value in value:
+                            condition_met = True
                             break
-                    # Verifica a condição booleana
-                    elif isinstance(valor, bool):
-                        if valor and not campo_valor:
+                    elif isinstance(value, bool):
+                        if value and not field_value:
                             return False
-                        elif not valor and campo_valor:
+                        elif not value and field_value:
                             return False
-                    # Caso a condição seja um valor simples
-                    elif campo_valor == valor:
-                        condicao_atendida = True
+                    elif field_value == value:
+                        condition_met = True
                         break
 
-            if not condicao_atendida:
+            if not condition_met:
                 return False
 
         else:
-            if chave in dados:
-                campo_valor = dados[chave]
+            if key in data:
+                field_value = data[key]
 
-                # Verifica se o valor da condição é uma lista
-                if isinstance(valor, list):
-                    if campo_valor not in valor:
+                if isinstance(value, list):
+                    if field_value not in value:
                         return False
-                # Verifica a condição booleana
-                elif isinstance(valor, bool):
-                    if valor and not campo_valor:
+                elif isinstance(value, bool):
+                    if value and not field_value:
                         return False
-                    elif not valor and campo_valor:
+                    elif not value and field_value:
                         return False
-                # Caso a condição seja um valor simples
-                elif campo_valor != valor:
+                elif field_value != value:
                     return False
             else:
                 return False
 
-    return True  # Se todas as condições foram atendidas
+    return True
 
-def inserir_tabela_apos(tabela_original, nova_tabela):
-    """Insere uma tabela duplicada após a tabela original."""
-    tabela_elemento_original = tabela_original._element
-    nova_tabela_elemento = nova_tabela._element
-    tabela_elemento_original.addnext(nova_tabela_elemento)
+def insert_table_after(original_table: object, new_table: object):
+    """Inserts a new table after the original table in the document."""
+    original_table_element = original_table._element
+    new_table_element = new_table._element
+    original_table_element.addnext(new_table_element)
 
-def inserir_linha_abaixo(tabela, linha_original):
-    """Insere uma nova linha logo abaixo da linha original da tabela."""
-    # Cria uma nova linha com células vazias, com o mesmo número de células da linha original
-    nova_linha = tabela.add_row()
+def insert_row_below(table: object, original_row: object):
+    """Inserts a new row below the original row in the table."""
+    new_row = table.add_row()
 
-    for i, celula in enumerate(linha_original.cells):
-        nova_linha.cells[i].text = ""  # Você pode definir o conteúdo da nova linha aqui, se necessário
+    for i, cell in enumerate(original_row.cells):
+        new_row.cells[i].text = ""
 
+def generate_docx(data: Dict[str, Any], folder: str, yaml_data: Dict[str, Any], parsed_data_options: Dict[str, Any]) -> str:
+    """
+    Generates a DOCX file by populating a template with data from a form and YAML configurations.
 
-def gen_docx(dados, folder, yaml_data, parsed_data_options):
-    """Preenche o modelo DOCX com os dados do formulário e do YAML."""
-    caminho_template = os.path.abspath(os.path.join(docs_path, folder, f'{folder}.docx'))
+    Args:
+        data: The dictionary containing data to populate the document.
+        folder: The folder containing the DOCX template.
+        yaml_data: The YAML data containing document configurations.
+        parsed_data_options: Options for parsing and processing data.
 
+    Returns:
+        The path to the generated DOCX file.
+    """
+    template_path = os.path.abspath(os.path.join(DOCS_PATH, folder, f'{folder}.docx'))
     unique_id = str(uuid.uuid4())[:8]
 
-    # Adiciona variáveis do YAML aos dados, se ainda não existirem
-    for campo_yaml in yaml_data.get('Documentos', {}).get('Documentos-Config', []):
-        nome_campo = campo_yaml.get('nome')
-        if nome_campo and nome_campo not in dados:
-            if not campo_yaml.get('grupo'):
-                dados[nome_campo] = None
+    # Add YAML variables to data if they don't already exist
+    for yaml_field in yaml_data.get('Documentos', {}).get('Documentos-Config', []):
+        field_name = yaml_field.get('nome')
+        if field_name and field_name not in data:
+            if not yaml_field.get('grupo'):
+                data[field_name] = None
 
-    # Carrega o arquivo DOCX
-    doc = Document(caminho_template)
+    # Load the DOCX file
+    try:
+        doc = Document(template_path)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Template file not found: {template_path}")
+    except Exception as e:
+        raise Exception(f"Error loading document: {e}")
 
-    for grupo in parsed_data_options:
-        if grupo in dados:
-            print (f"Grupo: {grupo}")
-            buscador = parsed_data_options[grupo].get('buscador')
-            print (f"Buscador: {buscador}")
-            multiplicador = dados[grupo]
-            numero_de_dicionarios = sum(1 for item in multiplicador if isinstance(item, dict))
-            numero_de_dicionarios = numero_de_dicionarios - 1
+    # Table cloning logic
+    for group in parsed_data_options:
+        if group in data:
+            print(f"Group: {group}")
+            search_text = parsed_data_options[group].get('buscador')
+            print(f"Search text: {search_text}")
+            multiplier = data[group]
+            num_dicts = sum(1 for item in multiplier if isinstance(item, dict))
+            num_dicts -= 1
 
-            if numero_de_dicionarios:
-                for tabela in doc.tables:
-                    for linha in tabela.rows:
-                        for celula in linha.cells:
-                            if buscador in celula.text:
-                                # Encontrou a tabela que contém o texto do buscador
-                                tabela_original = tabela
-                                for _ in range(numero_de_dicionarios):
-                                    # Cria uma cópia da tabela original
-                                    nova_tabela = deepcopy(tabela_original)
-
-                                    # Insere a nova tabela logo após a tabela original
-                                    inserir_tabela_apos(tabela_original, nova_tabela)
-                                    print (f"Nova tabela inserida após a tabela original.")
+            if num_dicts > 0:
+                for table in doc.tables:
+                    for row in table.rows:
+                        for cell in row.cells:
+                            if search_text in cell.text:
+                                original_table = table
+                                for _ in range(num_dicts):
+                                    new_table = deepcopy(original_table)
+                                    insert_table_after(original_table, new_table)
+                                    print("New table inserted after original.")
                                 break
 
-    print ("processando dados")
-    dados_processados = processar_dados(dados, parsed_data_options)
-    for chave, valor in dados_processados.items():
-        dados[chave] = valor
-    for grupo in parsed_data_options:
-        del dados[grupo]
-    print (f"dados processados: {dados_processados} e dados: {dados}")	
+    # Data processing
+    print("Processing data")
+    processed_data = process_data(data, parsed_data_options)
+    data.update(processed_data)
+    for group in parsed_data_options:
+        del data[group]
+    print(f"Processed data: {processed_data} and data: {data}")
 
     if not doc.paragraphs:
-        raise ValueError(f"O template {caminho_template} não contém parágrafos.")
+        raise ValueError(f"The template {template_path} contains no paragraphs.")
 
-    # Substituição de variáveis no documento
-    for paragrafo in doc.paragraphs:
-        substituir_variaveis_no_paragrafo(paragrafo, dados, yaml_data, doc, parsed_data_options)
+    # Variable substitution
+    for paragraph in doc.paragraphs:
+        replace_variables_in_paragraph(paragraph, data, yaml_data, doc, parsed_data_options)
 
-    # Substituição dentro das tabelas
-    substituir_variaveis_nas_tabelas(doc, dados, yaml_data, parsed_data_options)
+    replace_variables_in_tables(doc, data, yaml_data, parsed_data_options)
+    replace_variables_in_footers(doc, data, yaml_data, parsed_data_options)
+    replace_variables_in_headers(doc, data, yaml_data, parsed_data_options)
 
-    # Substituição no rodapé
-    substituir_variaveis_no_rodape(doc, dados, yaml_data, parsed_data_options)
+    # Save the generated file
+    output_filename = f'{folder}_preenchido_{unique_id}.docx'
+    output_path_formatted = os.path.abspath(os.path.join(OUTPUT_PATH, output_filename))
+    doc.save(output_path_formatted)
 
-    # Substituição no cabeçalho
-    substituir_variaveis_no_cabecalho(doc, dados, yaml_data, parsed_data_options)
-
-    # Salva o arquivo gerado
-    caminho_saida = f'{folder}_preenchido_{unique_id}.docx'
-    output_path_formated = os.path.abspath(os.path.join(output_path, caminho_saida))
-    doc.save(output_path_formated)
-
-    return caminho_saida
+    return output_filename

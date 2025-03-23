@@ -3,14 +3,10 @@ import os
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from .utils.yaml_receiver import load_yaml, parse_yaml, parse_yaml_options
-from .utils.docx_generator import gen_docx
+from .utils.docx_generator import generate_docx
 from django.contrib.auth.decorators import login_required
 from .forms import DynamicForm, get_form_and_formsets, validate_forms
 from .utils.extra_tempalte import opcoes_generator
-import json
-
-from django import forms
-from django.forms import formset_factory
 
 # Obtém o diretório onde o arquivo views.py está localizado
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -69,7 +65,7 @@ def formulario(request, folder):
         try:
             # Gerar o arquivo DOCX
             try:
-                docx_name = gen_docx(dados_combinados, folder, yaml_data, parsed_data_options)
+                docx_name = generate_docx(dados_combinados, folder, yaml_data, parsed_data_options)
             except Exception as e:
                 return JsonResponse({
                     'error': f'Erro ao gerar o arquivo DOCX: {str(e)}'
