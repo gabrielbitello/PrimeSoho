@@ -92,7 +92,7 @@ def parse_string(input_str: str) -> tuple[str, Optional[str], Optional[str]]:
     else:
         return input_str, None, None
 
-def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: str, doc: Document, data: Dict[str, Any], yaml: Dict[str, Any]) -> Any:
+def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: str, doc: Document, data: Dict[str, Any], yaml: Dict[str, Any], index: str | None = None) -> Any:
     """
     Applies rules to a value based on configurations in the YAML file.
 
@@ -103,7 +103,7 @@ def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: 
         doc: The Document object (used if rules require document context).
         data: The data dictionary containing values for formatting.
         yaml: The entire YAML configuration for broader context access.
-
+        index (str | None): O índice, que pode ser uma string ou None.
     Returns:
         The modified value after applying all relevant rules.
     """
@@ -120,13 +120,13 @@ def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: 
                     if value_to_convert is not None:
                         value = convert_number_to_text(value_to_convert)
                 elif rule == "Formater" and isinstance(rule_value, str):
-                    value = format_text_with_data(rule_value, data, yaml)
+                    value = format_text_with_data(rule_value, data, yaml, index)
                 elif rule == "Counter" and isinstance(rule_value, str):
                     value = handle_counter_rule(rule_value, value)
 
     return value
 
-def format_text_with_data(format_string: str, data: Dict[str, Any], yaml: Dict[str, Any]) -> str:
+def format_text_with_data(format_string: str, data: Dict[str, Any], yaml: Dict[str, Any], index: str | None = None) -> str:
     """
     Formats a string using values from the provided data dictionary and YAML configurations.
 
@@ -134,6 +134,7 @@ def format_text_with_data(format_string: str, data: Dict[str, Any], yaml: Dict[s
         format_string: The string containing placeholders to be replaced.
         data: The dictionary containing data values.
         yaml: The YAML configuration for accessing document-level configurations.
+        index (str | None): O índice, que pode ser uma string ou None.
 
     Returns:
         The formatted string.
@@ -151,7 +152,7 @@ def format_text_with_data(format_string: str, data: Dict[str, Any], yaml: Dict[s
 
             if item_filtered:
                 if item_filtered.get('regras') or item_filtered.get('condicao'):
-                    if not verify_conditions(data, item_filtered, None):
+                    if not verify_conditions(data, item_filtered, None, index):
                         return ""
 
                     variables_yaml = item_filtered.get('variaveis', [])
@@ -314,9 +315,6 @@ def process_special_inputs(original_text: str) -> str:
 
     processed_text: str = re.sub(pattern, replace_input, original_text)
 
-    print(f"Original text: {original_text}")
-    print(f"Processed text: {processed_text}")
-
     return processed_text
 
 def extract_name(key: str) -> str:
@@ -379,13 +377,14 @@ def replace_variables_in_paragraph(paragraph: object, data: Dict[str, Any], yaml
 
             # Get the reformatted key (removing "form-X-" prefix if it exists)
             reformatted_key = extract_name(key) if key.startswith("form") else key
+            index = key.split('-')[1] if key.startswith("form") else None
 
             # Look up the item configuration from the YAML file
             document_configs = yaml_data.get('Documentos', {}).get('Documentos-Config', [])
             item_filtered = next((item for item in document_configs if item.get('nome') == reformatted_key), None)
 
             # If there are conditions and they are not met, skip the replacement
-            if item_filtered and not verify_conditions(data, item_filtered, reformatted_key):
+            if item_filtered and not verify_conditions(data, item_filtered, reformatted_key, index):
                 new_run.text = new_run.text.replace(formatted_key, '')
                 continue
 
@@ -396,7 +395,7 @@ def replace_variables_in_paragraph(paragraph: object, data: Dict[str, Any], yaml
 
             # Apply rules to the new value
             if item_filtered:
-                new_value = apply_rules_to_value(new_value, item_filtered, reformatted_key, doc, data, yaml_data)
+                new_value = apply_rules_to_value(new_value, item_filtered, reformatted_key, doc, data, yaml_data, index)
 
             # Replace the formatted key with the new value
             if formatted_key in new_run.text:  # Double-check that the key is still in the text
@@ -451,69 +450,92 @@ def replace_variables_in_headers(doc: Document, data: Dict[str, Any], yaml_data:
         for header in section.header.paragraphs:
             replace_variables_in_paragraph(header, data, yaml_data, doc, parsed_data_options)
 
-def verify_conditions(data: Dict[str, Any], yaml_data: Dict[str, Any], field_verified: str) -> bool:
+
+def verify_conditions(data: Dict[str, Any], yaml_data: Dict[str, Any], field_verified: str, index: str | None = None) -> bool:
     """
-    Verifies conditions for a field based on YAML configurations.
+    Verifies conditions for a field based on YAML configurations, adjusting keys if field_verified starts with "form-".
 
     Args:
         data: The dictionary containing data values.
         yaml_data: The YAML configuration data.
         field_verified: The field being verified.
+        index (str | None): O índice, que pode ser uma string ou None.
 
     Returns:
         True if all conditions are met or no conditions are specified, False otherwise.
     """
-    condition = yaml_data.get('condicao', {})
+    try:
+        condition = yaml_data.get('condicao', {})
 
-    if not condition:
-        return True
+        if not condition:
+            return True
 
-    if not isinstance(condition, dict):
-        return False
+        if not isinstance(condition, dict):
+            return False
 
-    for key, value in condition.items():
-        if '/' in key:
-            keys = key.split('/')
-            condition_met = False
+        for key, value in condition.items():
+            adjusted_key = key  # Initialize adjusted_key with the original key
 
-            for key_part in keys:
-                if key_part in data:
-                    field_value = data[key_part]
+            # Check if index is not None 
+            if index is not None:
+                adjusted_key = f"form-{index}-{key}"
+
+            if '/' in adjusted_key:
+                keys = adjusted_key.split('/')
+                condition_met = False
+
+                for key_part in keys:
+                    if key_part in data:
+                        field_value = data[key_part]
+
+                        if isinstance(value, list):
+                            if field_value in value:
+                                condition_met = True
+                                break
+                        elif isinstance(value, bool):
+                            if value and not field_value:
+                                return False
+                            elif not value and field_value:
+                                return False
+                        else:
+                            if isinstance(field_value, str) and isinstance(value, str):
+                                if field_value == value:
+                                    condition_met = True
+                                    break
+                            elif field_value == value:
+                                condition_met = True
+                                break
+
+
+                if not condition_met:
+                    return False
+
+            else:
+                if adjusted_key in data:
+                    field_value = data[adjusted_key]
 
                     if isinstance(value, list):
-                        if field_value in value:
-                            condition_met = True
-                            break
+                        if field_value not in value:
+                            return False
                     elif isinstance(value, bool):
                         if value and not field_value:
                             return False
                         elif not value and field_value:
                             return False
-                    elif field_value == value:
-                        condition_met = True
-                        break
+                    else:
+                        if isinstance(field_value, str) and isinstance(value, str):
+                            if field_value != value:
+                                return False
+                        elif field_value != value:
+                            return False
 
-            if not condition_met:
-                return False
-
-        else:
-            if key in data:
-                field_value = data[key]
-
-                if isinstance(value, list):
-                    if field_value not in value:
-                        return False
-                elif isinstance(value, bool):
-                    if value and not field_value:
-                        return False
-                    elif not value and field_value:
-                        return False
-                elif field_value != value:
+                else:
                     return False
-            else:
-                return False
 
-    return True
+        return True
+    except Exception as e:
+        print("Error in verify_conditions")
+        raise
 
 def insert_table_after(original_table: object, new_table: object):
     """Inserts a new table after the original table in the document."""
@@ -587,7 +609,6 @@ def generate_docx(data: Dict[str, Any], folder: str, yaml_data: Dict[str, Any], 
     data.update(processed_data)
     for group in parsed_data_options:
         del data[group]
-    print(f"Processed data: {processed_data} and data: {data}")
 
     if not doc.paragraphs:
         raise ValueError(f"The template {template_path} contains no paragraphs.")
