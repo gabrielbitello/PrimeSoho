@@ -13,6 +13,8 @@ Documentos:
       - grupo: "proprietario"
         max: 8
         buscador: "0379"
+    Regras:
+      - "Clear": "Table"
 
   Documentos-Config:
     - nome: "PJ"
@@ -70,7 +72,8 @@ Documentos:
         - "Casado"
         - "Divorciado"
         - "Viúvo"
-      regras: {}
+      regras: 
+        - "Clear"
       grupo: "proprietario"
 
     - nome: "Regime_Casamento"
@@ -88,7 +91,8 @@ Documentos:
         - "Comunhão Total de Bens"
         - "Separação Total de Bens"
         - "Participação Final nos Aquestos"
-      regras: {}
+      regras: 
+        - "Clear"
       grupo: "proprietario"
 
     - nome: "Nacionalidade"

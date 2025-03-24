@@ -2,7 +2,7 @@
 import os
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from .utils.yaml_receiver import load_yaml, parse_yaml, parse_yaml_options
+from .utils.yaml_receiver import load_yaml, parse_yaml, multiplicador_yaml_options
 from .utils.docx_generator import generate_docx
 from django.contrib.auth.decorators import login_required
 from .forms import DynamicForm, get_form_and_formsets, validate_forms
@@ -46,7 +46,7 @@ def formulario(request, folder):
         return JsonResponse({"error": "Erro ao carregar o arquivo YAML."}, status=500)
         
     parsed_data = parse_yaml(yaml_data)
-    parsed_data_options = parse_yaml_options(yaml_data)
+    multiplicador_data_options = multiplicador_yaml_options(yaml_data)
     
     if request.method == 'POST':
         # Usar a função auxiliar para criar formulário e formsets
@@ -65,7 +65,7 @@ def formulario(request, folder):
         try:
             # Gerar o arquivo DOCX
             try:
-                docx_name = generate_docx(dados_combinados, folder, yaml_data, parsed_data_options)
+                docx_name = generate_docx(dados_combinados, folder, yaml_data, multiplicador_data_options)
             except Exception as e:
                 return JsonResponse({
                     'error': f'Erro ao gerar o arquivo DOCX: {str(e)}'
@@ -89,7 +89,7 @@ def formulario(request, folder):
 
     # Gerar as opções formatadas
     try:
-        opcoes_formatadas = opcoes_generator(parsed_data_options)
+        opcoes_formatadas = opcoes_generator(multiplicador_data_options)
     except Exception as e:
         return JsonResponse({
             'error': f'Erro ao gerar opções formatadas: {str(e)}'

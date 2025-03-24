@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import formset_factory
 import json
+from django.utils import timezone
 
 class DynamicForm(forms.Form):
     datalist_html = ""
@@ -60,6 +61,9 @@ class DynamicForm(forms.Form):
             widget_attrs['class'] += ' email'
             field = forms.EmailField(label=descricao, required=requerido, widget=forms.EmailInput(attrs=widget_attrs))
         elif tipo == 'date':
+            curent_date = timezone.localdate()
+            widget_attrs['type'] = 'date'
+            widget_attrs['value'] = curent_date
             field = forms.DateField(label=descricao, required=requerido, widget=forms.DateInput(attrs=widget_attrs))
         elif tipo == 'phone':
             widget_attrs['placeholder'] += '+55 (00) 90000-0000'

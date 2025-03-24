@@ -92,7 +92,7 @@ def parse_string(input_str: str) -> tuple[str, Optional[str], Optional[str]]:
     else:
         return input_str, None, None
 
-def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: str, doc: Document, data: Dict[str, Any], yaml: Dict[str, Any], index: str | None = None) -> Any:
+def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: str, doc: Document, data: Dict[str, Any], yaml: Dict[str, Any], index: str | None = None, row: object | None = None, table: object | None = None) -> Any:
     """
     Applies rules to a value based on configurations in the YAML file.
 
@@ -104,11 +104,15 @@ def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: 
         data: The data dictionary containing values for formatting.
         yaml: The entire YAML configuration for broader context access.
         index (str | None): O índice, que pode ser uma string ou None.
+        row (object | None): The table row object (if the value is in a table).
+        table (object | None): The table object (if the value is in a table).
     Returns:
         The modified value after applying all relevant rules.
     """
     if not yaml_data.get('regras'):
         return value
+    
+    print (f"Aplicando regras para  campo {field_verified}, valor: {value}")
 
     for rule_obj in yaml_data.get('regras', []):
         if isinstance(rule_obj, dict):
@@ -123,9 +127,26 @@ def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: 
                     value = format_text_with_data(rule_value, data, yaml, index)
                 elif rule == "Counter" and isinstance(rule_value, str):
                     value = handle_counter_rule(rule_value, value)
+                elif rule == "Clear" and rule_value and value is not None:
+                    value = Clear_box(row, table, value)
 
     return value
+def Clear_box(row: object | None, table: object | None, value: Any) -> Any:
+    """
+    Limpa a célula da tabela se o valor for falso.
 
+    Args:
+        row (object | None): The table row object (if the value is in a table).
+        table (object | None): The table object (if the value is in a table).
+        value: The value to check for clearing.
+
+    Returns:
+        The value if it is not empty, or an empty string if it is.
+    """
+    if row is not None and table is not None:
+        remove_row_below(table, row)
+        row._element.clear_content()
+    return value
 def format_text_with_data(format_string: str, data: Dict[str, Any], yaml: Dict[str, Any], index: str | None = None) -> str:
     """
     Formats a string using values from the provided data dictionary and YAML configurations.
@@ -549,6 +570,12 @@ def insert_row_below(table: object, original_row: object):
 
     for i, cell in enumerate(original_row.cells):
         new_row.cells[i].text = ""
+
+def remove_row_below(table: object, original_row: object):
+    """Remove a linha abaixo da linha original na tabela."""
+    row_index = table.rows.index(original_row)
+    if row_index + 1 < len(table.rows):
+        table._tbl.remove(table.rows[row_index + 1]._tr)
 
 def generate_docx(data: Dict[str, Any], folder: str, yaml_data: Dict[str, Any], parsed_data_options: Dict[str, Any]) -> str:
     """

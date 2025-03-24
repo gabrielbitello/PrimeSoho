@@ -41,7 +41,7 @@ def parse_yaml(data):
             }
     return parsed_data
 
-def parse_yaml_options(data):
+def multiplicador_yaml_options(data):
     documentos = data.get('Documentos', {}).get('Opcoes', [])
     parsed_data = {}
 
@@ -55,3 +55,25 @@ def parse_yaml_options(data):
                 'buscador': item.get('buscador', '')
             }
     return parsed_data
+
+def remove_item_from_regras(yaml_file, key_to_remove):
+    """
+    Remove um item dentro da chave 'Regras' de um arquivo YAML.
+    
+    :param yaml_file: Caminho para o arquivo YAML.
+    :param key_to_remove: Chave ou valor a ser removido dentro de 'Regras'.
+    """
+    with open(yaml_file, 'r', encoding='utf-8') as file:
+        data = yaml.safe_load(file)
+    
+    # Verifica se 'Regras' existe no YAML
+    if 'Regras' in data:
+        regras = data['Regras']
+        
+        # Remove o item correspondente
+        if isinstance(regras, list):
+            data['Regras'] = [item for item in regras if key_to_remove not in item]
+    
+    # Salva o YAML atualizado
+    with open(yaml_file, 'w', encoding='utf-8') as file:
+        yaml.safe_dump(data, file, allow_unicode=True)
