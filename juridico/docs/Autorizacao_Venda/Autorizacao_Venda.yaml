@@ -3,7 +3,7 @@
 #
 #------------------------------------------------------------
 #
-#Campos que estão dentro de u mgrupo não podem ter condições que verifiquem campos fora do mesmo grupo
+#Campos que estão dentro de um grupo não podem ter condições que verifiquem campos fora do mesmo grupo
 #
 #------------------------------------------------------------
 
@@ -15,6 +15,57 @@ Documentos:
         buscador: "0379"
     Regras:
       - "Clear": "Table"
+    DB: true
+    DB-table: 
+      - nome: "proprietario"
+        form-factory: True
+        uid: "Numero_proprietario:Cliente/telefone"
+        campos: 
+          - "Nome_proprietario": "Cliente/nome"
+          - "Profissao_proprietario": "CLiente/profissao"
+          - "Estado_Civil": "Cliente/estado_civil"
+          - "Nacionalidade": "Cliente/nacionalidade"
+          - "UF_proprietario": "Cliente/uf_nascimento"
+          - "Doc_proprietario": 
+            regra: "Identfy? CPF: Cliente/cpf, RG: Cliente/rg, CNH: Cliente:cnh, Passaporte: Cliente/passaporte"
+          - "Endereco_proprietario": 
+            regra: "Endereco? endereco: Cliente/endereco, numero: Cliente/numero, complemento: Cliente/complemento"
+          - "Numero_proprietario": "Cliente/telefone"
+          - "Email_proprietario": "Cliente/email"
+        regra:
+          - nome: "uniao"
+            condicao: 
+            - Estado_Civil:
+              - "União Estável"
+              - "Casado"
+            campos:
+              - "Data_Casamento"
+              - "Regime_Casamento"
+      - nome: "Imovel"
+        form-factory: false
+        uid: "Matricula_imovel:Imovel/matricula"
+        campos:
+          - "Endereco_imovel": "Imovel/endereco"
+          - "Numero_imovel": "Imovel/numero"
+          - "Tipo_Imovel": "Imovel/tipo"
+          - "Nome_Aglomerado": "Imovel/nome_aglomerado"
+          - "Complemento_imovel": "Imovel/complemento"
+          - "Cidade_imovel": "Imovel/cidade"
+          - "Bairro_imovel": "Imovel/bairro"
+          - "Matricula_imovel": "Imovel/matricula"
+          - "Indicacao_fiscal_imovel": "Imovel/indicacao_fiscal"
+          - "Tipo_Contrato": "Imovel/exclusividade"
+          - "Ganhos_Comissao": "Imovel/porcentagem"
+          - "Valor_Imovel": "Imovel/valor"
+          - "Condicao_Pagamento": "Imovel/condicoes_pagamento"
+          - "Documentos_Apresentados": "Imovel/documentos"
+          - "Corretor": "Imovel/angariador"
+        regra: 
+          - nome: "get_inserted_ids"
+            condicao: {}
+            campos:
+              - "proprietario"
+              - "Imovel/proprietario"
 
   Documentos-Config:
     - nome: "PJ"
@@ -74,6 +125,19 @@ Documentos:
         - "Viúvo"
       regras: 
         - "Clear"
+      grupo: "proprietario"
+
+    - nome: "Data_Casamento"
+      tipo: "date"
+      form: true
+      descricao: "Data da união"
+      requerido: true
+      condicao: 
+        PJ: false
+        Estado_Civil: 
+          - "Casado"
+          - "União Estável"
+      regras: {}
       grupo: "proprietario"
 
     - nome: "Regime_Casamento"
@@ -580,7 +644,7 @@ Documentos:
       tipo: "number"
       form: true
       descricao: "Porcentagem do valor da comissão"
-      requerido: false
+      requerido: true
       condicao: {}
       variaveis: {}
       regras: {}

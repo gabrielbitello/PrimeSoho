@@ -1,0 +1,60 @@
+      - nome: "cliente"
+        form-factory: True
+        uid: "Numero_proprietario:Cliente/telefone"
+        campos: 
+          - "Nome_proprietario": "Cliente/nome"
+          - "Profissao_proprietario": "Cliente/profissao"
+          - "Estado_Civil": "Cliente/estado_civil"
+          - "Regime_Casamento": "Cliente/regime_casamento"
+          - "Data_Casamento": "Cliente/data_casamento"
+          - "CI_proprietario": "Cliente/ci"
+          - "UF_proprietario": "Cliente/uf"
+          - "CPF_proprietario": "Cliente/cpf"
+          - "Numero_proprietario": "Cliente/telefone"
+          - "Email_proprietario": "Cliente/email"
+        regra:
+          #- nome: "uniao"
+            #condicao: 
+            #- Estado_Civil:
+              #- "União Estável"
+              #- "Casado"
+            #campos:
+              #- "Data_Casamento"
+              #- "Regime_Casamento"
+      - nome: "imovel"
+        form-factory: false
+        uid: "Matricula_imovel:Imovel/matricula"
+        campos:
+          - "Endereco_imovel": "Imovel/endereco"
+          - "Numero_imovel": "Imovel/numero"
+          - "Tipo_Imovel": "Imovel/tipo"
+          - "Nome_Aglomerado": "Imovel/nome_aglomerado"
+          - "Complemento_imovel": "Imovel/complemento"
+          - "REF_Imovel": "Imovel/ref"
+          - "Corretor": "Imovel/corretor"
+          - "Parceria": "Imovel/parceria"
+        regra: {}
+      - nome: "proposta"
+        form-factory: false
+        uid: "Matricula_imovel:Imovel/matricula"
+        campos:
+          - "Sinal_Imovel": "Proposta/sinal"
+          - "Forma_Sinal": "Proposta/forma_sinal"
+          - "Banco_origem_sinal": "Proposta/banco_origem_sinal"
+          - "Agencia_origem_sinal": "Proposta/agencia_origem_sinal"
+          - "N_cheque_sinal": "Proposta/n_cheque_sinal"
+          - "Entrada_Imovel": "Proposta/entrada"
+          - "Forma_Entrada": "Proposta/forma_entrada"
+          - "Forma_Imovel_Entrada": "Proposta/forma_imovel_entrada"
+          - "Valor_Imovel": "Proposta/valor"
+          - "Forma_Pagamento_Total": "Proposta/forma_pagamento_total"
+          - "Forma_Imovel_Total": "Proposta/forma_imovel_total"
+          - "Data_limite": "Proposta/data_limite"
+          - "Data_Limite": "Proposta/data_limite_entrega"
+          - "Data_Limite_Imovel": "Proposta/data_limite_entrega_imovel"
+        regra: 
+          - nome: "get_inserted_ids"
+            condicao: {}
+            campos:
+              - "proprietario"
+              - "Imovel/proprietario"

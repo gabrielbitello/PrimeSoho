@@ -14,7 +14,7 @@ class Imoveis(core):
     estado = models.CharField(_('Estado'), max_length=2)
     cep = models.CharField(_('CEP'), max_length=10)
     descricao = models.TextField(_('Descrição'), blank=True, null=True)
-    valor = models.DecimalField(_('Valor'), max_digits=10, decimal_places=2)
+    valor = models.DecimalField(_('Valor'), max_digits=14, decimal_places=2)
     area_total = models.DecimalField(_('Área total'), max_digits=10, decimal_places=2, blank=True, null=True)
     area_privativa = models.DecimalField(_('Área privativa'), max_digits=10, decimal_places=2, blank=True, null=True)
     quartos = models.PositiveIntegerField(_('Quartos'), blank=True, null=True)
@@ -23,6 +23,7 @@ class Imoveis(core):
     suites = models.PositiveIntegerField(_('Suítes'), blank=True, null=True)
     lavabos = models.PositiveIntegerField(_('Lavabos'), blank=True, null=True)
     salas = models.PositiveIntegerField(_('Salas'), blank=True, null=True)
+    tipo = models.CharField(_('Tipo'), max_length=255, blank=True, null=True)
     
     # Campos booleanos
     area_servico = models.BooleanField(_('Área de serviço'), default=False)
@@ -55,6 +56,7 @@ class Imoveis(core):
     exclusividade = models.BooleanField(_('Exclusividade'), default=False)
     tempo_exclusividade = models.PositiveIntegerField(_('Tempo de exclusividade'), blank=True, null=True)
     iptu = models.DecimalField(_('IPTU'), max_digits=10, decimal_places=2, blank=True, null=True)
+    chave = models.CharField(_('Chave'), max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"{self.endereco}, {self.numero}, {self.complemento} - {self.bairro}, {self.cidade}"

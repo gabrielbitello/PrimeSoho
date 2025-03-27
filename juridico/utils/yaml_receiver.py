@@ -56,24 +56,50 @@ def multiplicador_yaml_options(data):
             }
     return parsed_data
 
-def remove_item_from_regras(yaml_file, key_to_remove):
+def options_yaml_options(data):
     """
-    Remove um item dentro da chave 'Regras' de um arquivo YAML.
+    Collect general options from the YAML data.
     
-    :param yaml_file: Caminho para o arquivo YAML.
-    :param key_to_remove: Chave ou valor a ser removido dentro de 'Regras'.
+    :param data: Dictionary containing the parsed YAML data.
+    :return: Dictionary with parsed options.
     """
-    with open(yaml_file, 'r', encoding='utf-8') as file:
-        data = yaml.safe_load(file)
-    
-    # Verifica se 'Regras' existe no YAML
-    if 'Regras' in data:
-        regras = data['Regras']
+    documentos = data.get('Documentos', {}).get('Opcoes', {})
+    parsed_data = {
+        'multiplicador': [],
+        'regras': documentos.get('Regras', []),
+        'db': documentos.get('DB', False),
+        'db_table': []
+    }
+
+    # Processar o Multiplicador
+    multiplicador = documentos.get('Multiplicador', [])
+    if isinstance(multiplicador, list):
+        parsed_data['multiplicador'] = multiplicador
+    elif isinstance(multiplicador, dict):
+        parsed_data['multiplicador'] = [multiplicador]
+
+    # Processar DB-table
+    for table in documentos.get('DB-table', []):
+        table_data = {
+            'nome': table.get('nome', ''),
+            'form-factory': table.get('form-factory', False),
+            'uid': table.get('uid', ''),
+            'campos': {},
+            'regra': []
+        }
         
-        # Remove o item correspondente
-        if isinstance(regras, list):
-            data['Regras'] = [item for item in regras if key_to_remove not in item]
-    
-    # Salva o YAML atualizado
-    with open(yaml_file, 'w', encoding='utf-8') as file:
-        yaml.safe_dump(data, file, allow_unicode=True)
+        for campo in table.get('campos', []):
+            if isinstance(campo, dict):
+                for key, value in campo.items():
+                    table_data['campos'][key] = value
+            elif isinstance(campo, str):
+                table_data['campos'][campo] = ""
+
+        # Processar regras
+        for regra in table.get('regra', []):
+            if isinstance(regra, dict):
+                table_data['regra'].append(regra)
+
+        parsed_data['db_table'].append(table_data)
+
+    return parsed_data

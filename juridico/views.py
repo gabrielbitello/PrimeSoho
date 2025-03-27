@@ -2,11 +2,12 @@
 import os
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from .utils.yaml_receiver import load_yaml, parse_yaml, multiplicador_yaml_options
+from .utils.yaml_receiver import load_yaml, parse_yaml, multiplicador_yaml_options, options_yaml_options
 from .utils.docx_generator import generate_docx
 from django.contrib.auth.decorators import login_required
 from .forms import DynamicForm, get_form_and_formsets, validate_forms
 from .utils.extra_tempalte import opcoes_generator
+from .utils.db_input import save_form_data
 
 # Obtém o diretório onde o arquivo views.py está localizado
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -54,6 +55,8 @@ def formulario(request, folder):
         
         # Validar formulário e formsets
         is_valid, dados_combinados, errors = validate_forms(independent_form, formsets)
+
+        config_yaml = options_yaml_options(yaml_data)
         
         if not is_valid:
             print (errors)
@@ -66,6 +69,9 @@ def formulario(request, folder):
             # Gerar o arquivo DOCX
             try:
                 docx_name = generate_docx(dados_combinados, folder, yaml_data, multiplicador_data_options)
+                print (docx_name)
+                if config_yaml.get('db', False):
+                    save_form_data(dados_combinados, config_yaml)
             except Exception as e:
                 return JsonResponse({
                     'error': f'Erro ao gerar o arquivo DOCX: {str(e)}'

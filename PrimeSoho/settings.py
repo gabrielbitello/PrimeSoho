@@ -20,6 +20,10 @@ pymysql.install_as_MySQLdb()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Certifique-se de que o diretório de logs existe
+log_directory = os.path.join(BASE_DIR, 'logs')
+os.makedirs(log_directory, exist_ok=True)
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -195,24 +199,67 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
 
 
 
+# Configuração de Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {asctime} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'file': {
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'django_error.log',
+            'filename': os.path.join(log_directory, 'django.log'),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         },
     },
     'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'ERROR',
+        '': {  # Logger raiz
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
             'propagate': True,
+        },
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'juridico': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'imoveis': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'core': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'clientes': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': False,
         },
     },
 }
+
 
 
 #configuracao do email

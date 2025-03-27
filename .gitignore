@@ -2,3 +2,4 @@ juridico/output/
 **/__pycache__/
 /staticfiles
 django_error.log
+logs/django.log

@@ -1,6 +1,12 @@
 Documentos:
   Opcoes:
-    Multiplicador: {}
+    Multiplicador: 
+      - grupo: "pagamento"
+        max: 8
+        buscador: "ADJK89"
+    DB: false
+    DB-table: {}
+
   Documentos-Config:
     - nome: "Endereco_imovel"
       tipo: "string"
@@ -535,118 +541,6 @@ Documentos:
       regras: {}
 
 
-    - nome: "Entrada_Imovel"
-      tipo: "number"
-      form: true
-      descricao: "Valor da entrada"
-      requerido: true
-      condicao: {}
-      variaveis: {}
-      regras: {}
-
-    - nome: "Entrada_Imovel_Extenso"
-      tipo: "string"
-      form: false
-      descricao: ""
-      requerido: true
-      condicao: 
-        Entrada_Imovel: true
-      variaveis: []
-      regras:
-        - "Number_To_Text": "Entrada_Imovel"
-
-    - nome: "Forma_Entrada"
-      tipo: "select"
-      form: true
-      descricao: "Forma de entrada"
-      requerido: true
-      condicao: {}
-      variaveis: 
-        - "T.E.D."
-        - "F.G.T.S."
-        - "financiamento"
-        - "imóvel"
-        - "veículo"
-      regras: {}
-
-    - nome: "Forma_Imovel_Entrada"
-      tipo: "checkbox"
-      form: true
-      descricao: "A prime deve vender o imovel?"
-      requerido: false
-      condicao: 
-        Forma_Entrada: 
-          - "imóvel"
-      variaveis: {}
-      regras: {}
-
-    - nome: "Forma_Imovel_Entrada_Texto"
-      tipo: "string"
-      form: false
-      descricao: ""
-      requerido: false
-      condicao:
-        Forma_Entrada: 
-          - "imóvel"
-      variaveis: {}
-      regras:
-        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), através da entrega do seguinte imóvel:"
-        - "Counter": "1/B"
-        #Falta adicionar a logica que preenche as campos referentes aos dados do imovel
-
-    - nome: "Forma_Imovel_Entrada_Texto_Venda"
-      tipo: "string"
-      form: false
-      descricao: ""
-      requerido: false
-      condicao:
-        Forma_Imovel_Entrada: true
-      variaveis: {}
-      regras:
-        - "Formater": "O(s) vendedor(es), poderá optar em não transferir o imóvel para seu nome, e vende-lo a terceiros interessados, para tanto, deverá ser feito um contrato particular de compra e venda, quitado, em caráter irrevogável e irretratável, sem direito à arrependimento, concomitante com a outorga pelos proponentes, de um instrumento público de mandato, a ser lavrado no Tabelionato competente, com poderes para ele(s) vendedor(es), venderem o imóvel, por valor não superior a R$ {Entrada_Imovel}, podendo outorgar e assinar escritura pública de compra e venda, ou outra de direito, receber o preço, passar recibos, dar quitação, e demais poderes pertinentes ao ato. Cujos instrumentos deverão ser assinados concomitantemente com o documento de transferência do imóvel objeto desta proposta."
-        - "Counter": "1:2/B"
-        
-    - nome: "Forma_Financiamento_Entrada_Texto"
-      tipo: "string"
-      form: false
-      descricao: ""
-      requerido: false
-      condicao:
-        Forma_Entrada: 
-          - "financiamento"
-      variaveis: {}
-      regras:
-        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de financiamento bancário, junto a Instituição Financeira, competente."
-        - "Counter": "1/B"
-        
-    - nome: "Forma_FGTS_Entrada_Texto"
-      tipo: "string"
-      form: false
-      descricao: ""
-      requerido: false
-      condicao:
-        Forma_Entrada: 
-          - "F.G.T.S."
-      variaveis: {}
-      regras:
-        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de saque de valores da conta vinculada ao Fundo de Garantia por tempo de serviço (F.G.T.S.), deles proponentes."
-        - "Counter": "1/B"
-        
-    - nome: "Forma_TED_Entrada_Texto"
-      tipo: "string"
-      form: false
-      descricao: ""
-      requerido: false
-      condicao:
-        Forma_Entrada: 
-          - "T.E.D."
-      variaveis: {}
-      regras:
-        - "Formater": "R${Entrada_Imovel} ({Entrada_Imovel_Extenso} Reais), em cuja importância, se acha incluso o valor do sinal de negócio, a serem pagos pelos proponentes, ao(s) vendedor(es), com recursos próprios, via Transferência Eletrônica Disponível (T.E.D.), no ato da assinatura do contrato de financiamento bancário, junto a Instituição Financeira competente, cuja quitação de referida importância, será dada com a simples comprovação do referido depósito, pelo(s) vendedor(es)."
-        - "Counter": "1/B"
-        
-
-
 
 
     - nome: "Valor_Imovel"
@@ -657,6 +551,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      grupo: "pagamento"
 
     - nome: "Valor_Imovel_Extenso"
       tipo: "string"
@@ -668,6 +563,7 @@ Documentos:
       variaveis: {}
       regras:
         - "Number_To_Text": "Valor_Imovel"
+      grupo: "pagamento"
 
     - nome: "Forma_Pagamento_Total"
       tipo: "select"
@@ -682,6 +578,7 @@ Documentos:
         - "veículo"
         - "F.G.T.S."
       regras: {}
+      grupo: "pagamento"
 
     - nome: "Forma_Imovel_Total"
       tipo: "checkbox"
@@ -693,6 +590,7 @@ Documentos:
           - "imóvel"
       variaveis: {}
       regras: {}
+      grupo: "pagamento"
 
     - nome: "Forma_Imovel_Total_Texto"
       tipo: "string"
@@ -707,6 +605,7 @@ Documentos:
         - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), através da entrega do seguinte imóvel:"
         - "Counter": "1/B"
         #Falta adicionar a logica que preenche as campos referentes aos dados do imovel
+      grupo: "pagamento"
 
     - nome: "Forma_Imovel_Total_Texto_Venda"
       tipo: "string"
@@ -719,6 +618,7 @@ Documentos:
       regras:
         - "Formater": "O(s) vendedor(es), poderá optar em não transferir o imóvel para seu nome, e vende-lo a terceiros interessados, para tanto, deverá ser feito um contrato particular de compra e venda, quitado, em caráter irrevogável e irretratável, sem direito à arrependimento, concomitante com a outorga pelos proponentes, de um instrumento público de mandato, a ser lavrado no Tabelionato competente, com poderes para ele(s) vendedor(es), venderem o imóvel, por valor não superior a R$ {Entrada_Imovel}, podendo outorgar e assinar escritura pública de compra e venda, ou outra de direito, receber o preço, passar recibos, dar quitação, e demais poderes pertinentes ao ato. Cujos instrumentos deverão ser assinados concomitantemente com o documento de transferência do imóvel objeto desta proposta."
         - "Counter": "1:3/B"
+      grupo: "pagamento"
         
     - nome: "Forma_Financiamento_Total_Texto"
       tipo: "string"
@@ -732,6 +632,7 @@ Documentos:
       regras:
         - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de financiamento bancário, junto a Instituição Financeira, competente."
         - "Counter": "1/B"
+      grupo: "pagamento"
         
     - nome: "Forma_FGTS_Total_Texto"
       tipo: "string"
@@ -745,6 +646,7 @@ Documentos:
       regras:
         - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de saque de valores da conta vinculada ao Fundo de Garantia por tempo de serviço (F.G.T.S.), deles proponentes."
         - "Counter": "1/B"
+      grupo: "pagamento"
         
     - nome: "Forma_TED_Total_Texto"
       tipo: "string"
@@ -758,6 +660,8 @@ Documentos:
       regras:
         - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso} Reais), em cuja importância, se acha incluso o valor do sinal de negócio, a serem pagos pelos proponentes, ao(s) vendedor(es), com recursos próprios, via Transferência Eletrônica Disponível (T.E.D.), no ato da assinatura do contrato de financiamento bancário, junto a Instituição Financeira competente, cuja quitação de referida importância, será dada com a simples comprovação do referido depósito, pelo(s) vendedor(es)."
         - "Counter": "1/B"
+      grupo: "pagamento"
+        
         
 
 
