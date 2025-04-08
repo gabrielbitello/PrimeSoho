@@ -6,6 +6,7 @@ class ClienteAdmin(admin.ModelAdmin):
     list_display = ('nome', 'cpf', 'telefone', 'email', 'cidade', 'bloqueado')
     list_filter = ('bloqueado', 'estado', 'cidade')
     search_fields = ('nome', 'cpf', 'email', 'telefone')
+    fieldsets = (
         ('Informações Pessoais', {
             'fields': ('nome', 'cpf', 'rg', 'passaporte', 'cnh', 'data_nascimento', 'nacionalidade', 'uf_nascimento')
         }),

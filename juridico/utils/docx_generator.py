@@ -20,6 +20,12 @@ SUBCOUNTER_DICT: Dict[int, Dict[int, int]] = {}
 COUNTERS: Dict[str, int] = {}  # Initialize the counters dictionary
 
 
+def clear_counters():
+    global COUNTER_DICT, SUBCOUNTER_DICT, COUNTERS
+    COUNTER_DICT.clear()
+    SUBCOUNTER_DICT.clear()
+    COUNTERS.clear()
+
 # Get the logger
 logger = logging.getLogger('juridico')
 
@@ -118,59 +124,26 @@ def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: 
     if not yaml_data.get('regras'):
         return value
     
-    logger.info(f"Aplicando regras para campo {field_verified}, valor inicial: {value}")
-    logger.info(f"YAML data: {yaml_data}")
-    logger.info(f"Index: {index}")
+    print (f"Aplicando regras para  campo {field_verified}, valor: {value}")
 
     for rule_obj in yaml_data.get('regras', []):
         if isinstance(rule_obj, dict):
             for rule, rule_value in rule_obj.items():
-                logger.info(f"Processando regra: {rule}, valor original da regra: {rule_value}")
-                
-                # Não ajuste o valor da regra se já começar com 'form-'
-                if isinstance(rule_value, str) and rule_value.startswith('form-'):
-                    adjusted_rule_value = rule_value
-                elif index is not None and isinstance(rule_value, str):
-                    adjusted_rule_value = f"form-{index}-{rule_value}"
-                else:
-                    adjusted_rule_value = rule_value
-                
-                logger.info(f"Valor ajustado da regra: {adjusted_rule_value}")
-
-                if rule == "Add_box" and adjusted_rule_value:
+                if rule == "Add_box" and rule_value:
                     pass  # Placeholder for future action
-                elif rule == "Number_To_Text" and isinstance(adjusted_rule_value, str):
-                    value_to_convert = data.get(adjusted_rule_value, value)
+                elif rule == "Number_To_Text" and isinstance(rule_value, str):
+                    if rule_value.startswith('#'):
+                        rule_value = f"form-{index}-{rule_value[1:]}" if index is not None else f"form-{rule_value[1:]}"
+                    value_to_convert = data.get(rule_value)
                     if value_to_convert is not None:
                         value = convert_number_to_text(value_to_convert)
-                elif rule == "Formater" and isinstance(adjusted_rule_value, str):
-                    value = format_text_with_data(adjusted_rule_value, data, yaml, index)
-                elif rule == "Counter" and isinstance(adjusted_rule_value, str):
-                    logger.info(f"Regra Counter detectada. Valor ajustado: {adjusted_rule_value}")
-                    logger.info(f"Tipo de adjusted_rule_value: {type(adjusted_rule_value)}")
-                    logger.info(f"Chamando handle_counter_rule com {adjusted_rule_value} e {value}")
-                    
-                    # Se adjusted_rule_value começar com 'form-', não o passe para handle_counter_rule
-                    if adjusted_rule_value.startswith('form-'):
-                        logger.warning(f"Valor 'form-' detectado em Counter. Ignorando regra de contador.")
-                        continue
-                    
-                    value = handle_counter_rule(adjusted_rule_value, value)
-                    logger.info(f"Resultado após handle_counter_rule: {value}")
-                elif rule == "Clear" and adjusted_rule_value and value is None:
+                elif rule == "Formater" and isinstance(rule_value, str):
+                    value = format_text_with_data(rule_value, data, yaml, field_verified, index)
+                elif rule == "Counter" and isinstance(rule_value, str):
+                    value = handle_counter_rule(rule_value, value)
+                elif rule == "Clear" and rule_value and value is not None:
                     value = Clear_box(row, table, value)
 
-                # Handle the case where the rule value contains '/'
-                if isinstance(adjusted_rule_value, str) and '/' in adjusted_rule_value:
-                    keys = adjusted_rule_value.split('/')
-                    for key in keys:
-                        if key in data:
-                            value = data[key]
-                            break
-
-                logger.info(f"Após aplicar a regra {rule}: novo valor = {value}")
-
-    logger.info(f"Valor final após aplicar todas as regras: {value}")
     return value
 
 def Clear_box(row: object | None, table: object | None, value: Any) -> Any:
@@ -189,7 +162,8 @@ def Clear_box(row: object | None, table: object | None, value: Any) -> Any:
         row._element.clear_content()
         remove_row_below(table, row)
     return value
-def format_text_with_data(format_string: str, data: Dict[str, Any], yaml: Dict[str, Any], index: str | None = None) -> str:
+
+def format_text_with_data(format_string: str, data: Dict[str, Any], yaml: Dict[str, Any], field: str, index: str | None = None) -> str:
     """
     Formats a string using values from the provided data dictionary and YAML configurations.
 
@@ -197,6 +171,7 @@ def format_text_with_data(format_string: str, data: Dict[str, Any], yaml: Dict[s
         format_string: The string containing placeholders to be replaced.
         data: The dictionary containing data values.
         yaml: The YAML configuration for accessing document-level configurations.
+        field: The field name (não utilizado nesta implementação, mas mantido para compatibilidade).
         index (str | None): O índice, que pode ser uma string ou None.
 
     Returns:
@@ -204,29 +179,35 @@ def format_text_with_data(format_string: str, data: Dict[str, Any], yaml: Dict[s
     """
     def replace_variable(match):
         key = match.group(1)
+        oldkey = key
 
-        # Try to find the value in the `data` dictionary
+        if key.startswith('#'):
+            oldkey = key[1:]
+            key = f"form-{index}-{key[1:]}" if index is not None else f"form-{key[1:]}"
+
         if key in data and data[key] is not None:
             return str(data[key])
         else:
-            # Look up in the YAML within `Documentos-Config`
             document_configs = yaml.get('Documentos', {}).get('Documentos-Config', [])
-            item_filtered = next((item for item in document_configs if item.get('nome') == key), None)
+            item_filtered = next((item for item in document_configs if item.get('nome') == oldkey), None)
 
             if item_filtered:
                 if item_filtered.get('regras') or item_filtered.get('condicao'):
                     if not verify_conditions(data, item_filtered, None, index):
-                        return ""
+                        return match.group(0)
 
                     variables_yaml = item_filtered.get('variaveis', [])
                     new_value = variables_yaml[0] if variables_yaml else None
 
                     if new_value is None:
-                        new_value = apply_rules_to_value(None, item_filtered, key, None, data, None)
+                        new_value = apply_rules_to_value(None, item_filtered, key, None, data, yaml, index)
 
-                    return str(new_value) if new_value is not None else match.group(0)
+                    if new_value is not None:
+                        return str(new_value)
 
-        return ""
+        # Se chegou aqui, não foi possível substituir o valor
+        print(f"Não foi possível substituir a tag: {match.group(0)}")
+        return match.group(0)
 
     return re.sub(r'{(.*?)}', replace_variable, format_string)
 
@@ -760,9 +741,12 @@ def generate_docx(data: Dict[str, Any], folder: str, yaml_data: Dict[str, Any], 
         output_filename = f'{folder}_preenchido_{unique_id}.docx'
         output_path_formatted = os.path.abspath(os.path.join(OUTPUT_PATH, output_filename))
         doc.save(output_path_formatted)
+        
+        clear_counters()
 
         return output_filename
 
     except Exception as e:
+        clear_counters()
         logger.error(f"Error generating document: {str(e)}", exc_info=True)
         raise ValidationError(f"Error generating document: {str(e)}")

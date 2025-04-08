@@ -6,7 +6,6 @@ from .utils.yaml_receiver import load_yaml, parse_yaml, multiplicador_yaml_optio
 from .utils.docx_generator import generate_docx
 from django.contrib.auth.decorators import login_required
 from .forms import DynamicForm, get_form_and_formsets, validate_forms
-from .utils.extra_tempalte import opcoes_generator
 from .utils.db_input import save_form_data
 
 # Obtém o diretório onde o arquivo views.py está localizado
@@ -93,17 +92,8 @@ def formulario(request, folder):
         # Requisição GET - criar formulário e formsets vazios
         independent_form, formsets = get_form_and_formsets(parsed_data)
 
-    # Gerar as opções formatadas
-    try:
-        opcoes_formatadas = opcoes_generator(multiplicador_data_options)
-    except Exception as e:
-        return JsonResponse({
-            'error': f'Erro ao gerar opções formatadas: {str(e)}'
-        }, status=500)
-
     return render(request, 'form.html', {
         'independent_form': independent_form,
         'formsets': formsets,
-        'opcoes_formatadas': opcoes_formatadas,
         'folder': folder  # Pode ser útil no template
     })

@@ -1,5 +1,7 @@
 {% load static %}
 
+{% load custom_filters %}
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -52,22 +54,45 @@
                         <h3>{{ grupo }}</h3>
                         {{ formset.management_form }}
 
-                        {{ opcoes_formatadas|safe }}
-                        
-                        {% for form in formset %}
-                            <div class="formset-form">
-                                {% for field in form %}
-                                    <div class="form-group">
-                                        {{ field.label_tag }}
-                                        {{ field }}
-                                        {% if field.errors %}
-                                            <div class="error">{{ field.errors }}</div>
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
-                                {{ form.datalist_html|safe }}
-                            </div>
-                        {% endfor %}
+                        <div class="formset-controls flex" data-grupo="{{ grupo }}">
+                            <label for="{{ grupo }}-quantidade">Quantidade de {{ grupo }}:</label>
+                            <input type="number" id="{{ grupo }}-quantidade" class="form-control multiplicador" 
+                                    value="1" min="1" max="100" data-grupo="{{ grupo }}">
+                            <button type="button" class="btn btn-secondary multiplicador-btn" 
+                                    data-grupo="{{ grupo }}">Confirmar</button>
+                        </div>
+
+                        <div class="formset" data-grupo="{{ grupo }}">
+                            {% for form in formset %}
+                                <div class="formset-form">
+
+                                    {% for field in form.visible_fields %}
+                                        <div class="form-group">
+                                            {{ field.label_tag }}
+                                            {{ field }}
+                                            {% if field.errors %}
+                                                <div class="error">
+                                                    {% for error in field.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            {% if field.help_text %}
+                                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+
+                                    {% for hidden_field in form.hidden_fields %}
+                                        {{ hidden_field }}
+                                    {% endfor %}
+
+                                    {% if form.datalist_html %}
+                                        {{ form.datalist_html|safe }}
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 {% endfor %}
 

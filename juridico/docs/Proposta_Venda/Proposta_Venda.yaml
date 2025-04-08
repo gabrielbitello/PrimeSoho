@@ -2,8 +2,9 @@ Documentos:
   Opcoes:
     Multiplicador: 
       - grupo: "pagamento"
-        max: 8
         buscador: "ADJK89"
+      - grupo: "propoente"
+        buscador: "0379"
     DB: false
     DB-table: {}
 
@@ -16,6 +17,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      block: 1
 
     - nome: "Numero_imovel"
       tipo: "number"
@@ -25,6 +27,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      block: 1
 
     - nome: "Tipo_Imovel"
       tipo: "select"
@@ -53,6 +56,7 @@ Documentos:
         - "Terreno Comercial"
         - "Terreno em Condomínio"
       regras: {}
+      block: 1
 
     - nome: "Nome_Aglomerado"
       tipo: "string"
@@ -74,6 +78,7 @@ Documentos:
           - "Sala Comercial em Condomínio na planta"
       variaveis: {}
       regras: {}
+      block: 1
 
     - nome: "Complemento_imovel"
       tipo: "string"
@@ -95,6 +100,7 @@ Documentos:
           - "Sala Comercial em Condomínio na planta"
       variaveis: {}
       regras: {}
+      block: 1
 
     - nome: "REF_Imovel"
       tipo: "string"
@@ -104,6 +110,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      block: 1
 
     - nome: "Corretor"
       tipo: "string"
@@ -113,6 +120,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      block: 1
 
     - nome: "Parceria"
       tipo: "string"
@@ -122,6 +130,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      block: 1
 
     - nome: "Imovel_formatado_Aglomerado"
       tipo: "string"
@@ -158,6 +167,67 @@ Documentos:
 
 #------------------------------------------------------------
 
+    - nome: "Valor_proposta"
+      tipo: "number"
+      form: false
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: 
+        - "Sum": "Valor_entrada, #Valor_pagamento"
+      block: 2
+
+    - nome: "Valor_proposta_Extenso"
+      tipo: "string"
+      form: false
+      descricao: ""
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras:
+        - "Number_To_Text": "Valor_proposta"
+      block: 2
+
+    - nome: "Valor_entrada"
+      tipo: "number"
+      form: true
+      descricao: "Valor da entrada"
+      requerido: true
+      condicao: {}
+      variaveis: {}
+      regras: {}
+      block: 2
+
+    - nome: "Valor_entrada_Extenso" 
+      tipo: "string"
+      form: false
+      descricao: ""
+      requerido: true
+      condicao: 
+        Valor_entrada: true
+      variaveis: {}
+      regras:
+        - "Number_To_Text": "Valor_entrada"
+      block: 2
+
+    - nome: "Tipo_Entrada"
+      tipo: "select"
+      form: true
+      descricao: "Tipo de entrada"
+      requerido: true
+      condicao: {}
+      variaveis: 
+        - "Dinheiro"
+        - "T.E.D."
+        - "F.G.T.S."
+        - "Veículo"
+        - "Imóvel"
+      regras: {}
+      block: 2
+
+#------------------------------------------------------------
+
     - nome: "Nome_proponente"
       tipo: "string"
       form: true
@@ -166,6 +236,8 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      grupo: "propoente"
+      block: 3
 
     - nome: "Profissao_proponente"
       tipo: "string"
@@ -175,6 +247,8 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      grupo: "propoente"
+      block: 3
 
     - nome: "Estado_Civil"
       tipo: "select"
@@ -189,6 +263,8 @@ Documentos:
         - "Divorciado"
         - "Viúvo"
       regras: {}
+      grupo: "propoente"
+      block: 3
 
     - nome: "Regime_Casamento"
       tipo: "select"
@@ -199,34 +275,110 @@ Documentos:
         Estado_Civil: 
           - "Casado"
           - "União Estável"
-
       variaveis:
         - "Comunhão Parcial de Bens"
         - "Comunhão Total de Bens"
         - "Separação Total de Bens"
         - "Participação Final nos Aquestos"
       regras: {}
+      grupo: "propoente"
+      block: 3
 
-    - nome: "Data_Casamento"
-      tipo: "date"
+    - nome: "Nacionalidade"
+      tipo: "datalist"
       form: true
-      descricao: "Data da união"
+      descricao: "Nacionalidade"
       requerido: true
-      condicao:
-        Estado_Civil: 
-          - "Casado"
-          - "União Estável"
-      variaveis: {}
-      regras: {}
-
-    - nome: "CI_proponente"
-      tipo: "number"
-      form: true
-      descricao: "C.I. do proponente"
-      requerido: false
       condicao: {}
-      variaveis: {}
+      variaveis: 
+        - "Brasileiro"
+        - "Americano"
+        - "Argentino"
+        - "Alemão"
+        - "Francês"
+        - "Italiano"
+        - "Japonês"
+        - "Chinês"
+        - "Coreano"
+        - "Mexicano"
+        - "Português"
+        - "Russo"
+        - "Espanhol"
+        - "Sueco"
+        - "Suíço"
+        - "Inglês"
+        - "Canadense"
+        - "Australiano"
+        - "Neozelandês"
+        - "Egípcio"
+        - "Indiano"
+        - "Turco"
+        - "Grego"
+        - "Holandês"
+        - "Norueguês"
+        - "Dinamarquês"
+        - "Finlandês"
+        - "Polonês"
+        - "Tailandês"
+        - "Sul-Africano"
+        - "Vietnamita"
+        - "Indonésio"
+        - "Malaio"
+        - "Filipino"
+        - "Ucraniano"
+        - "Húngaro"
+        - "Tcheco"
+        - "Irlandês"
+        - "Escocês"
+        - "Iraniano"
+        - "Paquistanês"
+        - "Saudita"
+        - "Emiradense"
+        - "Venezuelano"
+        - "Colombiano"
+        - "Chileno"
+        - "Peruano"
+        - "Israelense"
+        - "Austríaco"
+        - "Belga"
+        - "Boliviano"
+        - "Búlgaro"
+        - "Camaronês"
+        - "Costarriquenho"
+        - "Croata"
+        - "Equatoriano"
+        - "Eslovaco"
+        - "Esloveno"
+        - "Estoniano"
+        - "Etíope"
+        - "Ganês"
+        - "Guatemalteco"
+        - "Haitiano"
+        - "Hondurenho"
+        - "Iraquiano"
+        - "Jamaicano"
+        - "Kuwaitiano"
+        - "Letão"
+        - "Libanês"
+        - "Lituano"
+        - "Luxemburguês"
+        - "Marroquino"
+        - "Nicaraguense"
+        - "Nigeriano"
+        - "Panamenho"
+        - "Paraguaio"
+        - "Polinésio"
+        - "Queniano"
+        - "Romeno"
+        - "Sérvio"
+        - "Sírio"
+        - "Sul-Coreano"
+        - "Tunisiano"
+        - "Uruguaio"
+        - "Zimbabuano"
       regras: {}
+      grupo: "propoente"
+      block: 3
 
     - nome: "UF_proponente"
       tipo: "select"
@@ -263,6 +415,8 @@ Documentos:
         - "SE"
         - "TO"
       regras: {}
+      grupo: "propoente"
+      block: 3
 
     - nome: "CPF_proponente"
       tipo: "cpf"
@@ -272,15 +426,19 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      grupo: "propoente"
+      block: 3
 
     - nome: "Numero_proponente"
       tipo: "phone"
       form: true
-      descricao: "Numero do proponente"
+      descricao: "Número do proponente"
       requerido: true
       condicao: {}
       variaveis: {}
       regras: {}
+      grupo: "propoente"
+      block: 3
 
     - nome: "Email_proponente"
       tipo: "email"
@@ -290,131 +448,19 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
-
-#------------------------------------------------------------
-
-    - nome: "Nome_Conjuge_proponente"
+      grupo: "propoente"
+      block: 3
+    
+    - nome: "Endereco_proponente"
       tipo: "string"
       form: true
-      descricao: "Nome do conjuge do proponente"
+      descricao: "Endereço do proponente"
       requerido: true
-      condicao: 
-        Estado_Civil: 
-          - "Casado"
-          - "União Estável"
+      condicao: {}
       variaveis: {}
       regras: {}
-
-    - nome: "Profissao_Conjuge_proponente"
-      tipo: "string"
-      form: true
-      descricao: "Profissão do conjuge do proponente"
-      requerido: true
-      condicao:
-        Estado_Civil: 
-          - "Casado"
-          - "União Estável"
-      variaveis: {}
-      regras: {}
-
-    - nome: "CI_Conjuge_proponente"
-      tipo: "number"
-      form: true
-      descricao: "C.I. do conjuge do proponente"
-      requerido: false
-      condicao: 
-        Estado_Civil: 
-          - "Casado"
-          - "União Estável"
-      variaveis: {}
-      regras: {}
-
-    - nome: "UF_Conjuge_proponente"
-      tipo: "select"
-      form: true
-      descricao: "UF do cojuge do proponente"
-      requerido: true
-      condicao: 
-        Estado_Civil: 
-          - "Casado"
-          - "União Estável"
-      variaveis: 
-        - "PR"
-        - "AC"
-        - "AL"
-        - "AP"
-        - "AM"
-        - "BA"
-        - "CE"
-        - "DF"
-        - "ES"
-        - "GO"
-        - "MA"
-        - "MT"
-        - "MS"
-        - "MG"
-        - "PA"
-        - "PB"
-        - "PE"
-        - "PI"
-        - "RJ"
-        - "RN"
-        - "RS"
-        - "RO"
-        - "RR"
-        - "SC"
-        - "SP"
-        - "SE"
-        - "TO"
-      regras: {}
-
-    - nome: "CPF_Conjuge_proponente"
-      tipo: "cpf"
-      form: true
-      descricao: "CPF do conjuge do proponente"
-      requerido: true
-      condicao: 
-        Estado_Civil: 
-          - "Casado"
-          - "União Estável"
-      variaveis: {}
-      regras: {}
-
-    - nome: "Numero_Conjuge_proponente"
-      tipo: "phone"
-      form: true
-      descricao: "Numero do conjuge do proponente"
-      requerido: true
-      condicao: 
-        Estado_Civil: 
-          - "Casado"
-          - "União Estável"
-      variaveis: {}
-      regras: {}
-
-    - nome: "Email_Conjuge_proponente"
-      tipo: "email"
-      form: true
-      descricao: "Email do conjuge do proponente"
-      requerido: true
-      condicao: 
-        Estado_Civil: 
-          - "Casado"
-          - "União Estável"
-      variaveis: {}
-      regras: {}
-
-    - nome: "Endereco_Conjuge_proponente"
-      tipo: "string"
-      form: true
-      descricao: "Endereco do conjuge do proponente"
-      requerido: true
-      condicao: 
-        Estado_Civil: 
-          - "Casado"
-          - "União Estável"
-      variaveis: {}
-      regras: {}
+      grupo: "propoente"
+      block: 3
 
 #------------------------------------------------------------
 
@@ -426,6 +472,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      block: 4
 
     - nome: "Sinal_Imovel_Extenso"
       tipo: "string"
@@ -437,6 +484,7 @@ Documentos:
       variaveis: []
       regras:
         - "Number_To_Text": "Sinal_Imovel"
+      block: 4
 
 
     - nome: "Forma_Sinal"
@@ -451,6 +499,7 @@ Documentos:
         - "Pix"
         - "Transferência"
       regras: {}
+      block: 4
 
     - nome: "Banco_origem_sinal"
       tipo: "string"
@@ -463,6 +512,7 @@ Documentos:
           - "Transferência"
       variaveis: {}
       regras: {}
+      block: 4
 
     - nome: "Agencia_origem_sinal"
       tipo: "number"
@@ -475,6 +525,7 @@ Documentos:
           - "Transferência"
       variaveis: {}
       regras: {}
+      block: 4
 
     - nome: "N_cheque_sinal"
       tipo: "number"
@@ -486,6 +537,7 @@ Documentos:
           - "Cheque"
       variaveis: {}
       regras: {}
+      block: 4
 
 
     - nome: "Sinal_Cheque1"
@@ -499,6 +551,7 @@ Documentos:
         - "O cheque que representa o valor do Sinal de Negócio, figura nesta proposta, somente como garantia da presente negociação, ficando regido pela Lei de “Arras” (Artigos 417 e seguintes do Código Civil), visto que seu valor se acha incluso no valor descrito no item “3” abaixo. Devendo referido cheque de sinal, ser devolvido aos proponentes, no ato da assinatura do instrumento particular de compromisso particular de compra e venda. escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital. contrato de financiamento bancário, junto a Instituição Financeira competente."
       regras:
         - "Counter": "1:1/B"
+      block: 4
 
     - nome: "Sinal_Transferencia1"
       tipo: "string"
@@ -514,6 +567,7 @@ Documentos:
         - "O valor do Sinal de Negócio, figura nesta proposta, somente como garantia da presente negociação, ficando regido pela Lei de “Arras” (Artigos 417 e seguintes do Código Civil), visto ele se achar incluso no valor descrito no item “3” abaixo. Devendo referida importância, ser devolvida aos proponentes, no ato da assinatura do instrumento particular de compromisso particular de compra e venda. escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital. contrato de financiamento bancário, junto a Instituição Financeira competente."
       regras:
         - "Counter": "1:1/B"
+      block: 4
 
     - nome: "Sinal_Cheque2"  
       tipo: "string"
@@ -525,6 +579,7 @@ Documentos:
       variaveis: {}
       regras:
         - "Formater": "Representado pelo cheque nº {N_cheque_sinal}, emitido contra o Banco nº {Banco_origem_sinal}, Agência nº {Agencia_origem_sinal}, nominal à Prime Soho Imóveis Eireli."
+      block: 4
 
     - nome: "Sinal_Transferencia2"
       tipo: "string"
@@ -539,6 +594,7 @@ Documentos:
       variaveis:
         - " O qual se encontra depositado em nome e conta da Intermediadora da Negociação Prime Soho Imóveis Ltda."
       regras: {}
+      block: 4
 
 
 
@@ -546,12 +602,13 @@ Documentos:
     - nome: "Valor_Imovel"
       tipo: "number"
       form: true
-      descricao: "Valor do imovel"
+      descricao: "Valor do imóvel"
       requerido: true
       condicao: {}
       variaveis: {}
       regras: {}
       grupo: "pagamento"
+      block: 4
 
     - nome: "Valor_Imovel_Extenso"
       tipo: "string"
@@ -562,8 +619,9 @@ Documentos:
         Valor_Imovel: true
       variaveis: {}
       regras:
-        - "Number_To_Text": "Valor_Imovel"
+        - "Number_To_Text": "#Valor_Imovel"
       grupo: "pagamento"
+      block: 4
 
     - nome: "Forma_Pagamento_Total"
       tipo: "select"
@@ -579,11 +637,12 @@ Documentos:
         - "F.G.T.S."
       regras: {}
       grupo: "pagamento"
+      block: 4
 
     - nome: "Forma_Imovel_Total"
       tipo: "checkbox"
       form: true
-      descricao: "A prime deve vender o imovel?"
+      descricao: "A prime deve vender o imóvel?"
       requerido: false
       condicao: 
         Forma_Pagamento_Total: 
@@ -591,6 +650,7 @@ Documentos:
       variaveis: {}
       regras: {}
       grupo: "pagamento"
+      block: 4
 
     - nome: "Forma_Imovel_Total_Texto"
       tipo: "string"
@@ -602,10 +662,11 @@ Documentos:
           - "imóvel"
       variaveis: {}
       regras:
-        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), através da entrega do seguinte imóvel:"
+        - "Formater": "R${#Valor_Imovel} ({#Valor_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), através da entrega do seguinte imóvel:"
         - "Counter": "1/B"
         #Falta adicionar a logica que preenche as campos referentes aos dados do imovel
       grupo: "pagamento"
+      block: 4
 
     - nome: "Forma_Imovel_Total_Texto_Venda"
       tipo: "string"
@@ -619,6 +680,7 @@ Documentos:
         - "Formater": "O(s) vendedor(es), poderá optar em não transferir o imóvel para seu nome, e vende-lo a terceiros interessados, para tanto, deverá ser feito um contrato particular de compra e venda, quitado, em caráter irrevogável e irretratável, sem direito à arrependimento, concomitante com a outorga pelos proponentes, de um instrumento público de mandato, a ser lavrado no Tabelionato competente, com poderes para ele(s) vendedor(es), venderem o imóvel, por valor não superior a R$ {Entrada_Imovel}, podendo outorgar e assinar escritura pública de compra e venda, ou outra de direito, receber o preço, passar recibos, dar quitação, e demais poderes pertinentes ao ato. Cujos instrumentos deverão ser assinados concomitantemente com o documento de transferência do imóvel objeto desta proposta."
         - "Counter": "1:3/B"
       grupo: "pagamento"
+      block: 4
         
     - nome: "Forma_Financiamento_Total_Texto"
       tipo: "string"
@@ -630,7 +692,7 @@ Documentos:
           - "financiamento"
       variaveis: {}
       regras:
-        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de financiamento bancário, junto a Instituição Financeira, competente."
+        - "Formater": "R${#Valor_Imovel} ({#Valor_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de financiamento bancário, junto a Instituição Financeira, competente."
         - "Counter": "1/B"
       grupo: "pagamento"
         
@@ -644,9 +706,10 @@ Documentos:
           - "F.G.T.S."
       variaveis: {}
       regras:
-        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de saque de valores da conta vinculada ao Fundo de Garantia por tempo de serviço (F.G.T.S.), deles proponentes."
+        - "Formater": "R${#Valor_Imovel} ({#Valor_Imovel_Extenso} Reais), a serem pagos pelos proponentes, ao(s) vendedor(es), por meio de processo de saque de valores da conta vinculada ao Fundo de Garantia por tempo de serviço (F.G.T.S.), deles proponentes."
         - "Counter": "1/B"
       grupo: "pagamento"
+      block: 4
         
     - nome: "Forma_TED_Total_Texto"
       tipo: "string"
@@ -658,9 +721,10 @@ Documentos:
           - "T.E.D."
       variaveis: {}
       regras:
-        - "Formater": "R${Valor_Imovel} ({Valor_Imovel_Extenso} Reais), em cuja importância, se acha incluso o valor do sinal de negócio, a serem pagos pelos proponentes, ao(s) vendedor(es), com recursos próprios, via Transferência Eletrônica Disponível (T.E.D.), no ato da assinatura do contrato de financiamento bancário, junto a Instituição Financeira competente, cuja quitação de referida importância, será dada com a simples comprovação do referido depósito, pelo(s) vendedor(es)."
+        - "Formater": "R${#Valor_Imovel} ({#Valor_Imovel_Extenso} Reais), em cuja importância, se acha incluso o valor do sinal de negócio, a serem pagos pelos proponentes, ao(s) vendedor(es), com recursos próprios, via Transferência Eletrônica Disponível (T.E.D.), no ato da assinatura do contrato de financiamento bancário, junto a Instituição Financeira competente, cuja quitação de referida importância, será dada com a simples comprovação do referido depósito, pelo(s) vendedor(es)."
         - "Counter": "1/B"
       grupo: "pagamento"
+      block: 4
         
         
 
@@ -675,6 +739,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      block: 5
 
     - nome: "Data_limite_Extenso"
       tipo: "string"
@@ -686,6 +751,7 @@ Documentos:
       variaveis: []
       regras:
         - "Number_To_Text": "Data_limite"
+      block: 5
 
     - nome: "Data_V_Com"
       tipo: "string"
@@ -698,6 +764,7 @@ Documentos:
       variaveis:
         - " junto com "
       regras: {}
+      block: 5
 
     - nome: "Data_V_FGTS"
       tipo: "string"
@@ -709,6 +776,7 @@ Documentos:
       variaveis:
         - "liberação de FGTS"
       regras: {}
+      block: 5
 
     - nome: "Data_V_Financiamento"
       tipo: "string"
@@ -720,6 +788,7 @@ Documentos:
       variaveis:
         - "Financiamento"
       regras: {}
+      block: 5
 
     - nome: "Data_Contrato"
       tipo: "string"
@@ -734,6 +803,7 @@ Documentos:
       regras:
         - "Formater": "Contrato de {Data_V_FGTS}{Data_V_Com}{Data_V_Financiamento} será assinado em até {Data_limite} ({Data_limite_Extenso}) dias, junto ao Agente Financeiro competente."
         - "Counter": "2/B"
+      block: 5
         
     - nome: "Data_TED"
       tipo: "string"
@@ -749,6 +819,7 @@ Documentos:
       regras:
         - "Formater": "A escritura será assinada em até: {Data_limite} ({Data_limite_Extenso}) dias, contados desta data, junto ao Tabelionato competente."
         - "Counter": "2/B"
+      block: 5
         
     - nome: "Data_Limite"
       tipo: "datalist"
@@ -761,11 +832,13 @@ Documentos:
         - "No ato da assinatura da contrato de financiamento bancário, junto a Instituição Financeira competente."
       regras:
         - "Counter": "2/B"
+        - "Formater": "O imóvel será entregue ao(s) Proponente(s), {Data_Limite}"
+      block: 5
 
     - nome: "Data_Limite_Imovel"
       tipo: "datalist"
       form: true
-      descricao: "Condições de entrega do imovel"
+      descricao: "Condições de entrega do imóvel"
       requerido: true
       condicao: 
         Forma_Pagamento_Total/Forma_Entrada: "imóvel"
@@ -774,15 +847,18 @@ Documentos:
         - "No ato da assinatura da contrato de financiamento bancário, junto a Instituição Financeira competente."
       regras:
         - "Counter": "2/B"
+        - "Formater": "O imóvel será entregue ao(s) Proponente(s), {Data_Limite_Imovel}"
+      block: 5
 
     - nome: "Ficam_Imovel"
       tipo: "textarea"
       form: true
-      descricao: "Ficam no imovel"
+      descricao: "Ficam no imóvel"
       requerido: false
       condicao: {}
       variaveis: {}
       regras: {}
+      block: 5
 
     - nome: "Observacoes"
       tipo: "textarea"
@@ -792,6 +868,7 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: {}
+      block: 5
 
     - nome: "Ficam_Imovel_Texto"
       tipo: "string"
@@ -803,6 +880,7 @@ Documentos:
       regras:
         - "Formater": "Ficam permanecendo no imóvel: {Ficam_Imovel}"
         - "Counter": "2/B"
+      block: 5
         
     - nome: "Observacoes_Texto"
       tipo: "string"
@@ -814,6 +892,7 @@ Documentos:
       regras:
         - "Formater": "Observações: {Observacoes}"
         - "Counter": "2/B"
+      block: 5
 
 
 

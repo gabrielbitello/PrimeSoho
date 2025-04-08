@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const main = document.querySelector("main");
     const divs = main.querySelectorAll("div");
 
@@ -11,18 +11,47 @@ document.addEventListener("DOMContentLoaded", function() {
             input.style.paddingLeft = `${labelWidth + 16}px`; // 16px de espaçamento adicional
         }
     });
-});
 
+    const form = document.getElementById("dynamicForm");
 
+    // Organize inputs into their respective blocks visually without changing the HTML structure
+    function organizeBlocks() {
+        const inputs = form.querySelectorAll("[data-block]");
+        let currentBlockId = null;
+        let blockContainer = null;
 
+        inputs.forEach(input => {
+            const blockId = input.dataset.block;
+            const formGroup = input.closest(".form-group");
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Função para aplicar a lógica de condições a um elemento
+            if (!blockId || !formGroup) return;
+
+            // Check if we need to create a new visual block container
+            if (blockId !== currentBlockId) {
+                currentBlockId = blockId;
+
+                // Create a new visual block container
+                blockContainer = document.createElement("div");
+                blockContainer.classList.add("block-container");
+                blockContainer.dataset.blockId = blockId;
+
+                // Insert the block container before the first form group of the block
+                formGroup.parentNode.insertBefore(blockContainer, formGroup);
+            }
+
+            // Append the form group to the current block container visually
+            blockContainer.appendChild(formGroup);
+        });
+    }
+
+    organizeBlocks();
+
+    // Apply conditions to dynamically show/hide fields
     function aplicarCondicoes(elemento) {
-        let camposCondicionais = elemento.querySelectorAll('*[data-condicao]');
+        const camposCondicionais = elemento.querySelectorAll('*[data-condicao]');
 
-        camposCondicionais.forEach((campo) => {
-            let condicoesStr = campo.dataset.condicao;
+        camposCondicionais.forEach(campo => {
+            const condicoesStr = campo.dataset.condicao;
 
             if (!condicoesStr) return;
 
@@ -34,12 +63,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            let conditionsMet = Array.isArray(condicoes) 
-                ? condicoes.some(condicao => verificaCondicaoUnica(condicao))
-                : Object.entries(condicoes).every(([chave, valor]) => verificaCondicaoUnica({[chave]: valor}));
+            const campoAtual = campo.id || campo.name || "campo desconhecido"; // Identifica o campo dependente
+            const conditionsMet = Array.isArray(condicoes)
+                ? condicoes.some(condicao => verificaCondicaoUnica(condicao, campoAtual))
+                : Object.entries(condicoes).every(([chave, valor]) => verificaCondicaoUnica({ [chave]: valor }, campoAtual));
 
-            let inputs = campo.matches('input, select, textarea') ? [campo] : campo.querySelectorAll('input, select, textarea');
-            let divContainer = campo.closest('div');
+            const inputs = campo.matches('input, select, textarea') ? [campo] : campo.querySelectorAll('input, select, textarea');
+            const divContainer = campo.closest('div');
 
             if (conditionsMet) {
                 campo.style.display = "block";
@@ -57,44 +87,58 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function verificaCondicaoUnica(condicao) {
-        let [chave, valorEsperado] = Object.entries(condicao)[0];
+    function verificaCondicaoUnica(condicao, campoAtual) {
+        const [chave, valorEsperado] = Object.entries(condicao)[0];
 
         if (chave.includes('/')) {
-            return chave.split('/').some(parteChave => verificaCampo(parteChave, valorEsperado));
+            return chave.split('/').some(parteChave => verificaCampo(parteChave, valorEsperado, campoAtual));
         }
 
-        return verificaCampo(chave, valorEsperado);
+        return verificaCampo(chave, valorEsperado, campoAtual);
     }
 
-    function verificaCampo(chave, valorEsperado) {
+    function verificaCampo(chave, valorEsperado, campoAtual) {
+        // Tenta encontrar o campo controlador diretamente pelo ID
         let elementoControlador = document.getElementById(chave);
+
+        // Se não encontrar, tenta localizar dentro de formsets (prefixos dinâmicos)
         if (!elementoControlador) {
-            console.warn(`Campo controlador não encontrado: ${chave}`);
-            return false;
+            const formGroup = document.querySelector(`[data-block-id]`);
+            if (formGroup) {
+                const formPrefix = formGroup.closest('.formset-form')?.querySelector('[name$="-TOTAL_FORMS"]')?.name.split('-')[0];
+                if (formPrefix) {
+                    const prefixedKey = `${formPrefix}-${chave}`;
+                    elementoControlador = document.getElementById(prefixedKey);
+                }
+            }
+        }
+
+        if (!elementoControlador) {
+            console.warn(`Campo dependente "${campoAtual}" não encontrou o controlador "${chave}".`);
+            return false; // Retorna false se o campo controlador não existir
         }
 
         if (elementoControlador.type === 'checkbox') {
             return elementoControlador.checked === (valorEsperado === true || valorEsperado === 'true');
         } else {
-            let valorAtual = elementoControlador.value.toString().trim().toLowerCase();
-            let esperado = Array.isArray(valorEsperado) 
+            const valorAtual = elementoControlador.value.toString().trim().toLowerCase();
+            const esperado = Array.isArray(valorEsperado)
                 ? valorEsperado.map(val => val.toString().trim().toLowerCase())
                 : [valorEsperado.toString().trim().toLowerCase()];
             return esperado.includes(valorAtual);
         }
     }
 
+    // Add listeners to dynamically added fields
     function adicionarOuvintes(elemento) {
         elemento.querySelectorAll('input, select, textarea').forEach(el => {
-            el.addEventListener('change', () => aplicarCondicoes(document.querySelector('main')));
+            el.addEventListener('change', () => aplicarCondicoes(form));
         });
     }
 
-    // Configuração do MutationObserver
-    const config = { childList: true, subtree: true };
-    const callback = function(mutationsList, observer) {
-        for(let mutation of mutationsList) {
+    // MutationObserver to handle dynamically added elements
+    const observer = new MutationObserver(mutationsList => {
+        for (const mutation of mutationsList) {
             if (mutation.type === 'childList') {
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeType === Node.ELEMENT_NODE) {
@@ -104,144 +148,87 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         }
-    };
+    });
 
-    // Criar e iniciar o MutationObserver
-    const observer = new MutationObserver(callback);
-    observer.observe(document.querySelector('main'), config);
+    observer.observe(form, { childList: true, subtree: true });
 
-    // Aplicação inicial
-    aplicarCondicoes(document.querySelector('main'));
-    adicionarOuvintes(document.querySelector('main'));
-});
+    // Initial application of conditions
+    aplicarCondicoes(form);
+    adicionarOuvintes(form);
 
-
-
-
-
-
-
-
-
-
-
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.multiplicador').forEach(function(button) {
-        button.addEventListener('click', function(event) {
-            event.preventDefault();
-            const buttonId = this.id;
-            const inputQuantidade = document.getElementById(buttonId);
+    // Fix formfactory functionality for dynamically added forms
+    document.querySelectorAll('.multiplicador-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const grupo = this.dataset.grupo;
+            const inputQuantidade = document.getElementById(`${grupo}-quantidade`);
             if (!inputQuantidade) {
-                console.error(`Input com ID "${buttonId}" não encontrado`);
+                console.error(`Input de quantidade não encontrado para o grupo "${grupo}"`);
                 return;
             }
 
-            let quantidadeDesejada = Math.max(1, parseInt(inputQuantidade.value) || 1);
-            inputQuantidade.value = quantidadeDesejada;
-
-            const grupo = this.getAttribute('data-grupo');
-            if (!grupo) {
+            const quantidadeDesejada = Math.max(1, parseInt(inputQuantidade.value) || 1);
+            const grupoCampos = document.querySelector(`.grupo-campos[data-grupo="${grupo}"]`);
+            if (!grupoCampos) {
+                console.error(`Grupo de campos não encontrado para o grupo "${grupo}"`);
                 return;
             }
 
-            const formset = document.querySelector(`div[data-grupo="${grupo}"]`);
+            const formset = grupoCampos.querySelector('.formset');
             if (!formset) {
-                console.error(`Formset para grupo "${grupo}" não encontrado`);
+                console.error(`Formset não encontrado para o grupo "${grupo}"`);
                 return;
             }
 
             const forms = formset.querySelectorAll('.formset-form');
-            const quantidadeAtual = forms.length;
-
-            const totalForms = formset.querySelector('[name$="-TOTAL_FORMS"]');
+            const totalForms = grupoCampos.querySelector('[name$="-TOTAL_FORMS"]');
             if (!totalForms) {
-                console.error(`Campo de total de formulários não encontrado para o grupo "${grupo}"`);
+                console.error(`Campo TOTAL_FORMS não encontrado para o grupo "${grupo}"`);
                 return;
             }
 
-            // Função para atualizar IDs, nomes e condições
-            function atualizarFormulario(form, novoIndice) {
-                form.querySelectorAll('*').forEach(element => {
-                    ['name', 'id', 'for'].forEach(attr => {
-                        if (element.hasAttribute(attr)) {
-                            element.setAttribute(attr, element.getAttribute(attr).replace(/\d+/, novoIndice));
-                        }
-                    });
+            const quantidadeAtual = forms.length;
 
-                    if (element.dataset && element.dataset.condicao) {
-                        try {
-                            let condicoes = JSON.parse(element.dataset.condicao);
-                            condicoes = atualizarChavesCondicoes(condicoes, novoIndice);
-                            element.dataset.condicao = JSON.stringify(condicoes);
-                        } catch (e) {
-                            console.error("Erro ao atualizar condições:", e);
-                        }
-                    }
-                });
-            }
-
-            // Função para atualizar as chaves das condições
-            function atualizarChavesCondicoes(condicoes, novoIndice) {
-                if (typeof condicoes === 'object') {
-                    const novasCondicoes = {};
-                    for (let chave in condicoes) {
-                        if (condicoes.hasOwnProperty(chave)) {
-                            let novaChave = chave.replace(/\d+/, novoIndice);
-                            novasCondicoes[novaChave] = condicoes[chave];
-                        }
-                    }
-                    return novasCondicoes;
-                }
-                return condicoes;
-            }
-
-            // Adicionar formulários
+            // Add or remove forms based on the desired quantity
             if (quantidadeDesejada > quantidadeAtual) {
                 for (let i = quantidadeAtual; i < quantidadeDesejada; i++) {
                     const newForm = forms[0].cloneNode(true);
-                    atualizarFormulario(newForm, i);
 
-                    // Limpar valores
+                    // Clear input values and reset attributes
                     newForm.querySelectorAll('input, select, textarea').forEach(input => {
                         input.value = '';
                         if (input.type === 'checkbox') input.checked = false;
+
+                        // Update the name and id attributes to avoid conflicts
+                        const nameAttr = input.getAttribute('name');
+                        if (nameAttr) {
+                            const newName = nameAttr.replace(/\d+/, i);
+                            input.setAttribute('name', newName);
+                        }
+
+                        const idAttr = input.getAttribute('id');
+                        if (idAttr) {
+                            const newId = idAttr.replace(/\d+/, i);
+                            input.setAttribute('id', newId);
+                        }
                     });
 
-                    forms[forms.length - 1].after(newForm);
+                    formset.appendChild(newForm);
                 }
-            }
-            // Remover formulários
-            else if (quantidadeDesejada < quantidadeAtual) {
+            } else if (quantidadeDesejada < quantidadeAtual) {
                 for (let i = quantidadeAtual - 1; i >= quantidadeDesejada; i--) {
                     forms[i].remove();
                 }
             }
 
-            // Reindexar todos os formulários restantes
-            formset.querySelectorAll('.formset-form').forEach((form, index) => {
-                atualizarFormulario(form, index);
-            });
-
+            // Update the total forms count
             totalForms.value = quantidadeDesejada;
+
+            // Reapply conditions and listeners to the new forms
+            aplicarCondicoes(formset);
+            adicionarOuvintes(formset);
         });
     });
-
-    // Executar verificação inicial
-    setTimeout(() => {
-        // Coloque aqui qualquer lógica de verificação inicial necessária
-    }, 1000);
 });
-
-
-
-
-
-
-
-
-
-
 
 const api = new HttpClient('/j/formulario/');
 

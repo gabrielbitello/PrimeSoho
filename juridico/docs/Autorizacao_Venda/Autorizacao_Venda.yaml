@@ -11,7 +11,6 @@ Documentos:
   Opcoes:
     Multiplicador: 
       - grupo: "proprietario"
-        max: 8
         buscador: "0379"
     Regras:
       - "Clear": "Table"
@@ -26,8 +25,7 @@ Documentos:
           - "Estado_Civil": "Cliente/estado_civil"
           - "Nacionalidade": "Cliente/nacionalidade"
           - "UF_proprietario": "Cliente/uf_nascimento"
-          - "Doc_proprietario": 
-            regra: "Identfy? CPF: Cliente/cpf, RG: Cliente/rg, CNH: Cliente:cnh, Passaporte: Cliente/passaporte"
+          - "Doc_proprietario": "Cliente/cpf"
           - "Endereco_proprietario": 
             regra: "Endereco? endereco: Cliente/endereco, numero: Cliente/numero, complemento: Cliente/complemento"
           - "Numero_proprietario": "Cliente/telefone"
@@ -289,13 +287,13 @@ Documentos:
         - "SE"
         - "TO"
       regras: 
-        - "Formater": "{UF_proprietario} - "
+        - "Formater": "{#UF_proprietario} - "
       grupo: "proprietario"
 
     - nome: "Doc_proprietario"
-      tipo: "string"
+      tipo: "cpf"
       form: true
-      descricao: "Documento do proprietario"
+      descricao: "CPF do proprietário"
       requerido: true
       condicao: {}
       variaveis: {}
@@ -319,7 +317,7 @@ Documentos:
     - nome: "Endereco_proprietario"
       tipo: "string"
       form: true
-      descricao: "Endereço do proprietario"
+      descricao: "Endereço do proprietário"
       requerido: true
       condicao: {}
       variaveis: {}
@@ -329,7 +327,7 @@ Documentos:
     - nome: "Numero_proprietario"
       tipo: "phone"
       form: true
-      descricao: "Numero do proprietario"
+      descricao: "Número do proprietário"
       requerido: true
       condicao: {}
       variaveis: {}
@@ -725,7 +723,7 @@ Documentos:
     - nome: "Corretor_Numero"
       tipo: "phone"
       form: true
-      descricao: "Numero do corretor"
+      descricao: "Número do corretor"
       requerido: true
       condicao: {}
       variaveis: {}

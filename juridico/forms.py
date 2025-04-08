@@ -8,6 +8,7 @@ class DynamicForm(forms.Form):
 
     def __init__(self, parsed_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.datalist_html = ""  # Reset datalist_html for each instance
         
         # Para campos independentes (sem grupo)
         for nome, campo in parsed_data.items():
@@ -19,8 +20,7 @@ class DynamicForm(forms.Form):
             if field:
                 self.fields[nome] = field
 
-    @classmethod
-    def create_field(cls, nome, campo):
+    def create_field(self, nome, campo):
         """
         Cria um campo do formulário com base nas informações fornecidas.
         """
@@ -32,6 +32,7 @@ class DynamicForm(forms.Form):
         requerido = campo['requerido']
         condicoes = campo.get('condicao', {})
         grupo = campo.get('grupo', '')
+        block = campo.get('block', '')
 
         # Converte as condições para JSON (se existirem)
         condicao_attr = json.dumps(condicoes, ensure_ascii=False) if condicoes else ''
@@ -44,11 +45,11 @@ class DynamicForm(forms.Form):
             'list': '',
             'data-condicao': condicao_attr,
             'data-grupo': grupo,
+            'data-block': block,  # Add block attribute
         }
 
         # Criação do campo de acordo com o tipo
         field = None
-        datalist_html = ""
         
         if tipo == 'string':
             field = forms.CharField(label=descricao, required=requerido, widget=forms.TextInput(attrs=widget_attrs))
@@ -84,18 +85,18 @@ class DynamicForm(forms.Form):
             widget_attrs['list'] += f'opcoes_{nome}'
             field = forms.CharField(label=descricao, required=requerido, widget=forms.TextInput(attrs=widget_attrs))
             
+            # Acumular o HTML do datalist
             datalist_html = f'<datalist id="opcoes_{nome}">'
             for opcao in campo['variaveis']:
                 datalist_html += f'<option value="{opcao}">'
             datalist_html += '</datalist>'
-            cls.datalist_html += datalist_html  # Acumula HTML dos datalists
+            self.datalist_html += datalist_html
 
         return field
 
-    @classmethod
-    def get_datalist_html(cls):
+    def get_datalist_html(self):
         """Retorna o HTML completo dos datalists gerados."""
-        return cls.datalist_html
+        return self.datalist_html
 
 
 def create_group_form_class(campos_grupo):
@@ -140,11 +141,12 @@ def create_group_form_class(campos_grupo):
                             field.widget.attrs['data-condicao'] = json.dumps(condicoes_ajustadas, ensure_ascii=False)
     
     # Adiciona campos ao formulário do grupo
+    dynamic_form_instance = DynamicForm({})  # Criar uma instância vazia de DynamicForm
     for nome, campo_info in campos_grupo.items():
         if not campo_info.get('form', False):
             continue
             
-        field = DynamicForm.create_field(nome, campo_info)
+        field = dynamic_form_instance.create_field(nome, campo_info)  # Usar a instância para chamar create_field
         if field:
             GroupForm.base_fields[nome] = field
     
