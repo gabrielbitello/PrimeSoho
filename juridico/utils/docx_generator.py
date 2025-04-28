@@ -123,8 +123,6 @@ def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: 
     """
     if not yaml_data.get('regras'):
         return value
-    
-    print (f"Aplicando regras para  campo {field_verified}, valor: {value}")
 
     for rule_obj in yaml_data.get('regras', []):
         if isinstance(rule_obj, dict):
@@ -135,6 +133,17 @@ def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: 
                     if rule_value.startswith('#'):
                         rule_value = f"form-{index}-{rule_value[1:]}" if index is not None else f"form-{rule_value[1:]}"
                     value_to_convert = data.get(rule_value)
+                    
+                    # Se o valor for None, aplicar regras adicionais
+                    if value_to_convert is None:
+                        # Buscar regras para o campo
+                        document_configs = yaml.get('Documentos', {}).get('Documentos-Config', [])
+                        field_config = next((item for item in document_configs if item.get('nome') == rule_value.replace('form-', '').split('-')[-1]), None)
+                        
+                        if field_config and field_config.get('regras'):
+                            # Aplicar regras ao valor nulo
+                            value_to_convert = apply_rules_to_value(None, field_config, rule_value, doc, data, yaml, index)
+                    
                     if value_to_convert is not None:
                         value = convert_number_to_text(value_to_convert)
                 elif rule == "Formater" and isinstance(rule_value, str):
@@ -143,8 +152,52 @@ def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: 
                     value = handle_counter_rule(rule_value, value)
                 elif rule == "Clear" and rule_value and value is not None:
                     value = Clear_box(row, table, value)
+                elif rule == "Sum" and isinstance(rule_value, list) and len(rule_value) >= 2:
+                    value = total_sum(data, rule_value, yaml, doc, index)
 
     return value
+
+def total_sum(data: Dict[str, Any], rule_value: List[str], yaml: Dict[str, Any], doc: Document, index: str | None = None ) -> float:
+    # Nova regra: Sum - soma dois ou mais valores
+                    total_sum = 0
+                    for field_to_sum in rule_value:
+                        # Ajustar o nome do campo se necessário
+                        if field_to_sum.startswith('#'):
+                            field_to_sum = f"form-{index}-{field_to_sum[1:]}" if index is not None else f"form-{field_to_sum[1:]}"
+                        
+                        # Obter o valor do campo
+                        field_value = data.get(field_to_sum)
+                        
+                        # Se o valor for None ou não numérico, tentar aplicar regras
+                        if field_value is None or not isinstance(field_value, (int, float)):
+                            # Buscar regras para o campo
+                            document_configs = yaml.get('Documentos', {}).get('Documentos-Config', [])
+                            field_name = field_to_sum.replace('form-', '').split('-')[-1]
+                            field_config = next((item for item in document_configs if item.get('nome') == field_name), None)
+                            
+                            if field_config and field_config.get('regras'):
+                                # Aplicar regras ao valor
+                                processed_value = apply_rules_to_value(field_value, field_config, field_to_sum, doc, data, yaml, index)
+                                try:
+                                    # Tentar converter para número
+                                    if processed_value is not None:
+                                        if isinstance(processed_value, str):
+                                            # Remover caracteres não numéricos (exceto ponto decimal)
+                                            processed_value = re.sub(r'[^\d.]', '', processed_value)
+                                        field_value = float(processed_value)
+                                except (ValueError, TypeError):
+                                    field_value = 0
+                        
+                        # Adicionar à soma total
+                        try:
+                            if field_value is not None:
+                                total_sum += float(field_value)
+                        except (ValueError, TypeError):
+                            # Se não puder converter para número, ignorar
+                            pass
+                    
+                    # Atualizar o valor com a soma total
+                    return str(total_sum) if total_sum else ""
 
 def Clear_box(row: object | None, table: object | None, value: Any) -> Any:
     """
@@ -478,13 +531,13 @@ def replace_variables_in_headers(doc: Document, data: Dict[str, Any], yaml_data:
 
 def verify_conditions(data: Dict[str, Any], yaml_data: Dict[str, Any], field_verified: str, index: str | None = None) -> bool:
     """
-    Verifies conditions for a field based on YAML configurations, adjusting keys if field_verified starts with "form-".
+    Verifies conditions for a field based on YAML configurations, with advanced formset verification.
 
     Args:
         data: The dictionary containing data values.
         yaml_data: The YAML configuration data.
         field_verified: The field being verified.
-        index (str | None): O índice, que pode ser uma string ou None.
+        index: The index for formset fields, if applicable.
 
     Returns:
         True if all conditions are met or no conditions are specified, False otherwise.
@@ -499,9 +552,83 @@ def verify_conditions(data: Dict[str, Any], yaml_data: Dict[str, Any], field_ver
             return False
 
         for key, value in condition.items():
-            adjusted_key = key  # Initialize adjusted_key with the original key
-
-            # Check if index is not None 
+            # Processar condições especiais para formsets
+            if key.startswith('formset:'):
+                parts = key.split(':')
+                
+                # Formato básico: formset:campo
+                if len(parts) == 2:
+                    field_name = parts[1]
+                    # Encontrar todos os campos do formset
+                    formset_values = [data[k] for k in data.keys() 
+                                        if re.match(f"form-\d+-{field_name}$", k) and k in data]
+                    
+                    if isinstance(value, list):
+                        # Verificar se pelo menos um campo tem um dos valores da lista
+                        if not any(fv in value for fv in formset_values):
+                            return False
+                    else:
+                        # Verificar se pelo menos um campo tem o valor específico
+                        if value not in formset_values:
+                            return False
+                
+                # Formato avançado: formset:campo:operador:valor
+                elif len(parts) >= 3:
+                    field_name = parts[1]
+                    operator = parts[2]
+                    
+                    # Encontrar todos os campos do formset
+                    formset_values = [data[k] for k in data.keys() 
+                                        if re.match(f"form-\d+-{field_name}$", k) and k in data]
+                    
+                    if operator == "any":
+                        # Verificar se qualquer campo tem o valor especificado
+                        if isinstance(value, list):
+                            if not any(fv in value for fv in formset_values):
+                                return False
+                        else:
+                            if value not in formset_values:
+                                return False
+                    
+                    elif operator == "all":
+                        # Verificar se todos os campos têm o valor especificado
+                        if isinstance(value, list):
+                            if not all(fv in value for fv in formset_values):
+                                return False
+                        else:
+                            if not all(fv == value for fv in formset_values):
+                                return False
+                    
+                    elif operator == "count":
+                        # Verificar se existe um número específico de campos com o valor
+                        if isinstance(value, dict):
+                            # Formato: {"A": 2, "B": 3} - precisa de 2 campos com valor A e 3 com valor B
+                            for val, count in value.items():
+                                actual_count = sum(1 for fv in formset_values if fv == val)
+                                if actual_count < count:
+                                    return False
+                        else:
+                            # Formato simples: precisa de pelo menos N campos com qualquer valor não vazio
+                            actual_count = sum(1 for fv in formset_values if fv)
+                            if actual_count < int(value):
+                                return False
+                    
+                    elif operator == "combination":
+                        # Verificar combinações específicas de valores
+                        # Exemplo: formset:campo:combination:{"A": 1, "B": 1}
+                        # Significa: precisa de pelo menos 1 campo com valor A E pelo menos 1 campo com valor B
+                        if isinstance(value, dict):
+                            for val, min_count in value.items():
+                                actual_count = sum(1 for fv in formset_values if fv == val)
+                                if actual_count < min_count:
+                                    return False
+                
+                continue  # Prosseguir para a próxima condição após verificar o formset
+            
+            # Processamento regular para campos não-formset (código existente)
+            adjusted_key = key
+            
+            # Check if index is not None and adjust key accordingly
             if index is not None:
                 adjusted_key = f"form-{index}-{key}"
 
@@ -531,7 +658,6 @@ def verify_conditions(data: Dict[str, Any], yaml_data: Dict[str, Any], field_ver
                                 condition_met = True
                                 break
 
-
                 if not condition_met:
                     return False
 
@@ -559,7 +685,7 @@ def verify_conditions(data: Dict[str, Any], yaml_data: Dict[str, Any], field_ver
 
         return True
     except Exception as e:
-        print("Error in verify_conditions")
+        print(f"Error in verify_conditions: {e}")
         raise
 
 def insert_table_after(original_table: object, new_table: object):

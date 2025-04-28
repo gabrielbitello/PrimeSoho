@@ -50,7 +50,7 @@ def formulario(request, folder):
     
     if request.method == 'POST':
         # Usar a função auxiliar para criar formulário e formsets
-        independent_form, formsets = get_form_and_formsets(parsed_data, request.POST, request.FILES)
+        independent_form, formsets, all_datalists = get_form_and_formsets(parsed_data, request.POST, request.FILES)
         
         # Validar formulário e formsets
         is_valid, dados_combinados, errors = validate_forms(independent_form, formsets)
@@ -90,10 +90,10 @@ def formulario(request, folder):
             }, status=500)
     else:
         # Requisição GET - criar formulário e formsets vazios
-        independent_form, formsets = get_form_and_formsets(parsed_data)
+        independent_form, formsets, all_datalists = get_form_and_formsets(parsed_data)
 
     return render(request, 'form.html', {
         'independent_form': independent_form,
         'formsets': formsets,
-        'folder': folder  # Pode ser útil no template
+        'all_datalists': all_datalists  
     })

@@ -3,3 +3,4 @@ juridico/output/
 /staticfiles
 django_error.log
 logs/django.log
+/venv

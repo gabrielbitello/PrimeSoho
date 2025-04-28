@@ -34,7 +34,7 @@ SECRET_KEY = 'django-insecure-_vb1)yj-(^jvv5k+vk57_2)ioo0bs@rj3*zr#of^72j&b@p7ah
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['http://127.0.0.1', 'localhost', 'dreamlandsmc.com.br', '192.168.100.11']
+ALLOWED_HOSTS = ['http://127.0.0.1', 'localhost', 'soho.bitello.xyz', '192.168.100.11']
 
 #INTERNAL_IPS = [
 #    '191.218.132.32',

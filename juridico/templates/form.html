@@ -1,7 +1,5 @@
 {% load static %}
 
-{% load custom_filters %}
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -98,7 +96,7 @@
 
                 <button type="submit" id="enviar" class="btn btn-primary">Enviar</button>
             </form>
-            {{ independent_form.get_datalist_html|safe }}
+            {{ all_datalists|safe }}
         </section>
     </main>
 

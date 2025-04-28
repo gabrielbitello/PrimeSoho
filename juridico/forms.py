@@ -104,8 +104,6 @@ def create_group_form_class(campos_grupo):
     Cria uma classe de formulário dinâmica para um grupo específico de campos.
     """
     class GroupForm(forms.Form):
-        datalist_html = ""
-        
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             # Obtém o prefixo do formulário, que inclui o número da cópia
@@ -146,7 +144,8 @@ def create_group_form_class(campos_grupo):
         if not campo_info.get('form', False):
             continue
             
-        field = dynamic_form_instance.create_field(nome, campo_info)  # Usar a instância para chamar create_field
+        # Criar o campo sem gerar datalists duplicados
+        field = dynamic_form_instance.create_field(nome, campo_info)
         if field:
             GroupForm.base_fields[nome] = field
     
@@ -156,14 +155,7 @@ def create_group_form_class(campos_grupo):
 def get_form_and_formsets(parsed_data, request_data=None, request_files=None):
     """
     Função auxiliar para criar formulário principal e formsets.
-    
-    Args:
-        parsed_data: Dicionário com todos os campos parseados
-        request_data: Dados da requisição POST (opcional)
-        request_files: Arquivos da requisição (opcional)
-        
-    Returns:
-        Uma tupla (form, formsets) com o formulário principal e os formsets configurados
+    Retorna o formulário principal, os formsets, e todos os datalists HTML combinados.
     """
     # Separar campos independentes dos campos agrupados
     independent_fields = {nome: campo for nome, campo in parsed_data.items() 
@@ -190,6 +182,13 @@ def get_form_and_formsets(parsed_data, request_data=None, request_files=None):
     # Inicializar formsets
     formsets = {}
     
+    # Coletar todos os datalists
+    all_datalists_html = ""
+    
+    # Adicionar datalists do formulário principal
+    all_datalists_html += independent_form.get_datalist_html()
+    
+    # Criar e adicionar datalists para todos os campos de grupo
     for grupo, campos_grupo in grouped_fields.items():
         # Criar o FormSet específico para este grupo
         GroupFormSet = formset_factory(
@@ -204,9 +203,19 @@ def get_form_and_formsets(parsed_data, request_data=None, request_files=None):
             )
         else:
             formsets[grupo] = GroupFormSet()
+        
+        # Coletar datalists dos campos do grupo
+        # Fazemos isso aqui para garantir que os datalists sejam criados apenas uma vez por tipo de campo
+        for nome, campo in campos_grupo.items():
+            if campo.get('tipo') == 'datalist' and 'variaveis' in campo:
+                datalist_html = f'<datalist id="opcoes_{nome}">'
+                for opcao in campo['variaveis']:
+                    datalist_html += f'<option value="{opcao}">'
+                datalist_html += '</datalist>'
+                all_datalists_html += datalist_html
     
-    return independent_form, formsets
-
+    # Retornar o formulário principal, os formsets e todos os datalists HTML
+    return independent_form, formsets, all_datalists_html
 
 def validate_forms(independent_form, formsets):
     """

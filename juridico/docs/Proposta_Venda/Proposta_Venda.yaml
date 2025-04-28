@@ -759,8 +759,7 @@ Documentos:
       descricao: ""
       requerido: false
       condicao:
-        Forma_Pagamento_Total/Forma_Entrada: "F.G.T.S."
-        Forma_Entrada/Forma_Pagamento_Total: "financiamento"
+        formset:Forma_Pagamento_Total:combination: {"financiamento": 1, "F.G.T.S.": 1}
       variaveis:
         - " junto com "
       regras: {}
@@ -772,7 +771,7 @@ Documentos:
       descricao: ""
       requerido: false
       condicao:
-        Forma_Pagamento_Total/Forma_Entrada: "F.G.T.S."
+        formset:Forma_Pagamento_Total: "F.G.T.S."
       variaveis:
         - "liberação de FGTS"
       regras: {}
@@ -785,6 +784,7 @@ Documentos:
       requerido: false
       condicao:
         Forma_Entrada/Forma_Pagamento_Total: "financiamento"
+        formset:Forma_Pagamento_Total: "financiamento"
       variaveis:
         - "Financiamento"
       regras: {}
@@ -796,9 +796,7 @@ Documentos:
       descricao: ""
       requerido: false
       condicao:
-        Forma_Pagamento_Total/Forma_Entrada:
-          - "financiamento"
-          - "F.G.T.S."
+        formset:Forma_Pagamento_Total: ["F.G.T.S.", "financiamento"]
       variaveis: {}
       regras:
         - "Formater": "Contrato de {Data_V_FGTS}{Data_V_Com}{Data_V_Financiamento} será assinado em até {Data_limite} ({Data_limite_Extenso}) dias, junto ao Agente Financeiro competente."
@@ -811,10 +809,7 @@ Documentos:
       descricao: ""
       requerido: false
       condicao:
-        Forma_Entrada: 
-          - "T.E.D."
-        Forma_Pagamento_Total: 
-          - "T.E.D."
+        formset:Forma_Pagamento_Total:all: "T.E.D."
       variaveis: {}
       regras:
         - "Formater": "A escritura será assinada em até: {Data_limite} ({Data_limite_Extenso}) dias, contados desta data, junto ao Tabelionato competente."
@@ -841,7 +836,7 @@ Documentos:
       descricao: "Condições de entrega do imóvel"
       requerido: true
       condicao: 
-        Forma_Pagamento_Total/Forma_Entrada: "imóvel"
+        formset:Forma_Pagamento_Total: "imóvel"
       variaveis: 
         - "No ato da assinatura da escritura pública de compra e venda, junto ao Tabelionato competente, desta Capital"
         - "No ato da assinatura da contrato de financiamento bancário, junto a Instituição Financeira competente."
