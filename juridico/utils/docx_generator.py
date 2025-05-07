@@ -8,6 +8,8 @@ import logging
 from django.core.exceptions import ValidationError
 from typing import Optional, Union, Dict, Any, List
 
+
+
 # Constants
 PARENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOCS_PATH = os.path.join(PARENT_DIR, 'docs')
@@ -707,8 +709,6 @@ def remove_row_below(table: object, original_row: object):
     if row_index + 1 < len(table.rows):
         table._tbl.remove(table.rows[row_index + 1]._tr)
 
-from typing import Dict, Any
-
 def process_data_single(data: Dict[str, Any], parsed_data_options: Dict[str, Any], processed_fields: Dict[str, bool]) -> Dict[str, Any]:
     """
     Processa um único campo de dados com base nas opções analisadas, mantendo um histórico dos campos processados.
@@ -863,9 +863,18 @@ def generate_docx(data: Dict[str, Any], folder: str, yaml_data: Dict[str, Any], 
         replace_variables_in_footers(doc, data, yaml_data, parsed_data_options)
         replace_variables_in_headers(doc, data, yaml_data, parsed_data_options)
 
+        
+
+
         # Save the generated file
         output_filename = f'{folder}_preenchido_{unique_id}.docx'
         output_path_formatted = os.path.abspath(os.path.join(OUTPUT_PATH, output_filename))
+
+        # Certifique-se de que o diretório existe
+        if not os.path.exists(OUTPUT_PATH):
+            os.makedirs(OUTPUT_PATH, exist_ok=True)
+            logger.info(f"Diretório 'output' criado em: {OUTPUT_PATH}")
+
         doc.save(output_path_formatted)
         
         clear_counters()

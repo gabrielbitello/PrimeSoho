@@ -1,5 +1,5 @@
 cd C:\Users\Gabriel\Documents\Documentos\Projetos\JPS\JuridicoPrimeSoho
-.\venv\Scripts\activate
+.\.venv\Scripts\activate
 $env:PYTHONPYCACHEPREFIX = "NUL"
 
 
