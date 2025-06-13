@@ -27,7 +27,6 @@ def clear_counters():
     COUNTER_DICT.clear()
     SUBCOUNTER_DICT.clear()
     COUNTERS.clear()
-
 # Get the logger
 logger = logging.getLogger('juridico')
 
@@ -124,7 +123,7 @@ def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: 
         The modified value after applying all relevant rules.
     """
     if not yaml_data.get('regras'):
-        return value
+        return value if value is not None else ""
 
     for rule_obj in yaml_data.get('regras', []):
         if isinstance(rule_obj, dict):
@@ -152,7 +151,7 @@ def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: 
                     value = format_text_with_data(rule_value, data, yaml, field_verified, index)
                 elif rule == "Counter" and isinstance(rule_value, str):
                     value = handle_counter_rule(rule_value, value)
-                elif rule == "Clear" and rule_value and value is not None:
+                elif rule == "Clear_box" and rule_value and value is not None:
                     value = Clear_box(row, table, value)
                 elif rule == "Sum" and isinstance(rule_value, list) and len(rule_value) >= 2:
                     value = total_sum(data, rule_value, yaml, doc, index)
@@ -160,46 +159,79 @@ def apply_rules_to_value(value: Any, yaml_data: Dict[str, Any], field_verified: 
     return value
 
 def total_sum(data: Dict[str, Any], rule_value: List[str], yaml: Dict[str, Any], doc: Document, index: str | None = None ) -> float:
-    # Nova regra: Sum - soma dois ou mais valores
-                    total_sum = 0
-                    for field_to_sum in rule_value:
-                        # Ajustar o nome do campo se necessário
-                        if field_to_sum.startswith('#'):
-                            field_to_sum = f"form-{index}-{field_to_sum[1:]}" if index is not None else f"form-{field_to_sum[1:]}"
-                        
-                        # Obter o valor do campo
-                        field_value = data.get(field_to_sum)
-                        
-                        # Se o valor for None ou não numérico, tentar aplicar regras
-                        if field_value is None or not isinstance(field_value, (int, float)):
-                            # Buscar regras para o campo
-                            document_configs = yaml.get('Documentos', {}).get('Documentos-Config', [])
-                            field_name = field_to_sum.replace('form-', '').split('-')[-1]
-                            field_config = next((item for item in document_configs if item.get('nome') == field_name), None)
-                            
-                            if field_config and field_config.get('regras'):
-                                # Aplicar regras ao valor
-                                processed_value = apply_rules_to_value(field_value, field_config, field_to_sum, doc, data, yaml, index)
-                                try:
-                                    # Tentar converter para número
-                                    if processed_value is not None:
-                                        if isinstance(processed_value, str):
-                                            # Remover caracteres não numéricos (exceto ponto decimal)
-                                            processed_value = re.sub(r'[^\d.]', '', processed_value)
-                                        field_value = float(processed_value)
-                                except (ValueError, TypeError):
-                                    field_value = 0
-                        
-                        # Adicionar à soma total
-                        try:
-                            if field_value is not None:
-                                total_sum += float(field_value)
-                        except (ValueError, TypeError):
-                            # Se não puder converter para número, ignorar
-                            pass
-                    
-                    # Atualizar o valor com a soma total
-                    return str(total_sum) if total_sum else ""
+    logger.debug(f"[total_sum] Iniciando soma para campos: {rule_value} com index: {index}")
+    total_sum = 0
+    for field_to_sum in rule_value:
+        logger.debug(f"[total_sum] Processando campo: {field_to_sum}")
+        # Se for campo especial (#), somar todos os form-X-campo
+        if field_to_sum.startswith('#'):
+            base_field = field_to_sum[1:]
+            matched_keys = [k for k in data.keys() if re.match(rf"form-\d+-{re.escape(base_field)}$", k)]
+            logger.debug(f"[total_sum] Campos encontrados para soma múltipla '{base_field}': {matched_keys}")
+            for key in matched_keys:
+                field_value = data.get(key)
+                logger.debug(f"[total_sum] Valor inicial de '{key}': {field_value}")
+                try:
+                    if field_value is not None:
+                        numeric_value = convert_to_number(field_value)
+                        logger.debug(f"[total_sum] Valor float final para '{key}': {numeric_value}")
+                        total_sum += numeric_value
+                except (ValueError, TypeError) as e:
+                    logger.debug(f"[total_sum] Ignorando valor não numérico '{field_value}' para '{key}': {e}")
+            continue  # já processou todos os campos desse tipo, pula para o próximo
+        
+        # Ajustar o nome do campo se necessário
+        if field_to_sum.startswith('form-'):
+            key = field_to_sum
+        else:
+            key = field_to_sum
+        
+        field_value = data.get(key)
+        logger.debug(f"[total_sum] Valor inicial de '{key}': {field_value}")
+        
+        if field_value is None or not isinstance(field_value, (int, float)):
+            document_configs = yaml.get('Documentos', {}).get('Documentos-Config', [])
+            field_name = key.replace('form-', '').split('-')[-1]
+            field_config = next((item for item in document_configs if item.get('nome') == field_name), None)
+            logger.debug(f"[total_sum] field_config para '{field_name}': {field_config}")
+            
+            if field_config and field_config.get('regras'):
+                processed_value = apply_rules_to_value(field_value, field_config, key, doc, data, yaml, index)
+                logger.debug(f"[total_sum] Valor processado para '{key}': {processed_value}")
+                field_value = processed_value
+        
+        try:
+            if field_value is not None:
+                numeric_value = convert_to_number(field_value)
+                logger.debug(f"[total_sum] Somando '{key}': {numeric_value}")
+                total_sum += numeric_value
+        except (ValueError, TypeError) as e:
+            logger.debug(f"[total_sum] Ignorando valor não numérico '{field_value}' para '{key}': {e}")
+    
+    logger.debug(f"[total_sum] Soma total final: {total_sum}")
+    return str(total_sum) if total_sum else ""
+
+def convert_to_number(value):
+    """Converte um valor para número, tratando corretamente formatos brasileiros."""
+    if isinstance(value, (int, float)):
+        return float(value)
+    
+    if isinstance(value, str):
+        value = value.strip().replace(' ', '')
+        if ',' in value:
+            value = value.replace('.', '').replace(',', '.')
+        elif '.' in value:
+            parts = value.split('.')
+            if len(parts) == 2 and len(parts[1]) <= 2:
+                pass
+            else:
+                value = value.replace('.', '')
+        
+        value = re.sub(r'[^\d\.]', '', value)
+        
+        return float(value)
+    
+    return 0.0
 
 def Clear_box(row: object | None, table: object | None, value: Any) -> Any:
     """
@@ -437,6 +469,23 @@ def replace_counter(match: re.Match) -> str:
 # Compile the regex pattern for counters
 counter_pattern = re.compile(r"{counter:(\d+)(?::(\d+))?}")
 
+def get_yaml_key(key: str, document_configs: list) -> str:
+    """
+    Retorna o nome correto para busca no YAML, tratando casos de form-0-<nome>.
+    """
+    if not key:
+        return key
+    # Se a chave já existe no YAML, retorna ela
+    if any(item.get('nome') == key for item in document_configs):
+        return key
+    # Se for do tipo form-0-<nome>, extrai o nome e tenta encontrar no YAML
+    if key.startswith("form-"):
+        parts = key.split('-')
+        possible_name = '-'.join(parts[2:])
+        if any(item.get('nome') == possible_name for item in document_configs):
+            return possible_name
+    return key  # fallback
+
 def replace_variables_in_paragraph(paragraph: object, data: Dict[str, Any], yaml_data: Dict[str, Any], doc: object, parsed_data_options: Dict[str, Any], row: object = None, table_o: object = None) -> object:
     original_text = paragraph.text
     processed_text = process_special_inputs(original_text)
@@ -451,18 +500,22 @@ def replace_variables_in_paragraph(paragraph: object, data: Dict[str, Any], yaml
     
     # Encontrar todas as chaves no texto
     all_keys = re.findall(r'{([^}]+)}', processed_text)
-    
+    tags_to_remove = []
+    clear_box_triggered = False
+
     for key in all_keys:
         formatted_key = f"{{{key}}}"
         
         # Busca flexível da chave
         matching_key = next((k for k in data.keys() if key in k), None)
+
+        reformatted_key = get_yaml_key(matching_key if matching_key else key, document_configs)
         
         if matching_key:
             value = data[matching_key]
-            reformatted_key = extract_name(matching_key) if matching_key.startswith("form") else matching_key
-            index = matching_key.split('-')[1] if matching_key.startswith("form") else None
             
+            index = matching_key.split('-')[1] if matching_key.startswith("form") else None
+            #reformatted_key = extract_name(matching_key) if matching_key.startswith("form") else matching_key
             if reformatted_key not in yaml_cache:
                 yaml_cache[reformatted_key] = next((item for item in document_configs if item.get('nome') == reformatted_key), None)
             
@@ -484,8 +537,18 @@ def replace_variables_in_paragraph(paragraph: object, data: Dict[str, Any], yaml
             if not new_value:
                 logger.warning(f"Campo '{key}' encontrado (correspondendo a '{matching_key}'), mas com valor vazio.")
         else:
+            # Não existe a tag nos dados
             logger.error(f"Campo '{key}' não encontrado nos dados. Chaves similares: {[k for k in data.keys() if key in k]}")
-    
+            # Remover a tag do texto
+            replacements[formatted_key] = ''
+            # Verificar se existe regra Clear_box no YAML usando reformatted_key
+            item_filtered = next((item for item in document_configs if item.get('nome') == reformatted_key), None)
+            if item_filtered and any(
+                (isinstance(rule, dict) and "Clear_box" in rule and rule["Clear_box"])
+                for rule in item_filtered.get('regras', [])
+            ):
+                clear_box_triggered = True
+
     # Substituição em lote
     for old, new in replacements.items():
         processed_text = processed_text.replace(old, new)
@@ -501,13 +564,15 @@ def replace_variables_in_paragraph(paragraph: object, data: Dict[str, Any], yaml
     else:
         paragraph.add_run(processed_text)
     
-    # Lidar com tabelas vazias
-    if table_o is not None and not processed_text.strip():
-        for row in table_o.rows:
-            if all(not cell.text.strip() for cell in row.cells):
-                table_o._tbl.remove(row._tr)
-                break
-    
+    # Lidar com tabelas vazias ou Clear_box
+    if table_o is not None:
+        # Se a linha ficou vazia ou se a regra clear_box foi disparada, remove a linha
+        if not processed_text.strip() or clear_box_triggered:
+            for row_ in table_o.rows:
+                if all(not cell.text.strip() for cell in row_.cells):
+                    table_o._tbl.remove(row_._tr)
+                    break
+
     return paragraph
 
 def replace_variables_in_tables(doc: Document, data: Dict[str, Any], yaml_data: Dict[str, Any], parsed_data_options: Dict[str, Any]):
@@ -776,13 +841,13 @@ def generate_docx(data: Dict[str, Any], folder: str, yaml_data: Dict[str, Any], 
         The path to the generated DOCX file.
     """
     try:
-        logger.info(f"Iniciando geração do documento para a pasta: {folder}")
-        logger.info(f"Dados iniciais: {data}")
-        logger.info(f"Opções de dados analisadas: {parsed_data_options}")
+        #logger.info(f"Iniciando geração do documento para a pasta: {folder}")
+        #logger.info(f"Dados iniciais: {data}")
+        #logger.info(f"Opções de dados analisadas: {parsed_data_options}")
 
         template_path = os.path.abspath(os.path.join(DOCS_PATH, folder, f'{folder}.docx'))
         unique_id = str(uuid.uuid4())[:8]
-        logger.info(f"Caminho do template: {template_path}")
+        #logger.info(f"Caminho do template: {template_path}")
 
         # Add YAML variables to data if they don't already exist
         for yaml_field in yaml_data.get('Documentos', {}).get('Documentos-Config', []):
@@ -790,37 +855,37 @@ def generate_docx(data: Dict[str, Any], folder: str, yaml_data: Dict[str, Any], 
             if field_name and field_name not in data:
                 if not yaml_field.get('grupo'):
                     data[field_name] = None
-                    logger.info(f"Adicionado campo YAML: {field_name}")
+                    #logger.info(f"Adicionado campo YAML: {field_name}")
 
         # Load the DOCX file
         try:
             doc = Document(template_path)
-            logger.info("Documento carregado com sucesso")
+            #logger.info("Documento carregado com sucesso")
         except FileNotFoundError:
-            logger.error(f"Template file not found: {template_path}")
+            #logger.error(f"Template file not found: {template_path}")
             raise FileNotFoundError(f"Template file not found: {template_path}")
         except Exception as e:
-            logger.error(f"Error loading document: {e}")
+            #logger.error(f"Error loading document: {e}")
             raise Exception(f"Error loading document: {e}")
 
         # Data processing
-        logger.info("Iniciando processamento de dados")
+        #logger.info("Iniciando processamento de dados")
         processed_data = process_data(data, parsed_data_options)
-        logger.info(f"Dados processados: {processed_data}")
+        #logger.info(f"Dados processados: {processed_data}")
         data.update(processed_data)
-        logger.info(f"Dados atualizados após processamento: {data}")
+        #logger.info(f"Dados atualizados após processamento: {data}")
 
         # Table cloning logic
-        logger.info("Iniciando lógica de clonagem de tabelas")
+        #logger.info("Iniciando lógica de clonagem de tabelas")
         for group in parsed_data_options:
             if group in data:
                 search_text = parsed_data_options[group].get('buscador')
                 multiplier = data[group]
-                logger.info(f"Processando grupo: {group}, buscador: {search_text}, multiplicador: {multiplier}")
+                #logger.info(f"Processando grupo: {group}, buscador: {search_text}, multiplicador: {multiplier}")
                 
                 num_dicts = sum(1 for item in multiplier if isinstance(item, dict))
-                logger.info(f"Número de dicionários: {num_dicts}")
-
+                #logger.info(f"Número de dicionários: {num_dicts}")
+        
                 for yaml_field in yaml_data.get('Documentos', {}).get('Documentos-Config', []):
                     field_name = yaml_field.get('nome')
                     if field_name and yaml_field.get('grupo'):
@@ -828,28 +893,30 @@ def generate_docx(data: Dict[str, Any], folder: str, yaml_data: Dict[str, Any], 
                             new_field_name = f"form-{i}-{field_name}"
                             if new_field_name not in data:
                                 data[new_field_name] = None
-                                logger.info(f"Campo adicionado: {new_field_name}")
-
+                                #logger.info(f"Campo adicionado: {new_field_name}")
+        
                 if num_dicts > 1:
                     for table in doc.tables:
                         for row in table.rows:
                             for cell in row.cells:
                                 if search_text in cell.text:
                                     original_table = table
-                                    logger.info(f"Tabela encontrada com texto de busca: {search_text}")
+                                    # Clona as tabelas necessárias
                                     for _ in range(num_dicts - 1):
                                         new_table = deepcopy(original_table)
                                         insert_table_after(original_table, new_table)
-                                        logger.info("Nova tabela inserida")
+                                    # Remove apenas o buscador da célula
+                                    cell.text = cell.text.replace(search_text, "")
+                                    # Se após remover o buscador, toda a linha estiver vazia, remove a linha
+                                    if all(c.text.strip() == "" for c in row.cells):
+                                        table._tbl.remove(row._tr)
                                     break
-            else:
-                logger.info(f"Grupo não encontrado nos dados: {group}")
 
         # Remove grupos originais após o processamento
         for group in parsed_data_options:
             if group in data:
                 del data[group]
-                logger.info(f"Grupo removido: {group}")
+                #logger.info(f"Grupo removido: {group}")
 
         if not doc.paragraphs:
             logger.error(f"The template {template_path} contains no paragraphs.")

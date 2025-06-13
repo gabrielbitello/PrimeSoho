@@ -122,7 +122,7 @@ Documentos:
         - "Divorciado"
         - "Viúvo"
       regras: 
-        - "Clear"
+        - "Clear_box"
       grupo: "proprietario"
 
     - nome: "Data_Casamento"
@@ -154,7 +154,7 @@ Documentos:
         - "Separação Total de Bens"
         - "Participação Final nos Aquestos"
       regras: 
-        - "Clear"
+        - "Clear_box" 
       grupo: "proprietario"
 
     - nome: "Nacionalidade"
@@ -253,11 +253,12 @@ Documentos:
       grupo: "proprietario"
 
     - nome: "UF_proprietario"
-      tipo: "datalist"
+      tipo: "select"
       form: true
       descricao: "Unidade Federativa do proprietario"
       requerido: true
-      condicao: {}
+      condicao: 
+        Nacionalidade: "Brasileiro"
       variaveis: 
         - "PR"
         - "AC"
@@ -287,6 +288,7 @@ Documentos:
         - "SE"
         - "TO"
       regras: 
+        - "Clear_box" 
         - "Formater": "{#UF_proprietario} - "
       grupo: "proprietario"
 
@@ -311,7 +313,8 @@ Documentos:
         - "Contrato Social"
         - "Última Alteração Contratual Consolidada"
         - "Contrato Social e Última Alteração Contratual Consolidada"
-      regras: {}
+      regras: 
+        - "Clear_box" 
       grupo: "proprietario"
 
     - nome: "Endereco_proprietario"

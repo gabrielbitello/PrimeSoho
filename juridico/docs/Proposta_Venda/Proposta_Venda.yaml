@@ -175,7 +175,9 @@ Documentos:
       condicao: {}
       variaveis: {}
       regras: 
-        - "Sum": "Valor_entrada, #Valor_pagamento"
+        - Sum:
+          - Valor_entrada
+          - '#Valor_Imovel'
       block: 2
 
     - nome: "Valor_proposta_Extenso"
@@ -282,7 +284,8 @@ Documentos:
         - "Comunhão Total de Bens"
         - "Separação Total de Bens"
         - "Participação Final nos Aquestos"
-      regras: {}
+      regras: 
+        - "Clear_box"
       grupo: "propoente"
       block: 3
 
@@ -387,7 +390,8 @@ Documentos:
       form: true
       descricao: "Unidade Federativa do proponente"
       requerido: true
-      condicao: {}
+      condicao: 
+        Nacionalidade: "Brasileiro"
       variaveis: 
         - "PR"
         - "AC"
@@ -416,7 +420,8 @@ Documentos:
         - "SP"
         - "SE"
         - "TO"
-      regras: {}
+      regras: 
+        - "Clear_box" 
       grupo: "propoente"
       block: 3
 
@@ -604,7 +609,7 @@ Documentos:
     - nome: "Valor_Imovel"
       tipo: "number"
       form: true
-      descricao: "Valor do imóvel"
+      descricao: "Valor"
       requerido: true
       condicao: {}
       variaveis: {}

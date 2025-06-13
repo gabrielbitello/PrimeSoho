@@ -32,7 +32,7 @@ def listar_formularios(request):
     # Renderiza a página com a lista de formulários
     return render(request, 'form_hub.html', {'formularios': formularios})
 
-@login_required(login_url='/login/')
+#@login_required(login_url='/login/')
 def formulario(request, folder):
     # Caminho da pasta onde os YAMLs estão localizados
     yaml_file_path = os.path.join(current_dir, 'docs', folder, f'{folder}.yaml')
